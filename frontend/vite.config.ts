@@ -25,6 +25,10 @@ export default defineConfig({
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   server: {
     port: 5173,
-    proxy: { "/api": "http://localhost:8000", "/media": "http://localhost:8000" },
+    // changeOrigin: Django sees "localhost:8000" even when a phone opens the app by the PC's IP (`npm run dev:lan`).
+    proxy: {
+      "/api": { target: "http://localhost:8000", changeOrigin: true },
+      "/media": { target: "http://localhost:8000", changeOrigin: true },
+    },
   },
 });

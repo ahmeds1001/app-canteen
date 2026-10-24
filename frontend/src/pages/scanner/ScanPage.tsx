@@ -7,6 +7,18 @@ import { Alert, Badge, Button, Card, Field } from "@/components/ui";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import "./scanner.css";
 
+/** A code that stays in front of the camera is read many times per second. It is sent once, and again
+ *  only after it has been out of view for this long (otherwise "validated" flips to "already served"). */
+const SAME_CODE_GAP_MS = 2500;
+
+function vibrate(pattern: number | number[]) {
+  try {
+    navigator.vibrate?.(pattern);
+  } catch {
+    /* not supported */
+  }
+}
+
 /** FR-18 to FR-20, FR-34: dedicated canteen phone. Big green / red result, payment badge.
  *  TODO (backlog): offline queue — store failed-network scans with their timestamp and resend. */
 export default function ScanPage() {
@@ -14,6 +26,8 @@ export default function ScanPage() {
   const toMessage = useErrorMessage();
   const reader = useRef<Html5Qrcode | null>(null);
   const lastPayload = useRef("");
+  const lastSeenAt = useRef(0);
+  const busy = useRef(false);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState("");
@@ -23,16 +37,25 @@ export default function ScanPage() {
   useEffect(() => () => void reader.current?.stop().catch(() => undefined), []);
 
   async function handle(payload: string) {
-    if (payload === lastPayload.current) return; // camera reads the same code many times per second
+    const now = Date.now();
+    const sameCodeStillInView = payload === lastPayload.current && now - lastSeenAt.current < SAME_CODE_GAP_MS;
+    lastSeenAt.current = now;
+    if (sameCodeStillInView || busy.current) return;
     lastPayload.current = payload;
-    setError("");
+    busy.current = true;
     try {
-      setResult(await scanApi.scan(payload));
+      const scanned = await scanApi.scan(payload);
+      setError("");
+      setResult(scanned);
+      vibrate(150);
     } catch (err) {
       setResult(null);
       setError(toMessage(err));
+      vibrate([80, 60, 80, 60, 80]);
+    } finally {
+      busy.current = false;
+      lastSeenAt.current = Date.now();
     }
-    setTimeout(() => (lastPayload.current = ""), 3000);
   }
 
   async function start() {
@@ -61,14 +84,13 @@ export default function ScanPage() {
     }
   }
 
+  // The result sits above the camera and the camera border turns green / red, so staff see the
+  // outcome while still aiming (below the camera it was off-screen on a phone).
+  const outcome = error ? "error" : result ? "ok" : "";
+
   return (
     <div className="container stack">
       <h1>{t("scan.title")}</h1>
-      <div id="qr-reader" className="scanner__camera" />
-      <Button block variant={running ? "ghost" : "primary"} onClick={running ? stop : start}>
-        {running ? t("scan.stop") : t("scan.start")}
-      </Button>
-
       {error && <div className="scanner__result scanner__result--error" role="alert">{error}</div>}
       {result && (
         <div className="scanner__result scanner__result--ok" role="status">
@@ -84,6 +106,14 @@ export default function ScanPage() {
           {result.payment_status === "paid" && <Badge tone="green">{t("scan.paid")}</Badge>}
         </div>
       )}
+      {!result && !error && <Alert kind="info">{t("scan.hint")}</Alert>}
+
+      <div className={`scanner__frame ${outcome ? `scanner__frame--${outcome}` : ""}`}>
+        <div id="qr-reader" className="scanner__camera" />
+      </div>
+      <Button block variant={running ? "ghost" : "primary"} onClick={running ? stop : start}>
+        {running ? t("scan.stop") : t("scan.start")}
+      </Button>
 
       <Card className="stack">
         <Field label={t("scan.manualSearch")} value={query} onChange={(e) => search(e.target.value)} />
@@ -98,7 +128,6 @@ export default function ScanPage() {
           </div>
         ))}
       </Card>
-      {!result && !error && <Alert kind="info">{t("reservations.showQr")}</Alert>}
     </div>
   );
 }

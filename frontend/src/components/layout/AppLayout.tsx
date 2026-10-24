@@ -44,19 +44,23 @@ export function AppLayout() {
   const { user, signOut } = useAuth();
   const { serverTime, shifted } = useServerTime();
   const links = user ? NAV[user.role] : [];
+  // A role with a single screen (the canteen scanner phone) gets no menu: more room for the camera.
+  const showNav = links.length > 1;
 
   return (
     <div className="shell">
       <header className="shell__bar">
         <Logo size={40} />
         <span className="shell__title">{t("app.name")}</span>
-        <nav className="shell__nav" aria-label="Main">
-          {links.map((l) => (
-            <NavLink key={l.to} to={l.to} end>
-              {t(l.key)}
-            </NavLink>
-          ))}
-        </nav>
+        {showNav && (
+          <nav className="shell__nav" aria-label="Main">
+            {links.map((l) => (
+              <NavLink key={l.to} to={l.to} end>
+                {t(l.key)}
+              </NavLink>
+            ))}
+          </nav>
+        )}
         <div className="shell__tools">
           <select
             aria-label={t("app.language")}
@@ -79,7 +83,7 @@ export function AppLayout() {
           {t("app.devClock", { time: formatCompanyDateTime(serverTime, i18n.language) })}
         </div>
       )}
-      <main className="shell__main">
+      <main className={`shell__main ${showNav ? "" : "shell__main--no-nav"}`}>
         <Outlet />
       </main>
     </div>

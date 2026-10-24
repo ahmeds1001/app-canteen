@@ -36,6 +36,7 @@
   },
   "scan": {
     "title": "Scan meals", "start": "Start camera", "stop": "Stop",
+    "hint": "Start the camera and point it at the QR code on the employee's phone.",
     "ok": "Meal validated", "manualSearch": "Manual search (name or employee number)",
     "checkIn": "Check in", "markPaid": "Mark paid", "toPay": "To pay: {{amount}} TND", "paid": "Paid"
   },

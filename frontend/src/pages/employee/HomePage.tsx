@@ -5,6 +5,7 @@ import { menuApi, reservationApi } from "@/api/endpoints";
 import type { Menu, Reservation } from "@/api/types";
 import { Alert, Badge, Button, Card } from "@/components/ui";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
+import { useServerTime } from "@/hooks/useServerTime";
 import { formatDay, isoToday } from "@/utils/dates";
 import "./employee.css";
 
@@ -15,7 +16,10 @@ export default function HomePage() {
   const queryClient = useQueryClient();
   const [error, setError] = useState("");
 
-  const menus = useQuery({ queryKey: ["menus"], queryFn: () => menuApi.list(isoToday()) });
+  // "Today" follows the server (company time zone, and the dev test clock when it is shifted).
+  const { serverTime } = useServerTime();
+  const today = serverTime?.slice(0, 10) ?? isoToday();
+  const menus = useQuery({ queryKey: ["menus", today], queryFn: () => menuApi.list(today) });
   const mine = useQuery({ queryKey: ["reservations", "upcoming"], queryFn: () => reservationApi.mine(true) });
   const byDate = new Map((mine.data ?? []).filter((r) => r.status !== "cancelled").map((r) => [r.date, r]));
 

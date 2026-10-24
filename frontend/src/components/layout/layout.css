@@ -61,6 +61,7 @@
     border-block-start: 1px solid var(--color-border);
   }
   .shell__main { padding-block-end: 72px; }
+  .shell__main--no-nav { padding-block-end: 0; }
   .shell__title { display: none; }
   .shell__bar { justify-content: space-between; }
   .shell__tools .btn { min-block-size: 36px; padding-inline: var(--space-3); font-size: var(--text-sm); }

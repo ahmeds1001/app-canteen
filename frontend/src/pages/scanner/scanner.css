@@ -1,5 +1,16 @@
 /* Readable at arm's length (spec §5 Usability). */
-.scanner__camera { inline-size: 100%; max-inline-size: 420px; margin-inline: auto; border-radius: var(--radius-md); overflow: hidden; }
+.scanner__frame {
+  inline-size: 100%;
+  max-inline-size: 420px;
+  margin-inline: auto;
+  border: 6px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.scanner__frame--ok { border-color: var(--color-success); }
+.scanner__frame--error { border-color: var(--color-danger); }
+.scanner__camera { inline-size: 100%; }
 .scanner__result {
   display: grid;
   justify-items: center;

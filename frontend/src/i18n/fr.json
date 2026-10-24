@@ -36,6 +36,7 @@
   },
   "scan": {
     "title": "Scanner les repas", "start": "Démarrer la caméra", "stop": "Arrêter",
+    "hint": "Démarrez la caméra et visez le QR code affiché sur le téléphone de l'employé.",
     "ok": "Repas validé", "manualSearch": "Recherche manuelle (nom ou matricule)",
     "checkIn": "Valider la présence", "markPaid": "Marquer payé", "toPay": "À payer : {{amount}} TND", "paid": "Payé"
   },
