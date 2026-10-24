@@ -1,0 +1,50 @@
+@import "./tokens.css";
+
+/* Logical properties only (margin-inline, padding-block…) so Arabic (RTL) works later. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  line-height: 1.2;
+  margin-block: 0 var(--space-3);
+}
+
+h1 { font-size: var(--text-2xl); color: var(--color-primary); }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); }
+
+a { color: var(--color-primary); }
+
+:focus-visible {
+  outline: 3px solid var(--brand-orange-500);
+  outline-offset: 2px;
+}
+
+.container {
+  inline-size: min(100% - 2 * var(--space-4), 960px);
+  margin-inline: auto;
+  padding-block: var(--space-6);
+}
+
+.stack > * + * { margin-block-start: var(--space-4); }
+.muted { color: var(--color-text-muted); }
+.visually-hidden {
+  position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip: rect(0 0 0 0);
+}

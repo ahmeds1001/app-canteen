@@ -1,0 +1,13 @@
+.days { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.day { display: flex; flex-direction: column; gap: var(--space-3); }
+.day__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
+.day__date { font-family: var(--font-heading); font-weight: 600; font-size: var(--text-lg); text-transform: capitalize; }
+.day__items { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-1); }
+.day__items li::before { content: "•"; color: var(--brand-orange-500); margin-inline-end: var(--space-2); }
+.day__tba { font-style: italic; color: var(--color-text-muted); }
+.day__actions { margin-block-start: auto; }
+
+.qr-card h2 { text-transform: capitalize; }
+.qr-card { display: grid; justify-items: center; gap: var(--space-3); text-align: center; }
+.qr-card svg { background: #fff; padding: var(--space-3); border-radius: var(--radius-sm); }
+.day > .badge { align-self: flex-start; }

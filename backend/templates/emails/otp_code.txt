@@ -1,0 +1,6 @@
+Bonjour {{ user.first_name }},
+
+Votre code de vérification Cantine est : {{ code }}
+
+Il est valable 10 minutes et ne peut être utilisé qu'une seule fois.
+Si vous n'avez pas créé de compte, ignorez ce message.

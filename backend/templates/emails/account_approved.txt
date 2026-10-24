@@ -1,0 +1,4 @@
+Bonjour {{ user.first_name }},
+
+Votre compte Cantine est maintenant actif. Vous pouvez vous connecter :
+{{ login_url }}

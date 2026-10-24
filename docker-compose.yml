@@ -1,0 +1,33 @@
+# Production-like stack for the company server. The canteen app runs in its own containers and its own
+# database, isolated from the ERP. HTTPS is terminated by the company reverse proxy in front of "web".
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits: { cpus: "1.0", memory: 768M }
+
+  scheduler:
+    build: ./backend
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    command: python manage.py run_scheduler
+    restart: unless-stopped
+    depends_on: [backend]
+
+  web:
+    build: ./frontend
+    ports: ["8080:80"]
+    restart: unless-stopped
+    depends_on: [backend]
+
+# Local SQL Server for development only (uncomment). Production uses the company SQL Server.
+#  db:
+#    image: mcr.microsoft.com/mssql/server:2022-latest
+#    environment: { ACCEPT_EULA: "Y", MSSQL_SA_PASSWORD: "ChangeMe!2026", MSSQL_PID: Developer }
+#    ports: ["1433:1433"]

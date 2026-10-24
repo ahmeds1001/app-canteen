@@ -1,0 +1,6 @@
+Bonjour {{ user.first_name }},
+
+Votre demande de compte Cantine n'a pas été acceptée.
+Motif : {{ user.rejection_reason }}
+
+Pour toute question, contactez le service RH.

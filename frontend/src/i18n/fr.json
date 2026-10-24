@@ -1,0 +1,58 @@
+{
+  "app": { "name": "Cantine", "company": "OVAGRI Groupe", "logout": "Se déconnecter", "language": "Langue" },
+  "nav": {
+    "home": "Menus", "reservations": "Mes réservations", "dishes": "Plats", "planner": "Planning",
+    "finalize": "Finalisation", "reports": "Rapports", "accounts": "Comptes", "scan": "Scanner"
+  },
+  "auth": {
+    "login": "Se connecter", "register": "Créer un compte", "email": "Email professionnel",
+    "password": "Mot de passe", "firstName": "Prénom", "lastName": "Nom", "employeeNumber": "Matricule",
+    "department": "Département", "forgot": "Mot de passe oublié ?", "noAccount": "Pas encore de compte ?",
+    "haveAccount": "Déjà inscrit ?", "otpTitle": "Vérifiez votre email",
+    "otpHelp": "Saisissez le code à 6 chiffres envoyé à {{email}}. Il est valable 10 minutes.",
+    "otpCode": "Code de vérification", "verify": "Vérifier", "resend": "Renvoyer le code",
+    "resent": "Un nouveau code a été envoyé.",
+    "pendingTitle": "Compte en attente", "pendingHelp": "Votre email est vérifié. Le service RH doit maintenant valider votre compte ; vous recevrez un email dès qu'il sera actif.",
+    "forgotTitle": "Mot de passe oublié", "forgotHelp": "Indiquez votre email professionnel : nous vous enverrons un lien valable 30 minutes. Vous pouvez aussi demander au service RH de réinitialiser votre mot de passe.",
+    "sendLink": "Envoyer le lien", "linkSent": "Si cet email existe, un lien a été envoyé.",
+    "resetTitle": "Nouveau mot de passe", "newPassword": "Nouveau mot de passe", "save": "Enregistrer",
+    "resetDone": "Mot de passe modifié. Vous pouvez vous connecter.",
+    "mustChangeTitle": "Choisissez votre mot de passe", "mustChangeHelp": "Vous vous êtes connecté avec un mot de passe temporaire. Choisissez-en un nouveau pour continuer."
+  },
+  "menus": {
+    "title": "Menus de la semaine", "reserve": "Réserver", "cancel": "Annuler", "reserved": "Réservé",
+    "closed": "Réservations closes", "toBeAnnounced": "Menu à venir",
+    "deadline": "Réservez avant {{time}} la veille", "price": "Prix : {{price}} TND", "free": "Gratuit",
+    "empty": "Aucun menu publié pour le moment."
+  },
+  "reservations": {
+    "title": "Mes réservations", "showQr": "Présentez ce code à l'entrée de la cantine.",
+    "status": { "reserved": "Réservé", "cancelled": "Annulé", "served": "Servi", "no_show": "Absent" },
+    "payment": { "not_required": "Gratuit", "unpaid": "À payer", "paid": "Payé" },
+    "empty": "Aucune réservation à venir."
+  },
+  "scan": {
+    "title": "Scanner les repas", "start": "Démarrer la caméra", "stop": "Arrêter",
+    "ok": "Repas validé", "manualSearch": "Recherche manuelle (nom ou matricule)",
+    "checkIn": "Valider la présence", "markPaid": "Marquer payé", "toPay": "À payer : {{amount}} TND", "paid": "Payé"
+  },
+  "soon": { "title": "Écran à construire", "help": "Cet écran est prévu dans le cahier des charges ({{refs}}). Il sera développé dans un prochain sprint." },
+  "errors": {
+    "generic": "Une erreur est survenue. Réessayez.",
+    "invalid_credentials": "Email ou mot de passe incorrect.",
+    "email_not_verified": "Votre email n'est pas encore vérifié.",
+    "pending_hr": "Votre compte attend la validation du service RH.",
+    "rejected": "Votre demande de compte a été refusée.",
+    "suspended": "Votre compte est suspendu. Contactez le service RH.",
+    "deactivated": "Votre compte est désactivé.",
+    "temp_password_expired": "Votre mot de passe temporaire a expiré. Contactez le service RH.",
+    "otp_invalid": "Code incorrect.", "otp_expired": "Code expiré. Demandez-en un nouveau.",
+    "otp_resend_too_soon": "Patientez 60 secondes avant de demander un nouveau code.",
+    "otp_too_many": "Trop de codes demandés. Réessayez dans une heure.",
+    "reservation_closed": "Les réservations pour ce jour sont closes.",
+    "reset_link_invalid": "Ce lien est invalide ou a expiré.",
+    "invalid_qr": "QR code invalide.", "already_served": "Repas déjà servi.",
+    "reservation_cancelled": "Réservation annulée.", "wrong_date": "Ce code n'est pas pour aujourd'hui.",
+    "outside_service_window": "Hors des heures de service.", "account_not_active": "Compte inactif."
+  }
+}

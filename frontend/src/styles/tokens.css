@@ -1,0 +1,73 @@
+/* OVAGRI Groupe design tokens — taken from the company logo (docs/design/brand.md).
+   Use these variables everywhere; never hard-code a colour in a component. */
+:root {
+  /* Brand */
+  --brand-orange-300: #fbb040;
+  --brand-orange-500: #f89000; /* logo "OVA" + arc */
+  --brand-orange-600: #e87000;
+  --brand-orange-800: #a14d00; /* orange text on white (AA) */
+  --brand-lime-400: #a8d800; /* logo leaf highlight — decoration only, never text */
+  --brand-green-500: #3f9a1e;
+  --brand-green-700: #0a6b28; /* logo leaf base — primary actions & headings */
+  --brand-green-800: #075220;
+  --brand-grey-700: #4a4a4a; /* logo "GROUPE" */
+
+  /* Semantic */
+  --color-bg: #ffffff;
+  --color-surface: #f7f9f4;
+  --color-surface-raised: #ffffff;
+  --color-border: #e1e6dc;
+  --color-text: #1f2a1f;
+  --color-text-muted: #5c665c;
+  --color-primary: var(--brand-green-700);
+  --color-primary-hover: var(--brand-green-800);
+  --color-on-primary: #ffffff;
+  --color-accent: var(--brand-orange-500);
+  --color-accent-text: var(--brand-orange-800);
+  --color-success: #1e7d32;
+  --color-success-bg: #e8f5e3;
+  --color-danger: #b42318;
+  --color-danger-bg: #fdecea;
+  --color-warning-bg: #fff4e0;
+  --gradient-brand: linear-gradient(135deg, var(--brand-orange-500) 0%, var(--brand-lime-400) 55%, var(--brand-green-700) 100%);
+
+  /* Type */
+  --font-heading: "Poppins", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+
+  /* Space, radius, shadow */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgb(10 107 40 / 6%), 0 4px 16px rgb(10 107 40 / 6%);
+  --tap-target: 48px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0f1610;
+    --color-surface: #162017;
+    --color-surface-raised: #1c281d;
+    --color-border: #2b3a2c;
+    --color-text: #edf3ea;
+    --color-text-muted: #a5b3a3;
+    --color-primary: #4fb33a;
+    --color-primary-hover: #63c64c;
+    --color-on-primary: #08130a;
+    --color-accent-text: var(--brand-orange-300);
+    --color-success-bg: #173a1d;
+    --color-danger-bg: #3e1714;
+    --color-warning-bg: #3a2a10;
+  }
+}

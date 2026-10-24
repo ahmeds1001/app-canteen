@@ -1,0 +1,58 @@
+{
+  "app": { "name": "Canteen", "company": "OVAGRI Groupe", "logout": "Log out", "language": "Language" },
+  "nav": {
+    "home": "Menus", "reservations": "My reservations", "dishes": "Dishes", "planner": "Planner",
+    "finalize": "Finalization", "reports": "Reports", "accounts": "Accounts", "scan": "Scan"
+  },
+  "auth": {
+    "login": "Log in", "register": "Create an account", "email": "Work email",
+    "password": "Password", "firstName": "First name", "lastName": "Last name", "employeeNumber": "Employee number",
+    "department": "Department", "forgot": "Forgot password?", "noAccount": "No account yet?",
+    "haveAccount": "Already registered?", "otpTitle": "Check your email",
+    "otpHelp": "Enter the 6-digit code sent to {{email}}. It is valid for 10 minutes.",
+    "otpCode": "Verification code", "verify": "Verify", "resend": "Resend code",
+    "resent": "A new code has been sent.",
+    "pendingTitle": "Account pending", "pendingHelp": "Your email is verified. HR now needs to approve your account; you will get an email as soon as it is active.",
+    "forgotTitle": "Forgot password", "forgotHelp": "Enter your work email and we will send a link valid for 30 minutes. You can also ask HR to reset your password.",
+    "sendLink": "Send link", "linkSent": "If this email exists, a link has been sent.",
+    "resetTitle": "New password", "newPassword": "New password", "save": "Save",
+    "resetDone": "Password changed. You can log in.",
+    "mustChangeTitle": "Choose your password", "mustChangeHelp": "You logged in with a temporary password. Choose a new one to continue."
+  },
+  "menus": {
+    "title": "This week's menus", "reserve": "Reserve", "cancel": "Cancel", "reserved": "Reserved",
+    "closed": "Reservations closed", "toBeAnnounced": "Menu to be announced",
+    "deadline": "Reserve before {{time}} the day before", "price": "Price: {{price}} TND", "free": "Free",
+    "empty": "No menu published yet."
+  },
+  "reservations": {
+    "title": "My reservations", "showQr": "Show this code at the canteen entrance.",
+    "status": { "reserved": "Reserved", "cancelled": "Cancelled", "served": "Served", "no_show": "No-show" },
+    "payment": { "not_required": "Free", "unpaid": "To pay", "paid": "Paid" },
+    "empty": "No upcoming reservation."
+  },
+  "scan": {
+    "title": "Scan meals", "start": "Start camera", "stop": "Stop",
+    "ok": "Meal validated", "manualSearch": "Manual search (name or employee number)",
+    "checkIn": "Check in", "markPaid": "Mark paid", "toPay": "To pay: {{amount}} TND", "paid": "Paid"
+  },
+  "soon": { "title": "Screen to build", "help": "This screen is planned in the specification ({{refs}}). It will be built in an upcoming sprint." },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "invalid_credentials": "Incorrect email or password.",
+    "email_not_verified": "Your email is not verified yet.",
+    "pending_hr": "Your account is waiting for HR approval.",
+    "rejected": "Your registration was rejected.",
+    "suspended": "Your account is suspended. Contact HR.",
+    "deactivated": "Your account is deactivated.",
+    "temp_password_expired": "Your temporary password has expired. Contact HR.",
+    "otp_invalid": "Incorrect code.", "otp_expired": "Code expired. Request a new one.",
+    "otp_resend_too_soon": "Wait 60 seconds before requesting a new code.",
+    "otp_too_many": "Too many codes requested. Try again in an hour.",
+    "reservation_closed": "Reservations for this day are closed.",
+    "reset_link_invalid": "This link is invalid or has expired.",
+    "invalid_qr": "Invalid QR code.", "already_served": "Meal already served.",
+    "reservation_cancelled": "Reservation cancelled.", "wrong_date": "This code is not for today.",
+    "outside_service_window": "Outside service hours.", "account_not_active": "Account not active."
+  }
+}
