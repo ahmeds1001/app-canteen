@@ -3,7 +3,9 @@ import { useTranslation } from "react-i18next";
 import type { Role } from "@/api/types";
 import { Button, Logo } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
+import { useServerTime } from "@/hooks/useServerTime";
 import { LANGUAGES, applyLanguage } from "@/i18n";
+import { formatCompanyDateTime } from "@/utils/dates";
 import "./layout.css";
 
 /** Navigation per role (spec §2). Every staff member is also an employee who eats. */
@@ -30,6 +32,8 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
   scanner: [{ to: "/scan", key: "nav.scan" }],
   admin: [
     { to: "/", key: "nav.home" },
+    { to: "/chef/planner", key: "nav.planner" },
+    { to: "/management/finalize", key: "nav.finalize" },
     { to: "/hr/accounts", key: "nav.accounts" },
     { to: "/management/reports", key: "nav.reports" },
   ],
@@ -38,6 +42,7 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
 export function AppLayout() {
   const { t, i18n } = useTranslation();
   const { user, signOut } = useAuth();
+  const { serverTime, shifted } = useServerTime();
   const links = user ? NAV[user.role] : [];
 
   return (
@@ -69,6 +74,11 @@ export function AppLayout() {
           </Button>
         </div>
       </header>
+      {shifted && serverTime && (
+        <div className="shell__devclock" role="status">
+          {t("app.devClock", { time: formatCompanyDateTime(serverTime, i18n.language) })}
+        </div>
+      )}
       <main className="shell__main">
         <Outlet />
       </main>

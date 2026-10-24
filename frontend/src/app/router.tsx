@@ -13,8 +13,12 @@ import {
   ResetPasswordPage,
 } from "@/pages/auth/SimpleAuthPages";
 import VerifyOtpPage from "@/pages/auth/VerifyOtpPage";
+import DishesPage from "@/pages/chef/DishesPage";
+import PlannerPage from "@/pages/chef/PlannerPage";
 import HomePage from "@/pages/employee/HomePage";
 import ReservationsPage from "@/pages/employee/ReservationsPage";
+import AccountsPage from "@/pages/hr/AccountsPage";
+import FinalizePage from "@/pages/management/FinalizePage";
 
 // The camera library is heavy: load the scanner screen only on the canteen phone.
 const ScanPage = lazy(() => import("@/pages/scanner/ScanPage"));
@@ -52,15 +56,15 @@ export const router = createBrowserRouter([
       },
       {
         path: "chef/planner",
-        element: <Protected roles={["chef"]}><ComingSoonPage title="nav.planner" refs="FR-07, FR-09, FR-10, FR-38" /></Protected>,
+        element: <Protected roles={["chef"]}><PlannerPage /></Protected>,
       },
       {
         path: "chef/dishes",
-        element: <Protected roles={["chef"]}><ComingSoonPage title="nav.dishes" refs="FR-29 – FR-31" /></Protected>,
+        element: <Protected roles={["chef"]}><DishesPage /></Protected>,
       },
       {
         path: "management/finalize",
-        element: <Protected roles={["management"]}><ComingSoonPage title="nav.finalize" refs="FR-24 – FR-28, FR-32" /></Protected>,
+        element: <Protected roles={["management"]}><FinalizePage /></Protected>,
       },
       {
         path: "management/reports",
@@ -68,7 +72,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "hr/accounts",
-        element: <Protected roles={["hr"]}><ComingSoonPage title="nav.accounts" refs="FR-04 – FR-06, FR-37, FR-40" /></Protected>,
+        element: <Protected roles={["hr"]}><AccountsPage /></Protected>,
       },
       {
         path: "hr/reports",

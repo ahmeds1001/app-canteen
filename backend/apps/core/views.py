@@ -14,6 +14,8 @@ class PublicSettingsSerializer(serializers.ModelSerializer):
             "cutoff_time",
             "service_window_start",
             "service_window_end",
+            "service_weekdays",
+            "publish_deadline_days",
             "payment_enabled",
             "currency",
             "default_language",
@@ -25,7 +27,11 @@ class HealthView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        return Response({"status": "ok", "server_time": clock.local_now().isoformat()})
+        return Response({
+            "status": "ok",
+            "server_time": clock.local_now().isoformat(),
+            "clock_shifted": bool(clock.dev_offset()),  # dev_clock in use (DEBUG only)
+        })
 
 
 class PublicSettingsView(APIView):

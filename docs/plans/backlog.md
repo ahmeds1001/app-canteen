@@ -18,12 +18,12 @@ item into a plan file in this folder, then the **executor** to build it.
 
 ## Sprint 1 — finish the core loop
 
-- [ ] **Chef planner screen** (FR-07, FR-09, FR-10, FR-38): week view, pick dishes from the library, publish, duplicate a previous menu/week, close a day.
-- [ ] **Dish library screen** (FR-29–31): list with search/category filter, last served date, create/edit/archive, photo upload.
-- [ ] **Management finalization screen** (FR-24–28): today's reserved count, proposed count (10 %), adjust, confirm.
-- [ ] **HR accounts screen** (FR-04–06, FR-37, FR-40): pending list with roster match flag, approve/reject (reason), bulk approve, suspend/reactivate/deactivate, reset password (show temporary password once), CSV import.
-- [ ] **Notifications** (spec §8): menu announced, placeholder published, placeholder empty at cutoff, day finalized → chef, menu changed / day switched to paid → employees, finalization reminder, missing-menu reminder.
-- [ ] Close day → cancel its reservations and notify (TODO in `menus/services.close_day`).
+- [x] **Chef planner screen** (FR-07, FR-09, FR-10, FR-38): week view, pick dishes from the library (or create one on the spot), publish a day or the whole week, duplicate another day's menu, close a day.
+- [x] **Dish library screen** (FR-29–31): list with search/category filter, last served date, create/edit/archive, photo upload.
+- [x] **Management finalization screen** (FR-24–28): reserved count, proposed count (10 %), adjust, confirm, change until service starts. (FR-28 chef notification is part of Notifications below.)
+- [x] **HR accounts screen** (FR-04–06, FR-37, FR-40): pending list with roster match flag, approve/reject (reason), bulk approve, suspend/reactivate/deactivate, reset password (show temporary password once), CSV import.
+- [ ] **Notifications** (spec §8): menu announced, placeholder published, placeholder empty at cutoff, day finalized → chef, menu changed / day switched to paid → employees, finalization reminder, missing-menu reminder, day closed → employees whose reservation was cancelled.
+- [x] Close day → cancel its reservations (`menus/services.close_day`). Notifying the employees is part of Notifications.
 - [ ] Refresh-token blacklist so a password change ends other sessions (FR-39) — `rest_framework_simplejwt.token_blacklist`.
 
 ## Sprint 2 — reliability and reports

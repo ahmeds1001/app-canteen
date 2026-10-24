@@ -111,13 +111,28 @@ def publish(menu: Menu, *, by) -> Menu:
     return menu
 
 
+@transaction.atomic
 def close_day(menu: Menu, *, by, reason: str = "") -> Menu:
+    """FR-10: the day is closed and its reservations are cancelled."""
+    from apps.reservations.models import Reservation  # lazy: reservations depends on menus
+
+    menu = Menu.objects.select_for_update().get(pk=menu.pk)
+    if menu.status == Menu.Status.CLOSED:
+        return menu  # idempotent
     if menu.status not in (Menu.Status.DRAFT, Menu.Status.PUBLISHED):
         raise Conflict("cannot_close", "Only a draft or published day can be closed.")
     menu.status, menu.closed_reason = Menu.Status.CLOSED, reason
     menu.save(update_fields=["status", "closed_reason", "updated_at"])
     audit.record(A.MENU_EDIT, actor=by, target=menu, closed=reason)
-    # TODO(reservations): cancel active reservations of a closed day and notify employees.
+
+    now = clock.now()
+    for reservation in Reservation.objects.filter(menu=menu, status=Reservation.Status.RESERVED):
+        updated = Reservation.objects.filter(pk=reservation.pk, status=Reservation.Status.RESERVED).update(
+            status=Reservation.Status.CANCELLED, cancelled_at=now
+        )
+        if updated:
+            audit.record(A.CANCEL, actor=by, target=reservation, reason="day_closed")
+    # TODO(notifications): tell the employees whose reservation was cancelled (spec §8).
     return menu
 
 

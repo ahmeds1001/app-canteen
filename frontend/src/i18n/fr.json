@@ -1,5 +1,6 @@
 {
-  "app": { "name": "Cantine", "company": "OVAGRI Groupe", "logout": "Se déconnecter", "language": "Langue" },
+  "app": { "name": "Cantine", "company": "OVAGRI Groupe", "logout": "Se déconnecter", "language": "Langue",
+    "devClock": "Horloge de test (développement) : {{time}}" },
   "nav": {
     "home": "Menus", "reservations": "Mes réservations", "dishes": "Plats", "planner": "Planning",
     "finalize": "Finalisation", "reports": "Rapports", "accounts": "Comptes", "scan": "Scanner"
@@ -23,7 +24,8 @@
     "title": "Menus de la semaine", "reserve": "Réserver", "cancel": "Annuler", "reserved": "Réservé",
     "closed": "Réservations closes", "toBeAnnounced": "Menu à venir",
     "deadline": "Réservez avant {{time}} la veille", "price": "Prix : {{price}} TND", "free": "Gratuit",
-    "empty": "Aucun menu publié pour le moment."
+    "empty": "Aucun menu publié pour le moment.",
+    "dayClosed": "Fermé", "dayClosedHelp": "La cantine est fermée ce jour-là."
   },
   "reservations": {
     "title": "Mes réservations", "showQr": "Présentez ce code à l'entrée de la cantine.",
@@ -35,6 +37,86 @@
     "title": "Scanner les repas", "start": "Démarrer la caméra", "stop": "Arrêter",
     "ok": "Repas validé", "manualSearch": "Recherche manuelle (nom ou matricule)",
     "checkIn": "Valider la présence", "markPaid": "Marquer payé", "toPay": "À payer : {{amount}} TND", "paid": "Payé"
+  },
+  "common": {
+    "save": "Enregistrer", "cancel": "Annuler", "close": "Fermer", "edit": "Modifier", "search": "Rechercher",
+    "done": "Terminé"
+  },
+  "dishes": {
+    "title": "Bibliothèque de plats", "new": "Nouveau plat", "edit": "Modifier le plat", "name": "Nom du plat",
+    "category": "Catégorie", "description": "Description", "allergens": "Allergènes",
+    "allergensHint": "Ex. : gluten, lait, œuf", "photo": "Photo (facultative)", "allCategories": "Toutes",
+    "showArchived": "Afficher les plats archivés", "empty": "Aucun plat. Ajoutez votre premier plat.",
+    "allergensLabel": "Allergènes : {{list}}", "lastServed": "Dernier service : {{date}}",
+    "neverServed": "Jamais servi", "archived": "Archivé", "archive": "Archiver",
+    "archiveConfirm": "Archiver « {{name}} » ? Il disparaîtra du choix des plats mais restera dans les anciens menus.",
+    "categories": { "starter": "Entrée", "main": "Plat", "side": "Accompagnement", "dessert": "Dessert", "drink": "Boisson" }
+  },
+  "planner": {
+    "title": "Planning des menus", "prevWeek": "Précédente", "nextWeek": "Suivante", "weekOf": "Semaine du {{date}}",
+    "help": "Le menu d'un jour doit être publié au plus tard {{days}} jours avant. Sinon, le jour s'ouvre en « Menu à venir ».",
+    "weekPublished": "Menus publiés : {{count}}.", "publishWeek": "Publier la semaine ({{count}})",
+    "status": {
+      "none": "Pas de menu", "draft": "Brouillon", "published": "Publié", "locked": "Réservations closes",
+      "finalized": "Finalisé", "closed": "Fermé"
+    },
+    "placeholder": "Menu à venir (publié automatiquement)", "noDishes": "Aucun plat choisi.",
+    "closedReason": "Motif : {{reason}}", "publishBefore": "À publier avant le {{date}} à minuit",
+    "reservedCount": "Réservations : {{count}}", "editDishes": "Modifier les plats", "compose": "Composer le menu",
+    "duplicate": "Dupliquer", "publish": "Publier", "closeDay": "Fermer le jour",
+    "duplicateSkipped": "Menu dupliqué. {{count}} plat(s) archivé(s) ignoré(s).",
+    "pickTitle": "Plats du {{date}}", "libraryEmpty": "La bibliothèque est vide : créez un plat avec « Nouveau plat ».",
+    "selected": "Sélection ({{count}}) :", "duplicateTitle": "Dupliquer un menu vers le {{date}}",
+    "sourceDay": "Copier les plats du jour", "sourceEmpty": "Ce jour n'a aucun plat à copier.",
+    "closeTitle": "Fermer le {{date}}",
+    "closeHelp": "Le jour ne sera plus réservable et les réservations existantes seront annulées.",
+    "closeReason": "Motif (jour férié, maintenance…)"
+  },
+  "finalize": {
+    "title": "Finalisation des repas",
+    "help": "Après la clôture des réservations (minuit la veille), confirmez le nombre d'assiettes à préparer. Sans confirmation, le système finalise automatiquement à {{time}}.",
+    "empty": "Aucun jour publié pour les 7 prochains jours.",
+    "status": { "published": "Réservations ouvertes", "locked": "À finaliser", "finalized": "Finalisé", "closed": "Fermé" },
+    "reserved": "réservations", "plates": "assiettes à préparer",
+    "waitCutoff": "Finalisation possible après la clôture des réservations ({{date}}).",
+    "auto": "Finalisé automatiquement (réservations + marge).", "buffer": "Dont {{buffer}} assiette(s) de marge.",
+    "proposal": "Proposition : {{reserved}} réservations + {{buffer}} de marge = {{proposed}} assiettes.",
+    "finalCount": "Nombre final d'assiettes", "confirm": "Confirmer", "change": "Modifier le nombre"
+  },
+  "accounts": {
+    "title": "Comptes", "importRoster": "Importer la liste des matricules (CSV)",
+    "rosterHelp": "Fichier CSV avec les colonnes employee_number, full_name, department. Chaque inscription est ensuite marquée « Sur la liste » ou « Hors liste ».",
+    "tabs": { "pending": "En attente", "active": "Actifs", "suspended": "Suspendus", "all": "Tous" },
+    "search": "Rechercher (nom ou matricule)",
+    "selectOnRoster": "Sélectionner ceux sur la liste ({{count}})", "approveSelected": "Approuver la sélection ({{count}})",
+    "empty": {
+      "pending": "Aucun compte en attente.", "active": "Aucun compte actif.", "suspended": "Aucun compte suspendu.",
+      "all": "Aucun compte."
+    },
+    "number": "Matricule {{number}}", "since": "inscrit le {{date}}",
+    "roles": {
+      "employee": "Employé", "hr": "RH", "chef": "Chef", "scanner": "Scanner", "management": "Direction",
+      "admin": "Administrateur"
+    },
+    "status": {
+      "registered": "Email non vérifié", "email_verified": "Email vérifié", "pending_hr": "En attente RH",
+      "active": "Actif", "rejected": "Refusé", "suspended": "Suspendu", "deactivated": "Désactivé"
+    },
+    "onRoster": "Sur la liste", "notOnRoster": "Hors liste",
+    "approve": "Approuver", "reject": "Refuser", "suspend": "Suspendre", "reactivate": "Réactiver",
+    "resetPassword": "Réinitialiser le mot de passe", "deactivate": "Désactiver",
+    "confirm": {
+      "suspend": "Suspendre le compte de {{name}} ? Il ne pourra plus réserver.",
+      "reset": "Générer un mot de passe temporaire pour {{name}} ?",
+      "deactivate": "Désactiver définitivement le compte de {{name}} (départ de l'entreprise) ?"
+    },
+    "approved": "{{name}} est approuvé. Un email lui a été envoyé.", "bulkApproved": "Comptes approuvés : {{count}}.",
+    "statusChanged": "{{name}} : {{status}}.", "imported": "Matricules importés : {{count}}.",
+    "rejected": "La demande de {{name}} est refusée.",
+    "tempTitle": "Mot de passe temporaire",
+    "tempHelp": "Remettez ce mot de passe en main propre à {{name}}. Il devra en choisir un nouveau à sa prochaine connexion. Valable {{hours}} heures.",
+    "tempOnce": "Ce mot de passe ne sera plus affiché. Il n'est jamais envoyé par email.",
+    "rejectTitle": "Refuser la demande de {{name}}", "rejectReason": "Motif du refus (envoyé à l'employé)"
   },
   "soon": { "title": "Écran à construire", "help": "Cet écran est prévu dans le cahier des charges ({{refs}}). Il sera développé dans un prochain sprint." },
   "errors": {
@@ -53,6 +135,20 @@
     "reset_link_invalid": "Ce lien est invalide ou a expiré.",
     "invalid_qr": "QR code invalide.", "already_served": "Repas déjà servi.",
     "reservation_cancelled": "Réservation annulée.", "wrong_date": "Ce code n'est pas pour aujourd'hui.",
-    "outside_service_window": "Hors des heures de service.", "account_not_active": "Compte inactif."
+    "outside_service_window": "Hors des heures de service.", "account_not_active": "Compte inactif.",
+    "http_403": "Votre rôle ne permet pas cette action.",
+    "menu_locked": "Ce menu ne peut plus être modifié (réservations closes).",
+    "dish_not_found": "Un des plats n'existe plus ou est archivé.",
+    "not_draft": "Seul un menu en brouillon peut être publié.",
+    "menu_empty": "Ajoutez au moins un plat avant de publier.",
+    "publish_deadline_passed": "La date limite de publication est dépassée : le jour s'ouvrira en « Menu à venir ».",
+    "cannot_close": "Seul un jour en brouillon ou publié peut être fermé.",
+    "not_locked": "La finalisation est possible seulement après la clôture des réservations.",
+    "finalization_closed": "Le service a commencé : le nombre d'assiettes est verrouillé.",
+    "below_reserved": "Le nombre final ne peut pas être inférieur au nombre de réservations.",
+    "above_kitchen_max": "Le nombre dépasse la capacité maximale de la cuisine.",
+    "not_pending": "Ce compte n'est plus en attente.", "reason_required": "Indiquez un motif.",
+    "invalid_transition": "Ce changement de statut n'est pas possible.",
+    "file_required": "Choisissez un fichier CSV."
   }
 }

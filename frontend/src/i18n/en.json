@@ -1,5 +1,6 @@
 {
-  "app": { "name": "Canteen", "company": "OVAGRI Groupe", "logout": "Log out", "language": "Language" },
+  "app": { "name": "Canteen", "company": "OVAGRI Groupe", "logout": "Log out", "language": "Language",
+    "devClock": "Test clock (development): {{time}}" },
   "nav": {
     "home": "Menus", "reservations": "My reservations", "dishes": "Dishes", "planner": "Planner",
     "finalize": "Finalization", "reports": "Reports", "accounts": "Accounts", "scan": "Scan"
@@ -23,7 +24,8 @@
     "title": "This week's menus", "reserve": "Reserve", "cancel": "Cancel", "reserved": "Reserved",
     "closed": "Reservations closed", "toBeAnnounced": "Menu to be announced",
     "deadline": "Reserve before {{time}} the day before", "price": "Price: {{price}} TND", "free": "Free",
-    "empty": "No menu published yet."
+    "empty": "No menu published yet.",
+    "dayClosed": "Closed", "dayClosedHelp": "The canteen is closed that day."
   },
   "reservations": {
     "title": "My reservations", "showQr": "Show this code at the canteen entrance.",
@@ -35,6 +37,85 @@
     "title": "Scan meals", "start": "Start camera", "stop": "Stop",
     "ok": "Meal validated", "manualSearch": "Manual search (name or employee number)",
     "checkIn": "Check in", "markPaid": "Mark paid", "toPay": "To pay: {{amount}} TND", "paid": "Paid"
+  },
+  "common": {
+    "save": "Save", "cancel": "Cancel", "close": "Close", "edit": "Edit", "search": "Search", "done": "Done"
+  },
+  "dishes": {
+    "title": "Dish library", "new": "New dish", "edit": "Edit dish", "name": "Dish name",
+    "category": "Category", "description": "Description", "allergens": "Allergens",
+    "allergensHint": "E.g. gluten, milk, egg", "photo": "Photo (optional)", "allCategories": "All",
+    "showArchived": "Show archived dishes", "empty": "No dishes yet. Add your first dish.",
+    "allergensLabel": "Allergens: {{list}}", "lastServed": "Last served: {{date}}",
+    "neverServed": "Never served", "archived": "Archived", "archive": "Archive",
+    "archiveConfirm": "Archive \"{{name}}\"? It will disappear from the dish picker but stay in past menus.",
+    "categories": { "starter": "Starter", "main": "Main", "side": "Side", "dessert": "Dessert", "drink": "Drink" }
+  },
+  "planner": {
+    "title": "Menu planner", "prevWeek": "Previous", "nextWeek": "Next", "weekOf": "Week of {{date}}",
+    "help": "A day's menu must be published at least {{days}} days ahead. Otherwise the day opens as \"Menu to be announced\".",
+    "weekPublished": "Menus published: {{count}}.", "publishWeek": "Publish the week ({{count}})",
+    "status": {
+      "none": "No menu", "draft": "Draft", "published": "Published", "locked": "Reservations closed",
+      "finalized": "Finalized", "closed": "Closed"
+    },
+    "placeholder": "Menu to be announced (published automatically)", "noDishes": "No dishes chosen.",
+    "closedReason": "Reason: {{reason}}", "publishBefore": "Publish before midnight on {{date}}",
+    "reservedCount": "Reservations: {{count}}", "editDishes": "Edit dishes", "compose": "Compose menu",
+    "duplicate": "Duplicate", "publish": "Publish", "closeDay": "Close day",
+    "duplicateSkipped": "Menu duplicated. {{count}} archived dish(es) skipped.",
+    "pickTitle": "Dishes for {{date}}", "libraryEmpty": "The library is empty: create a dish with \"New dish\".",
+    "selected": "Selected ({{count}}):", "duplicateTitle": "Duplicate a menu to {{date}}",
+    "sourceDay": "Copy the dishes of", "sourceEmpty": "That day has no dishes to copy.",
+    "closeTitle": "Close {{date}}",
+    "closeHelp": "The day can no longer be reserved and existing reservations will be cancelled.",
+    "closeReason": "Reason (holiday, maintenance…)"
+  },
+  "finalize": {
+    "title": "Meal finalization",
+    "help": "After reservations close (midnight the day before), confirm how many plates to prepare. Without confirmation, the system finalizes automatically at {{time}}.",
+    "empty": "No published day in the next 7 days.",
+    "status": { "published": "Reservations open", "locked": "To finalize", "finalized": "Finalized", "closed": "Closed" },
+    "reserved": "reservations", "plates": "plates to prepare",
+    "waitCutoff": "Finalization opens when reservations close ({{date}}).",
+    "auto": "Finalized automatically (reservations + buffer).", "buffer": "Including {{buffer}} extra plate(s).",
+    "proposal": "Proposal: {{reserved}} reservations + {{buffer}} buffer = {{proposed}} plates.",
+    "finalCount": "Final number of plates", "confirm": "Confirm", "change": "Change the number"
+  },
+  "accounts": {
+    "title": "Accounts", "importRoster": "Import employee numbers (CSV)",
+    "rosterHelp": "CSV file with the columns employee_number, full_name, department. Each registration is then flagged \"On list\" or \"Not on list\".",
+    "tabs": { "pending": "Pending", "active": "Active", "suspended": "Suspended", "all": "All" },
+    "search": "Search (name or employee number)",
+    "selectOnRoster": "Select those on the list ({{count}})", "approveSelected": "Approve selection ({{count}})",
+    "empty": {
+      "pending": "No pending accounts.", "active": "No active accounts.", "suspended": "No suspended accounts.",
+      "all": "No accounts."
+    },
+    "number": "No. {{number}}", "since": "registered {{date}}",
+    "roles": {
+      "employee": "Employee", "hr": "HR", "chef": "Chef", "scanner": "Scanner", "management": "Management",
+      "admin": "Admin"
+    },
+    "status": {
+      "registered": "Email not verified", "email_verified": "Email verified", "pending_hr": "Pending HR",
+      "active": "Active", "rejected": "Rejected", "suspended": "Suspended", "deactivated": "Deactivated"
+    },
+    "onRoster": "On list", "notOnRoster": "Not on list",
+    "approve": "Approve", "reject": "Reject", "suspend": "Suspend", "reactivate": "Reactivate",
+    "resetPassword": "Reset password", "deactivate": "Deactivate",
+    "confirm": {
+      "suspend": "Suspend {{name}}'s account? They will no longer be able to reserve.",
+      "reset": "Generate a temporary password for {{name}}?",
+      "deactivate": "Permanently deactivate {{name}}'s account (left the company)?"
+    },
+    "approved": "{{name}} is approved. An email has been sent.", "bulkApproved": "Accounts approved: {{count}}.",
+    "statusChanged": "{{name}}: {{status}}.", "imported": "Employee numbers imported: {{count}}.",
+    "rejected": "{{name}}'s request was rejected.",
+    "tempTitle": "Temporary password",
+    "tempHelp": "Give this password to {{name}} in person. They will have to choose a new one at their next login. Valid for {{hours}} hours.",
+    "tempOnce": "This password will not be shown again. It is never sent by email.",
+    "rejectTitle": "Reject {{name}}'s request", "rejectReason": "Reason (sent to the employee)"
   },
   "soon": { "title": "Screen to build", "help": "This screen is planned in the specification ({{refs}}). It will be built in an upcoming sprint." },
   "errors": {
@@ -53,6 +134,20 @@
     "reset_link_invalid": "This link is invalid or has expired.",
     "invalid_qr": "Invalid QR code.", "already_served": "Meal already served.",
     "reservation_cancelled": "Reservation cancelled.", "wrong_date": "This code is not for today.",
-    "outside_service_window": "Outside service hours.", "account_not_active": "Account not active."
+    "outside_service_window": "Outside service hours.", "account_not_active": "Account not active.",
+    "http_403": "Your role does not allow this action.",
+    "menu_locked": "This menu can no longer be edited (reservations closed).",
+    "dish_not_found": "One of the dishes no longer exists or is archived.",
+    "not_draft": "Only a draft menu can be published.",
+    "menu_empty": "Add at least one dish before publishing.",
+    "publish_deadline_passed": "The publishing deadline has passed: the day will open as \"Menu to be announced\".",
+    "cannot_close": "Only a draft or published day can be closed.",
+    "not_locked": "Finalization is possible only after reservations close.",
+    "finalization_closed": "Service has started: the plate count is locked.",
+    "below_reserved": "The final count cannot be below the number of reservations.",
+    "above_kitchen_max": "The count exceeds the kitchen's maximum capacity.",
+    "not_pending": "This account is no longer pending.", "reason_required": "Please give a reason.",
+    "invalid_transition": "This status change is not possible.",
+    "file_required": "Choose a CSV file."
   }
 }

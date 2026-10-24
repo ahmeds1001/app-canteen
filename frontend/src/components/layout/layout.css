@@ -40,6 +40,14 @@
 .shell__tools { display: flex; align-items: center; gap: var(--space-2); }
 .shell__tools select { min-block-size: 36px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); }
 .shell__main { flex: 1; }
+.shell__devclock {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-warning-bg);
+  color: var(--color-accent-text);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-align: center;
+}
 
 /* Phones: nav moves to a bottom tab bar (thumb reach) */
 @media (max-width: 720px) {

@@ -1,6 +1,23 @@
 /** One function per backend endpoint, grouped by domain. Pages never call `api()` directly. */
 import { api } from "./client";
-import type { AuthTokens, Menu, Reservation, ScanResult, User } from "./types";
+import type {
+  AuthTokens,
+  Dish,
+  FinalizationProposal,
+  Health,
+  ManagedUser,
+  Menu,
+  PublicSettings,
+  Reservation,
+  ScanResult,
+  StaffMenu,
+  User,
+} from "./types";
+
+export const settingsApi = {
+  public: () => api<PublicSettings>("/settings/public/"),
+  health: () => api<Health>("/health/"),
+};
 
 export const authApi = {
   register: (data: {
@@ -24,6 +41,65 @@ export const authApi = {
     api("/auth/password/reset/", { method: "POST", json: { token, new_password } }),
 };
 
+/** HR dashboard (FR-04 to FR-06, FR-37, FR-40). */
+export const userAdminApi = {
+  list: (filters: { status?: string; q?: string } = {}) => {
+    const q = new URLSearchParams();
+    if (filters.status) q.set("status", filters.status);
+    if (filters.q) q.set("q", filters.q);
+    return api<ManagedUser[]>(`/auth/users/?${q}`);
+  },
+  approve: (id: number) => api<ManagedUser>(`/auth/users/${id}/approve/`, { method: "POST" }),
+  reject: (id: number, reason: string) =>
+    api<ManagedUser>(`/auth/users/${id}/reject/`, { method: "POST", json: { reason } }),
+  bulkApprove: (ids: number[]) =>
+    api<ManagedUser[]>("/auth/users/bulk-approve/", { method: "POST", json: { ids } }),
+  changeStatus: (id: number, transition: "suspend" | "reactivate" | "deactivate") =>
+    api<ManagedUser>(`/auth/users/${id}/status/${transition}/`, { method: "POST" }),
+  resetPassword: (id: number) =>
+    api<{ temporary_password: string; expires_in_hours: number }>(`/auth/users/${id}/reset-password/`, {
+      method: "POST",
+    }),
+  importRoster: (file: File) => {
+    const body = new FormData();
+    body.append("file", file);
+    return api<{ imported: number }>("/auth/users/roster/import/", { method: "POST", body });
+  },
+};
+
+export type DishInput = {
+  name: string;
+  description: string;
+  category: string;
+  allergens: string;
+  photo?: File | null;
+};
+
+/** JSON when there is no new photo, multipart when one is uploaded. */
+function dishBody(data: Partial<DishInput>): { json?: unknown; body?: FormData } {
+  const { photo, ...fields } = data;
+  if (!photo) return { json: fields };
+  const body = new FormData();
+  Object.entries(fields).forEach(([k, v]) => body.append(k, String(v ?? "")));
+  body.append("photo", photo);
+  return { body };
+}
+
+/** Chef's dish library (FR-29 to FR-31). */
+export const dishApi = {
+  list: (filters: { q?: string; category?: string; archived?: boolean } = {}) => {
+    const q = new URLSearchParams();
+    if (filters.q) q.set("q", filters.q);
+    if (filters.category) q.set("category", filters.category);
+    if (filters.archived) q.set("archived", "1");
+    return api<Dish[]>(`/dishes/?${q}`);
+  },
+  create: (data: DishInput) => api<Dish>("/dishes/", { method: "POST", ...dishBody(data) }),
+  update: (id: number, data: Partial<DishInput>) =>
+    api<Dish>(`/dishes/${id}/`, { method: "PATCH", ...dishBody(data) }),
+  archive: (id: number) => api<Dish>(`/dishes/${id}/archive/`, { method: "POST" }),
+};
+
 export const menuApi = {
   list: (from?: string, to?: string) => {
     const q = new URLSearchParams();
@@ -31,6 +107,17 @@ export const menuApi = {
     if (to) q.set("to", to);
     return api<Menu[]>(`/menus/?${q}`);
   },
+  /** Same endpoint; chef / management / admin get the staff fields. */
+  staffList: (from: string, to: string) => api<StaffMenu[]>(`/menus/?from=${from}&to=${to}`),
+  create: (date: string) => api<StaffMenu>("/menus/", { method: "POST", json: { date } }),
+  setItems: (date: string, dish_ids: number[]) =>
+    api<StaffMenu>(`/menus/${date}/items/`, { method: "PUT", json: { dish_ids } }),
+  publish: (date: string) => api<StaffMenu>(`/menus/${date}/publish/`, { method: "POST" }),
+  close: (date: string, reason: string) =>
+    api<StaffMenu>(`/menus/${date}/close/`, { method: "POST", json: { reason } }),
+  finalization: (date: string) => api<FinalizationProposal>(`/menus/${date}/finalization/`),
+  finalize: (date: string, final_plate_count: number) =>
+    api<StaffMenu>(`/menus/${date}/finalize/`, { method: "POST", json: { final_plate_count } }),
 };
 
 export const reservationApi = {

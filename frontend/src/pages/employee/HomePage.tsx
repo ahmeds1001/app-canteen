@@ -56,6 +56,18 @@ function DayCard({ menu, reservation, locale, busy, onReserve, onCancel }: {
   const { t } = useTranslation();
   const open = menu.is_open_for_reservation;
 
+  if (menu.status === "closed" && !reservation) {
+    return (
+      <Card className="day">
+        <div className="day__head">
+          <span className="day__date">{formatDay(menu.date, locale)}</span>
+          <Badge tone="red">{t("menus.dayClosed")}</Badge>
+        </div>
+        <p className="day__tba">{t("menus.dayClosedHelp")}</p>
+      </Card>
+    );
+  }
+
   return (
     <Card className="day">
       <div className="day__head">

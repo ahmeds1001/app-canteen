@@ -54,6 +54,21 @@ npm run dev                     # open http://localhost:5173
 
 In development, emails (OTP codes, reset links) are printed in the backend terminal.
 
+### Test clock (development only)
+
+The time rules (cutoff at midnight the day before, finalization, service window 12:00–15:00) follow the
+server clock. To test them without waiting, move the clock of the API and the scheduler (no restart needed;
+the app shows an orange "Test clock" banner while it is shifted):
+
+```powershell
+cd backend
+python manage.py dev_clock set 2026-10-26 11:00   # company time zone; the clock keeps running from there
+python manage.py dev_clock                        # show the app time
+python manage.py dev_clock reset                  # back to real time
+```
+
+The shift is stored in `backend/.dev_clock` (ignored by git) and has no effect unless `DEBUG` is on.
+
 ## Tests
 
 ```powershell

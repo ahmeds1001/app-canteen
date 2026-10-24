@@ -60,6 +60,21 @@ class PublishingTests(TestCase):
         self.assertEqual(menu.items.get().name, "Lablabi")
 
 
+class CloseDayTests(TestCase):
+    def test_close_day_cancels_reservations(self):
+        """FR-10: closing a published day cancels its active reservations."""
+        chef = f.user(role="chef")
+        menu = f.menu(MONDAY)
+        with clock.frozen(f.at(2026, 10, 30, 10)):
+            reservation = reservation_services.reserve(f.user(), menu)
+            services.close_day(menu, by=chef, reason="Jour férié")
+            services.close_day(menu, by=chef, reason="Jour férié")  # idempotent
+        menu.refresh_from_db()
+        reservation.refresh_from_db()
+        self.assertEqual(menu.status, Menu.Status.CLOSED)
+        self.assertEqual(reservation.status, "cancelled")
+
+
 class FinalizationTests(TestCase):
     def setUp(self):
         self.manager = f.user(role="management")
