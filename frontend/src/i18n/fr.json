@@ -29,6 +29,7 @@
   },
   "reservations": {
     "title": "Mes réservations", "showQr": "Présentez ce code à l'entrée de la cantine.",
+    "qrTitle": "QR code de votre repas",
     "status": { "reserved": "Réservé", "cancelled": "Annulé", "served": "Servi", "no_show": "Absent" },
     "payment": { "not_required": "Gratuit", "unpaid": "À payer", "paid": "Payé" },
     "empty": "Aucune réservation à venir."

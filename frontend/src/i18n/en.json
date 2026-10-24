@@ -29,6 +29,7 @@
   },
   "reservations": {
     "title": "My reservations", "showQr": "Show this code at the canteen entrance.",
+    "qrTitle": "Your meal QR code",
     "status": { "reserved": "Reserved", "cancelled": "Cancelled", "served": "Served", "no_show": "No-show" },
     "payment": { "not_required": "Free", "unpaid": "To pay", "paid": "Paid" },
     "empty": "No upcoming reservation."

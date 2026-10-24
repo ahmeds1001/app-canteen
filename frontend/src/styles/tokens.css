@@ -29,6 +29,9 @@
   --color-danger: #b42318;
   --color-danger-bg: #fdecea;
   --color-warning-bg: #fff4e0;
+  /* QR code: fixed in both themes (scanners need dark on light) */
+  --qr-bg: #ffffff;
+  --qr-fg: var(--brand-green-800);
   --gradient-brand: linear-gradient(135deg, var(--brand-orange-500) 0%, var(--brand-lime-400) 55%, var(--brand-green-700) 100%);
 
   /* Type */

@@ -9,5 +9,21 @@
 
 .qr-card h2 { text-transform: capitalize; }
 .qr-card { display: grid; justify-items: center; gap: var(--space-3); text-align: center; }
-.qr-card svg { background: #fff; padding: var(--space-3); border-radius: var(--radius-sm); }
+
+/* Meal QR: always dark modules on white (also in dark mode) so every phone camera reads it */
+.meal-qr { margin: 0; display: grid; justify-items: center; gap: var(--space-2); }
+.meal-qr__frame {
+  padding: 6px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-card);
+}
+.meal-qr__frame svg {
+  display: block;
+  padding: var(--space-2);
+  border-radius: calc(var(--radius-md) - 4px);
+  background: var(--qr-bg);
+  color: var(--qr-fg);
+}
+.meal-qr__caption { font-family: var(--font-heading); font-weight: 600; font-size: var(--text-sm); color: var(--color-text-muted); }
 .day > .badge { align-self: flex-start; }

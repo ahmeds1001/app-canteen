@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { QRCodeSVG } from "qrcode.react";
 import { useTranslation } from "react-i18next";
 import { reservationApi } from "@/api/endpoints";
 import type { PaymentStatus, ReservationStatus } from "@/api/types";
 import { Badge, Card } from "@/components/ui";
 import { formatDay } from "@/utils/dates";
+import { MealQr } from "./MealQr";
 import "./employee.css";
 
 const STATUS_TONE: Record<ReservationStatus, "green" | "orange" | "red" | undefined> = {
@@ -36,7 +36,7 @@ export default function ReservationsPage() {
           {r.menu_items.length > 0 && <p className="muted">{r.menu_items.join(" · ")}</p>}
           {r.qr_payload && (
             <>
-              <QRCodeSVG value={r.qr_payload} size={220} level="M" />
+              <MealQr payload={r.qr_payload} />
               <p className="muted">{t("reservations.showQr")}</p>
             </>
           )}
