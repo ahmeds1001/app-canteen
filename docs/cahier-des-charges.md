@@ -190,6 +190,7 @@ The rules below are enforced by the server, never only by the screen, and the on
 | **Dish snapshot** | **A menu item copies the dish's name, description and allergens when it is added. Later edits to the dish in the library do not change existing menus.** | Decided (v3) |
 | QR validity | A QR code works only on its date, only once, and only while the reservation is not cancelled and the account is Active. | Decided |
 | **Service window** | **12:00 to 15:00 by default, editable by the admin. Scans are accepted only inside the window.** | Decided (v3) |
+| **Service days** | **The canteen serves meals Monday to Saturday (the company works Saturdays). Sunday has no menu and no placeholder. Editable by the admin (`service_weekdays`).** | Decided (2026-10-24) |
 | Offline scan sync | A scan queued offline is validated at scan time, not at sync time: the timestamp recorded is the moment of the scan. A scan made inside the service window is accepted even if synced after the window ends; a scan made outside the window is rejected. | Decided (v2) |
 | No-show | A reservation not scanned by the end of the service window becomes No-show and counts in the reports. | Decided |
 | **No-show consequences** | **First month after go-live: reporting only. After that: an automatic, friendly warning email after 3 no-shows in a calendar month. No blocking in v1.** | Decided (v3) |
@@ -359,6 +360,7 @@ Constraints: `UNIQUE (user_id, date)` for active reservations — a SQL Server f
 
 | Key | Example | Notes |
 | --- | --- | --- |
+| service_weekdays | **0,1,2,3,4,5** | Days the canteen serves meals, 0 = Monday … 6 = Sunday. Decided (2026-10-24): **Monday to Saturday** (the company works Saturdays) |
 | cutoff_time | 23:59:59 |  |
 | timezone | Africa/Tunis | Company time zone |
 | service_window_start / end | **12:00 / 15:00 [v3]** | Decided default |

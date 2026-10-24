@@ -26,8 +26,8 @@ class CanteenSettings(models.Model):
         PERCENTAGE = "percentage", "Percentage of reserved count"
 
     service_weekdays = models.CharField(
-        max_length=20, default="0,1,2,3,4",
-        help_text="Days the canteen opens (0=Monday … 6=Sunday). To confirm: Mon–Fri assumed.",
+        max_length=20, default="0,1,2,3,4,5",
+        help_text="Days the canteen opens (0=Monday … 6=Sunday). Decided: Monday to Saturday.",
     )
     cutoff_time = models.TimeField(default=time(23, 59, 59))
     service_window_start = models.TimeField(default=time(12, 0))

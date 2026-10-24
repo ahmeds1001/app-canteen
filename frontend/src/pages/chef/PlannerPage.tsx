@@ -5,6 +5,7 @@ import { dishApi, menuApi, settingsApi } from "@/api/endpoints";
 import { DISH_CATEGORIES, type Dish, type StaffMenu } from "@/api/types";
 import { Alert, Badge, Button, Card, Dialog, Field, SelectField } from "@/components/ui";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
+import { useServerTime } from "@/hooks/useServerTime";
 import { addDays, formatDay, formatShortDate, isoToday, startOfWeek, weekdayIndex } from "@/utils/dates";
 import { DishFormDialog } from "./DishFormDialog";
 import "./chef.css";
@@ -21,10 +22,9 @@ function canEditDishes(menu?: StaffMenu): boolean {
   return menu.is_placeholder && menu.items.length === 0 && (menu.status === "locked" || menu.status === "finalized");
 }
 
-function defaultWeek(): string {
-  const today = isoToday();
-  // On the weekend, plan the coming week.
-  return weekdayIndex(today) >= 5 ? startOfWeek(addDays(today, 7)) : startOfWeek(today);
+function defaultWeek(today: string): string {
+  // On Sunday (no service), plan the coming week.
+  return weekdayIndex(today) === 6 ? startOfWeek(addDays(today, 7)) : startOfWeek(today);
 }
 
 type Picking = { date: string; menu?: StaffMenu };
@@ -34,7 +34,11 @@ export default function PlannerPage() {
   const { t, i18n } = useTranslation();
   const toMessage = useErrorMessage();
   const queryClient = useQueryClient();
-  const [weekStart, setWeekStart] = useState(defaultWeek);
+  // "Today" follows the server (company time zone, and the dev test clock when it is shifted).
+  const { serverTime } = useServerTime();
+  const today = serverTime?.slice(0, 10) ?? isoToday();
+  const [weekOffset, setWeekOffset] = useState(0);
+  const weekStart = addDays(defaultWeek(today), weekOffset * 7);
   const [picking, setPicking] = useState<Picking | null>(null);
   const [duplicating, setDuplicating] = useState<string | null>(null);
   const [closing, setClosing] = useState<string | null>(null);
@@ -47,7 +51,7 @@ export default function PlannerPage() {
     queryFn: () => menuApi.staffList(weekStart, weekEnd),
   });
 
-  const serviceDays = settings.data?.service_weekdays.split(",").map((d) => Number(d.trim())) ?? [0, 1, 2, 3, 4];
+  const serviceDays = settings.data?.service_weekdays.split(",").map((d) => Number(d.trim())) ?? [0, 1, 2, 3, 4, 5];
   const deadlineDays = settings.data?.publish_deadline_days ?? 2;
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).filter((d) =>
     serviceDays.includes(weekdayIndex(d)),
@@ -81,13 +85,13 @@ export default function PlannerPage() {
       <div className="page-head">
         <h1>{t("planner.title")}</h1>
         <div className="week-nav">
-          <Button className="btn--sm" variant="ghost" onClick={() => setWeekStart(addDays(weekStart, -7))}>
+          <Button className="btn--sm" variant="ghost" onClick={() => setWeekOffset((o) => o - 1)}>
             ‹ {t("planner.prevWeek")}
           </Button>
           <span className="week-nav__label">
             {t("planner.weekOf", { date: formatShortDate(weekStart, i18n.language) })}
           </span>
-          <Button className="btn--sm" variant="ghost" onClick={() => setWeekStart(addDays(weekStart, 7))}>
+          <Button className="btn--sm" variant="ghost" onClick={() => setWeekOffset((o) => o + 1)}>
             {t("planner.nextWeek")} ›
           </Button>
         </div>
@@ -106,6 +110,7 @@ export default function PlannerPage() {
           const menu = byDate.get(date);
           const status = menu?.status;
           const deadline = addDays(date, -deadlineDays);
+          const past = date < today;
           return (
             <Card key={date} className={`plan-day ${status === "closed" ? "plan-day--closed" : ""}`}>
               <div className="plan-day__head">
@@ -130,7 +135,7 @@ export default function PlannerPage() {
               {status === "closed" && menu?.closed_reason && (
                 <p className="plan-day__hint">{t("planner.closedReason", { reason: menu.closed_reason })}</p>
               )}
-              {(!status || status === "draft") && (
+              {!past && (!status || status === "draft") && (
                 <p className="plan-day__hint">
                   {t("planner.publishBefore", { date: formatShortDate(deadline, i18n.language) })}
                 </p>
@@ -138,7 +143,7 @@ export default function PlannerPage() {
               {menu && status !== "draft" && status !== "closed" && (
                 <p className="plan-day__hint">{t("planner.reservedCount", { count: menu.reserved_count })}</p>
               )}
-              <div className="actions">
+              {!past && <div className="actions">
                 {canEditDishes(menu) && status !== "closed" && (
                   <Button className="btn--sm" variant="ghost" onClick={() => setPicking({ date, menu })}>
                     {t(menu && menu.items.length > 0 ? "planner.editDishes" : "planner.compose")}
@@ -163,7 +168,7 @@ export default function PlannerPage() {
                     {t("planner.closeDay")}
                   </Button>
                 )}
-              </div>
+              </div>}
             </Card>
           );
         })}

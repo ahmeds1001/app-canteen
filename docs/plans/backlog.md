@@ -43,6 +43,5 @@ item into a plan file in this folder, then the **executor** to build it.
 
 ## Open questions (see also open-questions.md)
 
-- Which weekdays is the canteen open? The code assumes **Monday–Friday** (`CanteenSettings.service_weekdays`).
 - Backup person for finalization; strategy for leftover plates (after the pilot).
 - SVG logo and square app icon from the communication team.

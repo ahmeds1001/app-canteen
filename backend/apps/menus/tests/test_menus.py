@@ -40,9 +40,15 @@ class PublishingTests(TestCase):
         self.assertTrue(menu.is_placeholder)
 
     def test_no_placeholder_on_closed_weekdays(self):
-        with clock.frozen(f.at(2026, 10, 30, 0, 5)):  # Friday → would target Saturday
+        with clock.frozen(f.at(2026, 10, 31, 0, 5)):  # Saturday → would target Sunday
             jobs.publish_placeholders()
-        self.assertFalse(Menu.objects.filter(date=date(2026, 10, 31)).exists())
+        self.assertFalse(Menu.objects.filter(date=date(2026, 11, 1)).exists())
+
+    def test_saturday_is_a_service_day(self):
+        """The company works Saturdays: Saturday gets a placeholder at its D-2 deadline."""
+        with clock.frozen(f.at(2026, 10, 30, 0, 5)):  # Friday → targets Saturday 31
+            jobs.publish_placeholders()
+        self.assertTrue(Menu.objects.get(date=date(2026, 10, 31)).is_placeholder)
 
     def test_empty_placeholder_editable_until_service_start(self):
         menu = f.menu(MONDAY, status=Menu.Status.LOCKED, is_placeholder=True)
