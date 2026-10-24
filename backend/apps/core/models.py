@@ -86,6 +86,7 @@ class AuditLog(models.Model):
         SUSPEND = "suspend"
         REACTIVATE = "reactivate"
         DEACTIVATE = "deactivate"
+        STATUS_CHANGE = "status_change"  # other account status changes made in the Django admin
         ROSTER_IMPORT = "roster_import"
         DISH_CREATE = "dish_create"
         DISH_EDIT = "dish_edit"

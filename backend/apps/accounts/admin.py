@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
+from . import services
 from .models import EmployeeRoster, User
 
 
@@ -21,6 +22,15 @@ class UserAdmin(BaseUserAdmin):
                            "password1", "password2")}),
     )
     readonly_fields = ("email_verified_at", "approved_by", "approved_at")
+
+    def save_model(self, request, obj, form, change):
+        # Role, admin rights and status changes go to the audit log (spec §5 Security).
+        before = services.access_snapshot(User.objects.get(pk=obj.pk)) if change else None
+        super().save_model(request, obj, form, change)
+        services.record_admin_access_change(obj, before, by=request.user)
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # data is never deleted: deactivate the account instead
 
 
 @admin.register(EmployeeRoster)

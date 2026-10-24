@@ -164,6 +164,45 @@ def change_status(user: User, transition: str, *, by: User) -> User:
     return user
 
 
+# --- Changes made by an admin in the Django admin (spec §5: role changes are audited) -----
+ACCESS_FIELDS = ("role", "status", "is_staff", "is_superuser")
+
+
+def _status_action(old: str, new: str) -> str:
+    A = audit.AuditLog.Action
+    if new == User.Status.ACTIVE:
+        return A.REACTIVATE if old == User.Status.SUSPENDED else A.APPROVE
+    return {
+        User.Status.SUSPENDED: A.SUSPEND,
+        User.Status.DEACTIVATED: A.DEACTIVATE,
+        User.Status.REJECTED: A.REJECT,
+    }.get(new, A.STATUS_CHANGE)
+
+
+def access_snapshot(user: User) -> dict:
+    return {field: getattr(user, field) for field in ACCESS_FIELDS}
+
+
+def record_admin_access_change(user: User, before: dict | None, *, by: User) -> None:
+    """Audit role / admin rights and status after the Django admin saved `user`.
+    `before` is `access_snapshot()` taken before the save, None for a new account."""
+    after = access_snapshot(user)
+    before = before or {"role": "", "status": "", "is_staff": False, "is_superuser": False}
+
+    rights = ("role", "is_staff", "is_superuser")
+    if any(before[f] != after[f] for f in rights):
+        audit.record(
+            audit.AuditLog.Action.ROLE_CHANGE, actor=by, target=user,
+            old_value=before["role"], new_value=after["role"], source="django_admin",
+            **{f: f"{before[f]} -> {after[f]}" for f in ("is_staff", "is_superuser") if before[f] != after[f]},
+        )
+    if before["status"] != after["status"]:
+        audit.record(
+            _status_action(before["status"], after["status"]), actor=by, target=user,
+            old_value=before["status"], new_value=after["status"], source="django_admin",
+        )
+
+
 # --- Forgotten password (FR-39 self-service, FR-40 by HR/admin) ------------------------
 def request_password_reset(work_email: str) -> None:
     """Always succeeds silently so the API never reveals which emails exist."""
