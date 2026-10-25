@@ -10,6 +10,7 @@ import type {
   NotificationList,
   PublicSettings,
   Reservation,
+  Role,
   ScanResult,
   StaffMenu,
   User,
@@ -53,6 +54,9 @@ export const userAdminApi = {
   approve: (id: number) => api<ManagedUser>(`/auth/users/${id}/approve/`, { method: "POST" }),
   reject: (id: number, reason: string) =>
     api<ManagedUser>(`/auth/users/${id}/reject/`, { method: "POST", json: { reason } }),
+  /** FR-41: admin only. */
+  setRole: (id: number, role: Role) =>
+    api<ManagedUser>(`/auth/users/${id}/role/`, { method: "POST", json: { role } }),
   bulkApprove: (ids: number[]) =>
     api<ManagedUser[]>("/auth/users/bulk-approve/", { method: "POST", json: { ids } }),
   changeStatus: (id: number, transition: "suspend" | "reactivate" | "deactivate") =>

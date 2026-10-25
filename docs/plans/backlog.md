@@ -27,6 +27,8 @@ item into a plan file in this folder, then the **executor** to build it.
   finalized → chef, menu changed / day switched to paid → employees, finalization reminder, missing-menu reminder,
   day closed → employees whose reservation was cancelled, new account waiting → HR, evening reminder (20:00) to
   employees who have not reserved for tomorrow.
+- [x] **Role assignment in the app** (FR-41, decided 2026-10-25): role dropdown for the admin on the Comptes screen;
+  own role and last active admin protected; audited.
 - [x] Close day → cancel its reservations (`menus/services.close_day`). Notifying the employees is part of Notifications.
 - [ ] Refresh-token blacklist so a password change ends other sessions (FR-39) — `rest_framework_simplejwt.token_blacklist`.
 

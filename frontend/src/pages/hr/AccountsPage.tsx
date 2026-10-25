@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { userAdminApi } from "@/api/endpoints";
-import type { AccountStatus, ManagedUser } from "@/api/types";
+import type { AccountStatus, ManagedUser, Role } from "@/api/types";
 import { Alert, Badge, Button, Card, Dialog, Field } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
@@ -21,6 +21,8 @@ const STATUS_TONE: Partial<Record<AccountStatus, "green" | "orange" | "red">> = 
 };
 
 type Transition = "suspend" | "reactivate" | "deactivate";
+
+const ROLES: Role[] = ["employee", "hr", "chef", "management", "scanner", "admin"];
 
 /** FR-04 to FR-06, FR-37, FR-40: HR approves registrations and manages accounts. */
 export default function AccountsPage() {
@@ -64,6 +66,11 @@ export default function AccountsPage() {
   const changeStatus = useMutation({
     mutationFn: ({ id, transition }: { id: number; transition: Transition }) => userAdminApi.changeStatus(id, transition),
     onSuccess: (u) => done(t("accounts.statusChanged", { name: u.full_name, status: t(`accounts.status.${u.status}`) })),
+    onError: fail,
+  });
+  const setRole = useMutation({
+    mutationFn: ({ id, role }: { id: number; role: Role }) => userAdminApi.setRole(id, role),
+    onSuccess: (u) => done(t("accounts.roleChanged", { name: u.full_name, role: t(`accounts.roles.${u.role}`) })),
     onError: fail,
   });
   const resetPassword = useMutation({
@@ -172,6 +179,25 @@ export default function AccountsPage() {
               </div>
             </div>
             {user.id !== me?.id && <div className="actions">
+              {me?.role === "admin" && (
+                <label className="account__role">
+                  <span>{t("accounts.roleLabel")}</span>
+                  <select
+                    value={user.role}
+                    disabled={setRole.isPending}
+                    onChange={(e) => {
+                      const role = e.target.value as Role;
+                      const ask = role === "admin" ? "accounts.confirm.makeAdmin" : "accounts.confirm.role";
+                      confirmThen(t(ask, { name: user.full_name, role: t(`accounts.roles.${role}`) }),
+                        () => setRole.mutate({ id: user.id, role }));
+                    }}
+                  >
+                    {ROLES.map((r) => (
+                      <option key={r} value={r}>{t(`accounts.roles.${r}`)}</option>
+                    ))}
+                  </select>
+                </label>
+              )}
               {user.status === "pending_hr" && (
                 <>
                   <Button className="btn--sm" disabled={approve.isPending} onClick={() => approve.mutate(user.id)}>

@@ -110,8 +110,11 @@
     "confirm": {
       "suspend": "Suspendre le compte de {{name}} ? Il ne pourra plus réserver.",
       "reset": "Générer un mot de passe temporaire pour {{name}} ?",
-      "deactivate": "Désactiver définitivement le compte de {{name}} (départ de l'entreprise) ?"
+      "deactivate": "Désactiver définitivement le compte de {{name}} (départ de l'entreprise) ?",
+      "role": "Donner le rôle « {{role}} » à {{name}} ?",
+      "makeAdmin": "Donner le rôle « {{role}} » à {{name}} ? Cette personne pourra gérer tous les comptes, les rôles et les paramètres."
     },
+    "roleLabel": "Rôle", "roleChanged": "{{name}} a maintenant le rôle « {{role}} ».",
     "approved": "{{name}} est approuvé. Un email lui a été envoyé.", "bulkApproved": "Comptes approuvés : {{count}}.",
     "statusChanged": "{{name}} : {{status}}.", "imported": "Matricules importés : {{count}}.",
     "rejected": "La demande de {{name}} est refusée.",
@@ -167,6 +170,10 @@
     "above_kitchen_max": "Le nombre dépasse la capacité maximale de la cuisine.",
     "not_pending": "Ce compte n'est plus en attente.", "reason_required": "Indiquez un motif.",
     "invalid_transition": "Ce changement de statut n'est pas possible.",
-    "file_required": "Choisissez un fichier CSV."
+    "file_required": "Choisissez un fichier CSV.",
+    "admin_only": "Seul un administrateur peut changer les rôles.",
+    "cannot_change_own_role": "Vous ne pouvez pas changer votre propre rôle.",
+    "last_admin": "C'est le dernier administrateur actif : il doit garder ce rôle.",
+    "invalid_role": "Rôle inconnu."
   }
 }

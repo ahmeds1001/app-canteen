@@ -109,8 +109,11 @@
     "confirm": {
       "suspend": "Suspend {{name}}'s account? They will no longer be able to reserve.",
       "reset": "Generate a temporary password for {{name}}?",
-      "deactivate": "Permanently deactivate {{name}}'s account (left the company)?"
+      "deactivate": "Permanently deactivate {{name}}'s account (left the company)?",
+      "role": "Give {{name}} the role \"{{role}}\"?",
+      "makeAdmin": "Give {{name}} the role \"{{role}}\"? They will be able to manage every account, role and setting."
     },
+    "roleLabel": "Role", "roleChanged": "{{name}} now has the role \"{{role}}\".",
     "approved": "{{name}} is approved. An email has been sent.", "bulkApproved": "Accounts approved: {{count}}.",
     "statusChanged": "{{name}}: {{status}}.", "imported": "Employee numbers imported: {{count}}.",
     "rejected": "{{name}}'s request was rejected.",
@@ -166,6 +169,10 @@
     "above_kitchen_max": "The count exceeds the kitchen's maximum capacity.",
     "not_pending": "This account is no longer pending.", "reason_required": "Please give a reason.",
     "invalid_transition": "This status change is not possible.",
-    "file_required": "Choose a CSV file."
+    "file_required": "Choose a CSV file.",
+    "admin_only": "Only an admin can change roles.",
+    "cannot_change_own_role": "You cannot change your own role.",
+    "last_admin": "This is the last active admin: they must keep the role.",
+    "invalid_role": "Unknown role."
   }
 }

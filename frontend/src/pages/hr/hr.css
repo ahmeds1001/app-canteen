@@ -19,6 +19,16 @@
 .account__who { display: grid; flex: 1 1 240px; }
 .account__meta { font-size: var(--text-sm); color: var(--color-text-muted); }
 .account__badges { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.account__role { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); font-weight: 600; color: var(--color-text-muted); }
+.account__role select {
+  min-block-size: 36px;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+}
 
 .temp-password {
   margin: 0;

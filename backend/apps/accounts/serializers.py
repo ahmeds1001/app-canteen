@@ -52,6 +52,10 @@ class RejectSerializer(serializers.Serializer):
     reason = serializers.CharField()
 
 
+class RoleSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(choices=User.Role.choices)
+
+
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
     on_roster = serializers.SerializerMethodField()

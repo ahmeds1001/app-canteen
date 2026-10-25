@@ -166,6 +166,34 @@ def change_status(user: User, transition: str, *, by: User) -> User:
     return user
 
 
+# --- Role assignment in the app (FR-41) ------------------------------------------------
+@transaction.atomic
+def change_role(user: User, role: str, *, by: User) -> User:
+    """Admin only. The admin role also opens/closes the Django admin site (is_staff/is_superuser)."""
+    if by.role != User.Role.ADMIN:
+        raise NotAllowed("admin_only", "Only an admin can change roles.")
+    if user.pk == by.pk:
+        raise DomainError("cannot_change_own_role", "You cannot change your own role.")
+    if role not in User.Role.values:
+        raise DomainError("invalid_role", "Unknown role.")
+    user = User.objects.select_for_update().get(pk=user.pk)
+    if user.role == role:
+        return user  # idempotent
+    if user.role == User.Role.ADMIN:
+        other_admins = User.objects.filter(role=User.Role.ADMIN, status=User.Status.ACTIVE).exclude(pk=user.pk)
+        if not other_admins.exists():
+            raise DomainError("last_admin", "The last active admin cannot lose the role.")
+    before = access_snapshot(user)
+    is_admin = role == User.Role.ADMIN
+    user.role, user.is_staff, user.is_superuser = role, is_admin, is_admin
+    user.save(update_fields=["role", "is_staff", "is_superuser", "updated_at"])
+    audit.record(
+        audit.AuditLog.Action.ROLE_CHANGE, actor=by, target=user,
+        old_value=before["role"], new_value=role, source="app",
+    )
+    return user
+
+
 # --- Changes made by an admin in the Django admin (spec §5: role changes are audited) -----
 ACCESS_FIELDS = ("role", "status", "is_staff", "is_superuser")
 

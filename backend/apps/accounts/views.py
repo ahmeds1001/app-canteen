@@ -26,6 +26,7 @@ from .serializers import (
     PasswordResetConfirmSerializer,
     RegisterSerializer,
     RejectSerializer,
+    RoleSerializer,
     UserSerializer,
 )
 
@@ -167,6 +168,13 @@ class UserAdminViewSet(GenericViewSet):
     def change_status(self, request, pk=None, transition=None):
         user = services.change_status(get_object_or_404(User, pk=pk), transition, by=request.user)
         return Response(self.get_serializer(user).data)
+
+    @action(detail=True, methods=["post"])
+    def role(self, request, pk=None):
+        """FR-41: admin only (checked in the service)."""
+        data = RoleSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        return self._act(request, pk, services.change_role, role=data.validated_data["role"])
 
     @action(detail=True, methods=["post"], url_path="reset-password")
     def reset_password(self, request, pk=None):
