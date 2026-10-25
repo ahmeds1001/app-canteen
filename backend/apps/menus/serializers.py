@@ -1,3 +1,4 @@
+from django.core.files.storage import default_storage
 from rest_framework import serializers
 
 from . import rules
@@ -14,9 +15,15 @@ class DishSerializer(serializers.ModelSerializer):
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
+    photo_url = serializers.SerializerMethodField()
+
     class Meta:
         model = MenuItem
-        fields = ["id", "dish", "name", "description", "category", "allergens", "photo", "position"]
+        fields = ["id", "dish", "name", "description", "category", "allergens", "photo", "photo_url", "position"]
+
+    def get_photo_url(self, obj: MenuItem) -> str | None:
+        # `photo` is the snapshot of the dish's stored file name (FR-30); the URL is built like ImageField's.
+        return default_storage.url(obj.photo) if obj.photo else None
 
 
 class MenuSerializer(serializers.ModelSerializer):

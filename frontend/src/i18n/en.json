@@ -46,7 +46,8 @@
   "dishes": {
     "title": "Dish library", "new": "New dish", "edit": "Edit dish", "name": "Dish name",
     "category": "Category", "description": "Description", "allergens": "Allergens",
-    "allergensHint": "E.g. gluten, milk, egg", "photo": "Photo (optional)", "allCategories": "All",
+    "allergensHint": "E.g. gluten, milk, egg", "photo": "Photo (optional)",
+    "photoHint": "JPEG, PNG or WebP, 5 MB max. It shows on the day's card employees see.", "allCategories": "All",
     "showArchived": "Show archived dishes", "empty": "No dishes yet. Add your first dish.",
     "allergensLabel": "Allergens: {{list}}", "lastServed": "Last served: {{date}}",
     "neverServed": "Never served", "archived": "Archived", "archive": "Archive",
@@ -173,6 +174,8 @@
     "admin_only": "Only an admin can change roles.",
     "cannot_change_own_role": "You cannot change your own role.",
     "last_admin": "This is the last active admin: they must keep the role.",
-    "invalid_role": "Unknown role."
+    "invalid_role": "Unknown role.",
+    "photo_invalid": "Use a JPEG, PNG or WebP photo.",
+    "photo_too_large": "The photo must be 5 MB or less."
   }
 }

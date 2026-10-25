@@ -112,7 +112,7 @@ The requirements below cover the full flow from registration to reporting; M = m
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| **FR-29** | **The chef manages a library of usual dishes: name, description, category (starter, main, dessert, side, drink), allergens and optional photo.** | M |
+| **FR-29** | **The chef manages a library of usual dishes: name, description, category (starter, main, dessert, side, drink), allergens and optional photo.** Photo rules [2026-10-25]: JPEG, PNG or WebP up to 5 MB; the server turns it upright, resizes it to 1200 px at most and saves it as JPEG. On the employees' menu cards, each day shows the photo of its main dish (or of the first dish that has one). | M |
 | **FR-30** | **A dish can be edited or archived. Archived dishes disappear from the picker but stay in old menus and reports. Editing a dish never changes menus already published: each menu item keeps a copy of the dish's details at the moment it was added.** | M |
 | **FR-31** | **The library offers search by name and filter by category, and shows when each dish was last served, to help the chef vary the menus.** | S |
 | FR-07 | The chef creates the menu of a given day by **picking dishes from the library, or creating a new dish on the spot (which is added to the library)**. The menu for day D must be Published before 23:59:59 on D-2 (company time zone). If the chef misses this deadline, the system publishes a placeholder menu (FR-38). | M |

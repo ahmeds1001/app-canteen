@@ -72,8 +72,12 @@ function DayCard({ menu, reservation, locale, busy, onReserve, onCancel }: {
     );
   }
 
+  // The main dish's photo, or the first dish that has one (FR-29).
+  const photo = (menu.items.find((i) => i.category === "main" && i.photo_url) ?? menu.items.find((i) => i.photo_url));
+
   return (
     <Card className="day">
+      {photo && <img className="day__photo" src={photo.photo_url!} alt={photo.name} loading="lazy" />}
       <div className="day__head">
         <span className="day__date">{formatDay(menu.date, locale)}</span>
         {reservation ? <Badge tone="green">{t("menus.reserved")}</Badge> : !open && <Badge>{t("menus.closed")}</Badge>}

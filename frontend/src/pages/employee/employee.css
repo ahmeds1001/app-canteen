@@ -1,5 +1,13 @@
 .days { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .day { display: flex; flex-direction: column; gap: var(--space-3); }
+.day__photo {
+  inline-size: calc(100% + 2 * var(--space-6));
+  margin: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) 0;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-start-start-radius: var(--radius-md);
+  border-start-end-radius: var(--radius-md);
+}
 .day__head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
 .day__date { font-family: var(--font-heading); font-weight: 600; font-size: var(--text-lg); text-transform: capitalize; }
 .day__items { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-1); }

@@ -11,7 +11,7 @@ from apps.core.exceptions import Conflict, DomainError
 from apps.core.models import AuditLog, CanteenSettings
 from apps.notifications import events as notification_events
 
-from . import rules
+from . import images, rules
 from .models import Dish, Menu, MenuItem
 
 A = AuditLog.Action
@@ -24,14 +24,20 @@ def reserved_count(menu: Menu) -> int:
 
 
 # --- Dish library (FR-29 to FR-31) ---------------------------------------------------
+def _with_prepared_photo(fields: dict) -> dict:
+    if fields.get("photo"):
+        fields["photo"] = images.prepare_dish_photo(fields["photo"])
+    return fields
+
+
 def create_dish(*, by, **fields) -> Dish:
-    dish = Dish.objects.create(created_by=by, **fields)
+    dish = Dish.objects.create(created_by=by, **_with_prepared_photo(fields))
     audit.record(A.DISH_CREATE, actor=by, target=dish)
     return dish
 
 
 def update_dish(dish: Dish, *, by, **fields) -> Dish:
-    for key, value in fields.items():
+    for key, value in _with_prepared_photo(fields).items():
         setattr(dish, key, value)
     dish.save()
     audit.record(A.DISH_EDIT, actor=by, target=dish)

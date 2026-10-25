@@ -47,7 +47,8 @@
   "dishes": {
     "title": "Bibliothèque de plats", "new": "Nouveau plat", "edit": "Modifier le plat", "name": "Nom du plat",
     "category": "Catégorie", "description": "Description", "allergens": "Allergènes",
-    "allergensHint": "Ex. : gluten, lait, œuf", "photo": "Photo (facultative)", "allCategories": "Toutes",
+    "allergensHint": "Ex. : gluten, lait, œuf", "photo": "Photo (facultative)",
+    "photoHint": "JPEG, PNG ou WebP, 5 Mo maximum. Elle s'affiche sur la carte du jour vue par les employés.", "allCategories": "Toutes",
     "showArchived": "Afficher les plats archivés", "empty": "Aucun plat. Ajoutez votre premier plat.",
     "allergensLabel": "Allergènes : {{list}}", "lastServed": "Dernier service : {{date}}",
     "neverServed": "Jamais servi", "archived": "Archivé", "archive": "Archiver",
@@ -174,6 +175,8 @@
     "admin_only": "Seul un administrateur peut changer les rôles.",
     "cannot_change_own_role": "Vous ne pouvez pas changer votre propre rôle.",
     "last_admin": "C'est le dernier administrateur actif : il doit garder ce rôle.",
-    "invalid_role": "Rôle inconnu."
+    "invalid_role": "Rôle inconnu.",
+    "photo_invalid": "Utilisez une photo JPEG, PNG ou WebP.",
+    "photo_too_large": "La photo doit faire 5 Mo au maximum."
   }
 }

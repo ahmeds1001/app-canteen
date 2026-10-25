@@ -2,6 +2,7 @@
 .check { display: inline-flex; align-items: center; gap: var(--space-2); min-block-size: var(--tap-target); font-weight: 600; font-size: var(--text-sm); }
 .check input { inline-size: 20px; block-size: 20px; accent-color: var(--color-primary); }
 
+.dish-form__hint { margin: 0; font-size: var(--text-sm); }
 .dish-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
 .dish { display: flex; flex-direction: column; gap: var(--space-2); }
 .dish__photo { inline-size: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: var(--radius-sm); }

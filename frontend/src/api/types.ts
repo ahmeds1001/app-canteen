@@ -97,6 +97,8 @@ export interface MenuItem {
   category: DishCategory;
   allergens: string;
   photo: string;
+  /** Ready-to-use image address (/media/…) of the dish photo copied with the item, or null. */
+  photo_url: string | null;
 }
 
 export interface Menu {

@@ -64,9 +64,10 @@ export function DishFormDialog({ dish, onClose, onSaved }: {
         <Field
           label={t("dishes.photo")}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
         />
+        <p className="muted dish-form__hint">{t("dishes.photoHint")}</p>
         <div className="actions">
           <Button type="submit" disabled={save.isPending}>{t("common.save")}</Button>
           <Button type="button" variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
