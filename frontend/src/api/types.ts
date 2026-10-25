@@ -22,7 +22,25 @@ export interface User {
   status: AccountStatus;
   preferred_language: string;
   must_change_password: boolean;
+  evening_reminder: boolean;
   on_roster: boolean | null;
+}
+
+/** In-app notification (spec §8). Title and body come translated from the server. */
+export interface AppNotification {
+  id: number;
+  kind: string;
+  title: string;
+  body: string;
+  link: string;
+  created_at: string;
+  read_at: string | null;
+}
+
+export interface NotificationList {
+  unread: number;
+  evening_reminder: boolean;
+  results: AppNotification[];
 }
 
 export interface AuthTokens {

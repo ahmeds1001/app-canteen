@@ -70,6 +70,7 @@ class UserSerializer(serializers.ModelSerializer):
             "status",
             "preferred_language",
             "must_change_password",
+            "evening_reminder",
             "created_at",
             "on_roster",
         ]

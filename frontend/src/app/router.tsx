@@ -4,6 +4,7 @@ import type { Role } from "@/api/types";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import ComingSoonPage from "@/pages/ComingSoonPage";
+import NotificationsPage from "@/pages/NotificationsPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 import {
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "reservations", element: <ReservationsPage /> },
+      { path: "notifications", element: <NotificationsPage /> },
       {
         path: "scan",
         element: <Protected roles={["scanner"]}><Suspense fallback={null}><ScanPage /></Suspense></Protected>,

@@ -119,6 +119,22 @@
     "tempOnce": "This password will not be shown again. It is never sent by email.",
     "rejectTitle": "Reject {{name}}'s request", "rejectReason": "Reason (sent to the employee)"
   },
+  "notifications": {
+    "title": "Notifications", "bellUnread": "Notifications: {{count}} unread", "readAll": "Mark all as read",
+    "empty": "No notifications yet.",
+    "pushTitle": "Notifications on this phone",
+    "enable": "Turn on", "disable": "Turn off",
+    "push": {
+      "loading": "Checking…",
+      "on": "On: you receive them even when the app is closed.",
+      "off": "Off on this device. Turn them on to be told without opening the app.",
+      "denied": "Blocked by the browser. Allow notifications for this site in the browser settings.",
+      "unsupported": "Not available here: the app must be on HTTPS (on iPhone, add it to the home screen first).",
+      "disabled_on_server": "Not set up on the server yet. Notifications are still shown in the app."
+    },
+    "eveningTitle": "Evening reminder",
+    "eveningHelp": "At 8 pm, if you have not reserved for the next day."
+  },
   "soon": { "title": "Screen to build", "help": "This screen is planned in the specification ({{refs}}). It will be built in an upcoming sprint." },
   "errors": {
     "generic": "Something went wrong. Please try again.",

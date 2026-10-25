@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from apps.core import audit, clock
 from apps.core.models import AuditLog, CanteenSettings
+from apps.notifications import events as notification_events
 
 from . import rules, services
 from .models import Menu
@@ -28,7 +29,8 @@ def publish_placeholders() -> int:
         action = AuditLog.Action.PLACEHOLDER_PUBLISH if menu.is_placeholder else AuditLog.Action.MENU_PUBLISH
         audit.record(action, target=menu)
         count += 1
-        # TODO(notifications): "Placeholder published" to chef + management.
+        if menu.is_placeholder:
+            notification_events.placeholder_published(menu)
     return count
 
 
@@ -41,7 +43,9 @@ def lock_menus() -> int:
             menu.save(update_fields=["status", "updated_at"])
             audit.record(AuditLog.Action.MENU_LOCK, target=menu)
             count += 1
-            # TODO(notifications): if placeholder still empty → alert management and chef.
+            reserved = services.reserved_count(menu)
+            if menu.is_placeholder and reserved and not menu.items.exists():
+                notification_events.placeholder_empty_at_cutoff(menu, reserved)
     return count
 
 

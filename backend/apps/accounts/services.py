@@ -17,6 +17,7 @@ from django.db.models import F
 
 from apps.core import audit, clock, notifications
 from apps.core.exceptions import DomainError, NotAllowed
+from apps.notifications import events as notification_events
 
 from .models import EmailOTP, PasswordResetToken, User
 
@@ -93,6 +94,7 @@ def verify_otp(user: User, code: str) -> User:
     )
     user.refresh_from_db()
     audit.record(audit.AuditLog.Action.VERIFY_EMAIL, actor=user, target=user)
+    notification_events.account_pending(user)  # HR: an account is waiting (spec §8)
     return user
 
 

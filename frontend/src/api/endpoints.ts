@@ -7,6 +7,7 @@ import type {
   Health,
   ManagedUser,
   Menu,
+  NotificationList,
   PublicSettings,
   Reservation,
   ScanResult,
@@ -118,6 +119,23 @@ export const menuApi = {
   finalization: (date: string) => api<FinalizationProposal>(`/menus/${date}/finalization/`),
   finalize: (date: string, final_plate_count: number) =>
     api<StaffMenu>(`/menus/${date}/finalize/`, { method: "POST", json: { final_plate_count } }),
+};
+
+/** In-app notifications and phone push (spec §8). */
+export const notificationApi = {
+  list: () => api<NotificationList>("/notifications/"),
+  read: (id: number) => api<{ unread: number }>(`/notifications/${id}/read/`, { method: "POST" }),
+  readAll: () => api<{ unread: number }>("/notifications/read-all/", { method: "POST" }),
+  setEveningReminder: (evening_reminder: boolean) =>
+    api<{ evening_reminder: boolean }>("/notifications/preferences/", { method: "PATCH", json: { evening_reminder } }),
+};
+
+export const pushApi = {
+  key: () => api<{ enabled: boolean; public_key: string }>("/notifications/push/key/"),
+  subscribe: (subscription: PushSubscriptionJSON) =>
+    api<void>("/notifications/push/subscribe/", { method: "POST", json: subscription }),
+  unsubscribe: (endpoint: string) =>
+    api<void>("/notifications/push/unsubscribe/", { method: "POST", json: { endpoint } }),
 };
 
 export const reservationApi = {

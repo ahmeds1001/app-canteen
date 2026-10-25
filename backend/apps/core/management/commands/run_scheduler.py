@@ -10,17 +10,23 @@ import time
 from django.core.management.base import BaseCommand
 
 from apps.menus import jobs as menu_jobs
+from apps.notifications import jobs as notification_jobs
 from apps.reservations import jobs as reservation_jobs
 
 logger = logging.getLogger(__name__)
 
-# Order matters: publish → lock → finalize → no-shows → close.
+# Order matters: publish → lock → reminders → finalize → no-shows → close; pushes last (they send what the
+# jobs above created).
 JOBS = [
     ("publish_placeholders", menu_jobs.publish_placeholders),
     ("lock_menus", menu_jobs.lock_menus),
+    ("finalization_reminder", notification_jobs.finalization_reminder),
+    ("menu_missing_reminder", notification_jobs.menu_missing_reminder),
+    ("evening_reservation_reminder", notification_jobs.evening_reservation_reminder),
     ("auto_finalize", menu_jobs.auto_finalize),
     ("mark_no_shows", reservation_jobs.mark_no_shows),
     ("close_finished_days", menu_jobs.close_finished_days),
+    ("send_pending_pushes", notification_jobs.send_pending_pushes),
 ]
 
 

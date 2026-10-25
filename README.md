@@ -54,6 +54,19 @@ npm run dev                     # open http://localhost:5173
 
 In development, emails (OTP codes, reset links) are printed in the backend terminal.
 
+### Phone push notifications
+
+Notifications (spec §8) always appear in the app's bell. To also get them on the phone's lock screen, generate a key
+pair once and paste the two lines into `.env` (never commit them), then restart the backend and the scheduler:
+
+```powershell
+cd backend
+python manage.py generate_vapid_keys
+```
+
+Push needs HTTPS (or `localhost`); each user turns it on per phone from the Notifications page. The scheduler sends
+the pushes, so `run_scheduler` must be running.
+
 ### Test clock (development only)
 
 The time rules (cutoff at midnight the day before, finalization, service window 12:00–15:00) follow the

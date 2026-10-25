@@ -22,7 +22,11 @@ item into a plan file in this folder, then the **executor** to build it.
 - [x] **Dish library screen** (FR-29–31): list with search/category filter, last served date, create/edit/archive, photo upload.
 - [x] **Management finalization screen** (FR-24–28): reserved count, proposed count (10 %), adjust, confirm, change until service starts. (FR-28 chef notification is part of Notifications below.)
 - [x] **HR accounts screen** (FR-04–06, FR-37, FR-40): pending list with roster match flag, approve/reject (reason), bulk approve, suspend/reactivate/deactivate, reset password (show temporary password once), CSV import.
-- [ ] **Notifications** (spec §8): menu announced, placeholder published, placeholder empty at cutoff, day finalized → chef, menu changed / day switched to paid → employees, finalization reminder, missing-menu reminder, day closed → employees whose reservation was cancelled.
+- [x] **Notifications** (spec §8) — **in-app + phone push, no email** (decided 2026-10-24); plan in
+  [`notifications.md`](notifications.md): menu announced, placeholder published, placeholder empty at cutoff, day
+  finalized → chef, menu changed / day switched to paid → employees, finalization reminder, missing-menu reminder,
+  day closed → employees whose reservation was cancelled, new account waiting → HR, evening reminder (20:00) to
+  employees who have not reserved for tomorrow.
 - [x] Close day → cancel its reservations (`menus/services.close_day`). Notifying the employees is part of Notifications.
 - [ ] Refresh-token blacklist so a password change ends other sessions (FR-39) — `rest_framework_simplejwt.token_blacklist`.
 
@@ -32,7 +36,6 @@ item into a plan file in this folder, then the **executor** to build it.
 - [ ] Management and HR report screens with charts and CSV export (FR-21–23, FR-36).
 - [ ] No-show warning email after 3 per calendar month, only after the grace month (business rule "No-show consequences").
 - [ ] Admin: settings screen is the Django admin for now; check every setting is editable and audited (`setting_change`).
-- [ ] Evening reminder at 20:00 for employees without a reservation (spec §8, could have).
 
 ## Before the pilot
 

@@ -19,6 +19,7 @@ htmlcov/
 # Node
 node_modules/
 frontend/dist/
+frontend/dev-dist/
 *.tsbuildinfo
 
 # Editors / OS

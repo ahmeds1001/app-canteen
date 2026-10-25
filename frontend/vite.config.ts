@@ -9,6 +9,10 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["logo.png"],
+      // Phone push notifications (spec §8): the push handler lives in public/push-sw.js.
+      workbox: { importScripts: ["push-sw.js"] },
+      // Service worker also in `npm run dev`, so push can be tried locally (localhost counts as secure).
+      devOptions: { enabled: true },
       manifest: {
         name: "Cantine OVAGRI",
         short_name: "Cantine",
@@ -25,6 +29,9 @@ export default defineConfig({
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   server: {
     port: 5173,
+    // IPv4 loopback: on Windows "localhost" binds only ::1, which a phone linked with `adb reverse` cannot reach.
+    // Still this PC only; `npm run dev:lan` (--host) overrides it.
+    host: "127.0.0.1",
     // changeOrigin: Django sees "localhost:8000" even when a phone opens the app by the PC's IP (`npm run dev:lan`).
     proxy: {
       "/api": { target: "http://localhost:8000", changeOrigin: true },

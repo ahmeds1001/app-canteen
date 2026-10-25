@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useServerTime } from "@/hooks/useServerTime";
 import { LANGUAGES, applyLanguage } from "@/i18n";
 import { formatCompanyDateTime } from "@/utils/dates";
+import { NotificationBell } from "./NotificationBell";
 import "./layout.css";
 
 /** Navigation per role (spec §2). Every staff member is also an employee who eats. */
@@ -62,6 +63,7 @@ export function AppLayout() {
           </nav>
         )}
         <div className="shell__tools">
+          {user && user.role !== "scanner" && <NotificationBell />}
           <select
             aria-label={t("app.language")}
             value={i18n.language}

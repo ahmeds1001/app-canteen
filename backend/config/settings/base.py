@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "apps.menus",
     "apps.reservations",
     "apps.reports",
+    "apps.notifications",
 ]
 
 MIDDLEWARE = [
@@ -169,6 +170,12 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "Cantine <cantine@example.com>")
 # Separate secret used to hash OTP codes and sign QR tokens.
 CANTEEN_SIGNING_KEY = env("CANTEEN_SIGNING_KEY", SECRET_KEY)
 FRONTEND_URL = env("FRONTEND_URL", "http://localhost:5173")
+
+# --- Phone push notifications (Web Push, spec §8) -------------------------------------
+# Generate a pair with `python manage.py generate_vapid_keys`. Empty = push disabled (in-app only).
+VAPID_PUBLIC_KEY = env("VAPID_PUBLIC_KEY", "")
+VAPID_PRIVATE_KEY = env("VAPID_PRIVATE_KEY", "")
+VAPID_SUBJECT = env("VAPID_SUBJECT", "mailto:cantine@example.tn")
 
 LOGGING = {
     "version": 1,

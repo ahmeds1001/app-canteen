@@ -32,6 +32,10 @@ class CanteenSettings(models.Model):
     cutoff_time = models.TimeField(default=time(23, 59, 59))
     service_window_start = models.TimeField(default=time(12, 0))
     service_window_end = models.TimeField(default=time(15, 0))
+    # Notification times (spec §8), company time zone.
+    menu_missing_reminder_time = models.TimeField(default=time(8, 0), help_text="Chef: menus still to publish.")
+    finalization_reminder_time = models.TimeField(default=time(8, 0), help_text="Management: confirm today's plates.")
+    evening_reminder_time = models.TimeField(default=time(20, 0), help_text="Employees not reserved for tomorrow.")
     publish_deadline_days = models.PositiveSmallIntegerField(
         default=2, help_text="Menu for day D must be published before the end of D-N."
     )

@@ -54,6 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     approved_by = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT, related_name="+")
     approved_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
+    evening_reminder = models.BooleanField(default=True, help_text="20:00 reminder when tomorrow is not reserved.")
     must_change_password = models.BooleanField(default=False)
     temp_password_expires_at = models.DateTimeField(null=True, blank=True)
 

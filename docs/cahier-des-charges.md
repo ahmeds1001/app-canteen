@@ -138,7 +138,7 @@ The requirements below cover the full flow from registration to reporting; M = m
 | FR-25 | The system pre-fills the proposal with reserved count + buffer default from Settings (fixed number or percentage). Management can override it per day. | M |
 | FR-26 | If management has not finalized by the start of the service window (12:00 by default), the system auto-finalizes with reserved count + default buffer, and logs the auto-finalization. | M |
 | FR-27 | The final count is locked when the service window opens; it can no longer be edited. | M |
-| FR-28 | The chef receives a notification (on screen and by email) with the final plate count once the day is finalized. | S |
+| FR-28 | The chef receives a notification (in the app and as a phone push notification, see §8) with the final plate count once the day is finalized. | S |
 
 ### 3.5 QR code and check-in
 
@@ -238,7 +238,8 @@ Ten tables hold everything; the reservation record is the center, because it car
 | role | enum: employee, HR, chef, scanner, management **[v2]**, admin |  |
 | status | enum: Registered, EmailVerified, PendingHR, Active, Rejected, Suspended, Deactivated | Follows section 4 |
 | email_verified_at | timestamp, NULL | NULL until the OTP of FR-02 is confirmed **[v3]** |
-| preferred_language | enum: fr, en (ar later), NULL **[v3]** | Falls back to `default_language` |
+| preferred_language | enum: fr, en (ar later), NULL **[v3]** | Falls back to `default_language`; also the language of push notifications |
+| evening_reminder | boolean, default true **[2026-10-24]** | The 20:00 "not reserved for tomorrow" notification (§8); each employee can turn it off |
 | approved_by | FK → User, NULL | HR approver |
 | approved_at | timestamp, NULL |  |
 | rejection_reason | text, NULL | Required by FR-04 |
@@ -364,6 +365,9 @@ Constraints: `UNIQUE (user_id, date)` for active reservations — a SQL Server f
 | cutoff_time | 23:59:59 |  |
 | timezone | Africa/Tunis | Company time zone |
 | service_window_start / end | **12:00 / 15:00 [v3]** | Decided default |
+| menu_missing_reminder_time | **08:00** **[2026-10-24]** | Chef: "menus to publish" notification (§8) |
+| finalization_reminder_time | **08:00** **[2026-10-24]** | Management: "confirm today's plates" notification (§8) |
+| evening_reminder_time | **20:00** **[2026-10-24]** | Employees who have not reserved for tomorrow (§8) |
 | booking_horizon_days | empty | Empty = no limit (decided v3); can be filled later, e.g. 14 |
 | no_show_policy | **warn_after_3 [v3]** | Report only during the first month, then warning |
 | no_show_grace_until | date **[v3]** | Go-live + 1 month; no warnings before this date |
@@ -376,6 +380,36 @@ Constraints: `UNIQUE (user_id, date)` for active reservations — a SQL Server f
 | currency | TND **[v3]** |  |
 | default_language | fr |  |
 | enabled_languages | fr, en **[v3]** | ar added later |
+
+**Notification [2026-10-24]** — in-app notifications (§8); also the source of phone pushes
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| id | PK |  |
+| user_id | FK → User | Recipient |
+| kind | enum: accounts_pending, menu_changed, menu_announced, price_changed, day_closed, placeholder_published, placeholder_empty_at_cutoff, finalization_reminder, day_finalized, menu_missing, reservation_reminder | Text built from kind + params in the user's language |
+| params | JSON | e.g. date, dishes, plate counts |
+| link | text | App page opened when tapped |
+| dedupe_key | text | `UNIQUE (user_id, kind, dedupe_key)`: a scheduled job that runs late or twice never notifies twice |
+| created_at | timestamp |  |
+| read_at | timestamp, NULL | Set when opened or "mark all as read" |
+| pushed_at | timestamp, NULL | Set when the push was handled by the scheduler (sent, or no device) |
+
+Kept indefinitely like all other data.
+
+**Push subscription [2026-10-24]** — one per phone / browser that turned push on
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| id | PK |  |
+| user_id | FK → User |  |
+| endpoint | text, unique | Web Push address given by the browser |
+| p256dh / auth | text | Browser encryption keys (not secrets of the app) |
+| user_agent | text | Which phone / browser, for support |
+| created_at | timestamp |  |
+| revoked_at | timestamp, NULL | Turned off by the user, or refused by the push service (404/410); never deleted |
+
+Push uses VAPID keys stored only in `.env`.
 
 **Audit log**
 
@@ -534,28 +568,40 @@ All roles use the same application through a browser.
 
 ## 8. Notifications and email flows
 
-Eighteen messages cover the account life cycle and the daily routine; the first four are required for v1.
+Nineteen messages cover the account life cycle and the daily routine.
 
-| Trigger | Recipient | Content | Priority |
-| --- | --- | --- | --- |
-| Registration submitted | Employee | **6-digit OTP code** to verify the email address (valid 10 min, resend after 60 s); the code is also in the email subject line for quick reading on a phone | M |
-| **Password reset requested (FR-39)** | **Employee** | **Reset link, valid 30 minutes, single use** | **M** |
-| **Password changed** | **Employee** | **Confirmation that the password was changed (self-service or by HR), with who to contact if it wasn't him** | **S** |
-| New account verified | HR | Notification (or a daily digest) that accounts are waiting, with roster match | M |
-| Account approved | Employee | "Your account is now active" with a login link | M |
-| Account rejected | Employee | Reason given by HR and who to contact | M |
-| Menu changed after reservations exist | Employees who reserved | The change and the option to cancel before the cutoff | S |
-| **Day switched to paid / price changed** | **Employees who reserved** | **The new price and the option to cancel before the cutoff** | S |
-| Reservation confirmed | Employee | Date, dish, price if paid, link to the QR code | C |
-| Evening reminder (suggested 20:00) | Employees without a reservation for tomorrow | Tomorrow's menu and the time left before midnight | C |
-| **Finalization reminder** | **Management** | **Sent after the cutoff: reserved count for today and a link to finalize before 12:00** | S |
-| Day finalized | Chef | The final plate count (reserved + buffer) to prepare | S |
-| Menu missing (2-day deadline) | Chef | List of the next days without a published menu, sent every morning until fixed | S |
-| **Placeholder published** | **Chef (copy to management)** | **Day D was published as "Menu to be announced"; add the dishes before the cutoff** | **M** |
-| **Menu announced** | **Employees who reserved day D** | **The dishes are now known; option to cancel before the cutoff** | **M** |
-| **Placeholder still empty at cutoff** | **Management and chef** | **Day D has reservations but no dishes; the chef can still add them until the service window opens** | **M** |
-| **Repeated no-shows** | **Employee** | **Friendly warning after 3 no-shows in a calendar month (only after the first month)** | **S** |
-| **Unpaid meals (when payment is enabled)** | **Employee** | **Monthly reminder of unpaid meals and the amount due** | C |
+**Channels (decided 2026-10-24).** Messages about the **account itself** go by **email**, because the person
+cannot log in yet (or has lost access). **Every other message is an in-app notification plus a phone push
+notification**, never an email:
+
+- **In-app:** a bell in the app bar with the number of unread notifications and the list of messages. Notifications
+  are kept like all other data (never deleted); opening one marks it read.
+- **Push:** a notification on the phone's lock screen even when the app is closed (Web Push, standard in browsers).
+  Each user turns it on once per phone ("Activer les notifications"); the browser asks for permission. Push needs
+  the app on HTTPS; on iPhone, the app must be added to the home screen first. If push is off or fails, the in-app
+  notification is still there.
+
+| Trigger | Recipient | Channel | Content | Priority |
+| --- | --- | --- | --- | --- |
+| Registration submitted | Employee | Email | **6-digit OTP code** to verify the email address (valid 10 min, resend after 60 s); the code is also in the email subject line for quick reading on a phone | M |
+| **Password reset requested (FR-39)** | **Employee** | Email | **Reset link, valid 30 minutes, single use** | **M** |
+| **Password changed** | **Employee** | Email | **Confirmation that the password was changed (self-service or by HR), with who to contact if it wasn't him** | **S** |
+| Account approved | Employee | Email | "Your account is now active" with a login link | M |
+| Account rejected | Employee | Email | Reason given by HR and who to contact | M |
+| New account verified | HR | In-app + push | Accounts are waiting for approval, with roster match | M |
+| Menu changed after reservations exist | Employees who reserved | In-app + push | The change and the option to cancel before the cutoff | S |
+| **Day switched to paid / price changed** | **Employees who reserved** | In-app + push | **The new price and the option to cancel before the cutoff** | S |
+| **Day closed (FR-10)** | **Employees who reserved** | In-app + push | **The canteen is closed that day (reason); the reservation was cancelled** | **M** |
+| Reservation confirmed | Employee | — | Not sent: the app confirms on screen and shows the QR code at once | C |
+| **Evening reminder (20:00, editable)** | **Employees without a reservation for tomorrow** (only when tomorrow is open; each employee can turn it off) | In-app + push | **Tomorrow's menu and the time left before midnight** | **S** (raised 2026-10-24) |
+| **Finalization reminder** | **Management** | In-app + push | **Sent at 08:00 on day D (editable): reserved count for today and a link to finalize before 12:00** | S |
+| Day finalized | Chef | In-app + push | The final plate count (reserved + buffer) to prepare | S |
+| Menu missing (2-day deadline) | Chef | In-app + push | List of the next days without a published menu, sent every morning until fixed | S |
+| **Placeholder published** | **Chef (copy to management)** | In-app + push | **Day D was published as "Menu to be announced"; add the dishes before the cutoff** | **M** |
+| **Menu announced** | **Employees who reserved day D** | In-app + push | **The dishes are now known; option to cancel before the cutoff** | **M** |
+| **Placeholder still empty at cutoff** | **Management and chef** | In-app + push | **Day D has reservations but no dishes; the chef can still add them until the service window opens** | **M** |
+| **Repeated no-shows** | **Employee** | In-app + push | **Friendly warning after 3 no-shows in a calendar month (only after the first month)** | **S** |
+| **Unpaid meals (when payment is enabled)** | **Employee** | In-app + push | **Monthly reminder of unpaid meals and the amount due** | C |
 
 ## 9. Risks and open questions
 

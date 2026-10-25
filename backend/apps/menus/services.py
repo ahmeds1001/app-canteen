@@ -9,6 +9,7 @@ from django.db import transaction
 from apps.core import audit, clock
 from apps.core.exceptions import Conflict, DomainError
 from apps.core.models import AuditLog, CanteenSettings
+from apps.notifications import events as notification_events
 
 from . import rules
 from .models import Dish, Menu, MenuItem
@@ -94,7 +95,9 @@ def set_items(menu: Menu, dish_ids: list[int], *, by) -> Menu:
         menu.menu_announced_at = clock.now()
         menu.save(update_fields=["menu_announced_at", "updated_at"])
         audit.record(A.MENU_ANNOUNCE, actor=by, target=menu)
-        # TODO(notifications): email employees who reserved (spec §8 "Menu announced").
+        notification_events.menu_announced(menu)
+    elif had_items and menu.status == Menu.Status.PUBLISHED:
+        notification_events.menu_changed(menu)  # only reaches employees who already reserved
     return menu
 
 
@@ -126,13 +129,15 @@ def close_day(menu: Menu, *, by, reason: str = "") -> Menu:
     audit.record(A.MENU_EDIT, actor=by, target=menu, closed=reason)
 
     now = clock.now()
-    for reservation in Reservation.objects.filter(menu=menu, status=Reservation.Status.RESERVED):
+    cancelled_for = []
+    for reservation in Reservation.objects.filter(menu=menu, status=Reservation.Status.RESERVED).select_related("user"):
         updated = Reservation.objects.filter(pk=reservation.pk, status=Reservation.Status.RESERVED).update(
             status=Reservation.Status.CANCELLED, cancelled_at=now
         )
         if updated:
             audit.record(A.CANCEL, actor=by, target=reservation, reason="day_closed")
-    # TODO(notifications): tell the employees whose reservation was cancelled (spec §8).
+            cancelled_for.append(reservation.user)
+    notification_events.day_closed(menu, cancelled_for)
     return menu
 
 
@@ -146,7 +151,8 @@ def set_payment(menu: Menu, *, is_paid: bool, price: Decimal | None, by) -> Menu
     menu.is_paid, menu.price = is_paid, price if is_paid else None
     menu.save(update_fields=["is_paid", "price", "updated_at"])
     audit.record(A.PAYMENT_CONFIG_CHANGE, actor=by, target=menu, old_value=old, new_value=(is_paid, price))
-    # TODO(notifications): tell employees who already reserved (spec §8).
+    if old != (menu.is_paid, menu.price):
+        notification_events.price_changed(menu)
     return menu
 
 
@@ -178,5 +184,5 @@ def finalize(menu: Menu, *, final_plate_count: int, by=None, auto: bool = False)
     menu.finalized_by, menu.finalized_at, menu.auto_finalized = by, clock.now(), auto
     menu.save()
     audit.record(A.AUTO_FINALIZE if auto else A.FINALIZE, actor=by, target=menu, plates=final_plate_count)
-    # TODO(notifications): send the final count to the chef (FR-28).
+    notification_events.day_finalized(menu)  # FR-28
     return menu

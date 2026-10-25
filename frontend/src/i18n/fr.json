@@ -120,6 +120,22 @@
     "tempOnce": "Ce mot de passe ne sera plus affiché. Il n'est jamais envoyé par email.",
     "rejectTitle": "Refuser la demande de {{name}}", "rejectReason": "Motif du refus (envoyé à l'employé)"
   },
+  "notifications": {
+    "title": "Notifications", "bellUnread": "Notifications : {{count}} non lue(s)", "readAll": "Tout marquer comme lu",
+    "empty": "Aucune notification pour le moment.",
+    "pushTitle": "Notifications sur ce téléphone",
+    "enable": "Activer", "disable": "Désactiver",
+    "push": {
+      "loading": "Vérification…",
+      "on": "Activées : vous les recevez même quand l'application est fermée.",
+      "off": "Désactivées sur cet appareil. Activez-les pour être prévenu sans ouvrir l'application.",
+      "denied": "Bloquées par le navigateur. Autorisez les notifications pour ce site dans les réglages du navigateur.",
+      "unsupported": "Non disponibles ici : il faut l'application en HTTPS (sur iPhone, ajoutez-la d'abord à l'écran d'accueil).",
+      "disabled_on_server": "Pas encore configurées sur le serveur. Les notifications restent visibles dans l'application."
+    },
+    "eveningTitle": "Rappel du soir",
+    "eveningHelp": "À 20 h, si vous n'avez pas réservé pour le lendemain."
+  },
   "soon": { "title": "Écran à construire", "help": "Cet écran est prévu dans le cahier des charges ({{refs}}). Il sera développé dans un prochain sprint." },
   "errors": {
     "generic": "Une erreur est survenue. Réessayez.",
