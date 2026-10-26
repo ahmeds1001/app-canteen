@@ -5,18 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { notificationApi } from "@/api/endpoints";
 import type { AppNotification } from "@/api/types";
 import { Alert, Button, Card } from "@/components/ui";
-import { useAuth } from "@/hooks/useAuth";
 import { usePush } from "@/hooks/usePush";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { formatCompanyDateTime } from "@/utils/dates";
 import "./notifications.css";
 
-const EATING_ROLES = ["employee", "hr", "chef", "management"];
-
-/** Spec §8: the user's notifications, phone push on/off, and the evening reminder switch. */
+/** Spec §8: the user's notifications, phone push on/off, and the evening reminder switch (every role eats). */
 export default function NotificationsPage() {
   const { t, i18n } = useTranslation();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const toMessage = useErrorMessage();
   const queryClient = useQueryClient();
@@ -51,7 +47,7 @@ export default function NotificationsPage() {
 
       <Card className="stack notif-settings">
         <PushSetting onError={(e) => setError(toMessage(e))} />
-        {user && EATING_ROLES.includes(user.role) && data && (
+        {data && (
           <label className="notif-switch">
             <input
               type="checkbox"

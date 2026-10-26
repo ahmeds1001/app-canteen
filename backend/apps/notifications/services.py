@@ -11,8 +11,8 @@ from .models import Notification, PushSubscription
 
 Kind = Notification.Kind
 
-# Roles that eat at the canteen and receive employee messages (the scanner phone and admin do not).
-EATING_ROLES = ("employee", "hr", "chef", "management")
+# Everyone may eat at the canteen (decided 2026-10-26), so every role gets the employee messages.
+EATING_ROLES = ("employee", "hr", "chef", "management", "scanner", "admin")
 
 
 def active_users(*roles: str):

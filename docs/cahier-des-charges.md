@@ -65,7 +65,7 @@ Version 1 serves six roles and covers registration, HR approval, the dish librar
 | Employee | Any staff member | Register, log in once approved, see the menu, reserve or cancel a meal, show the daily QR code |
 | HR | HR team | Approve or reject new accounts, import the employee-number list, deactivate leavers, consult attendance reports |
 | Chef | Head of the kitchen | Manage the dish library, publish the menu per day, see the reserved and final headcount |
-| Scanner (cashier later) | Canteen staff using the dedicated canteen phone | Scan QR codes and confirm that a meal was collected; on paid days, see and mark payment status |
+| Scanner (cashier later) | Canteen staff using the dedicated canteen phone | Scan QR codes and confirm that a meal was collected; on paid days, see and mark payment status. Like every role, also reserves their own meals and gets the employee notifications (decided 2026-10-26: everyone may eat at the canteen) |
 | Management | Direction / operations | Finalize the daily plate count after the cutoff, decide whether meals are paid and at what price, consult production, waste and payment reports |
 | Admin | IT or app owner | Manage roles in the app's "Comptes" screen (FR-41), settings (cutoff time, service window, buffer default, payment defaults, retention), audit log |
 

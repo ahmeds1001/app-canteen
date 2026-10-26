@@ -136,7 +136,8 @@ class DailyJobTests(TestCase):
             jobs.evening_reservation_reminder()
         self.assertEqual(kinds_for(forgot), [K.RESERVATION_REMINDER])
         self.assertEqual(kinds_for(self.chef), [K.RESERVATION_REMINDER])  # staff eat too
-        for user in (reserved, opted_out, scanner):
+        self.assertEqual(kinds_for(scanner), [K.RESERVATION_REMINDER])  # every role eats (2026-10-26)
+        for user in (reserved, opted_out):
             self.assertEqual(kinds_for(user), [])
 
     def test_no_evening_reminder_when_tomorrow_is_closed(self):

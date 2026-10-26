@@ -30,7 +30,12 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
     { to: "/hr/accounts", key: "nav.accounts" },
     { to: "/hr/reports", key: "nav.reports" },
   ],
-  scanner: [{ to: "/scan", key: "nav.scan" }],
+  // The canteen phone scans, and the staff using it eat at the canteen too.
+  scanner: [
+    { to: "/scan", key: "nav.scan" },
+    { to: "/", key: "nav.home" },
+    { to: "/reservations", key: "nav.reservations" },
+  ],
   admin: [
     { to: "/", key: "nav.home" },
     { to: "/chef/planner", key: "nav.planner" },
@@ -45,7 +50,7 @@ export function AppLayout() {
   const { user, signOut } = useAuth();
   const { serverTime, shifted } = useServerTime();
   const links = user ? NAV[user.role] : [];
-  // A role with a single screen (the canteen scanner phone) gets no menu: more room for the camera.
+  // A role with a single screen would get no menu bar (none today; kept for future roles).
   const showNav = links.length > 1;
 
   return (
@@ -63,7 +68,7 @@ export function AppLayout() {
           </nav>
         )}
         <div className="shell__tools">
-          {user && user.role !== "scanner" && <NotificationBell />}
+          {user && <NotificationBell />}
           <select
             aria-label={t("app.language")}
             value={i18n.language}
