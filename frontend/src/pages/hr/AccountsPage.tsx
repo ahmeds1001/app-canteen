@@ -5,6 +5,7 @@ import { userAdminApi } from "@/api/endpoints";
 import type { AccountStatus, ManagedUser, Role } from "@/api/types";
 import { Alert, Badge, Button, Card, Dialog, Field } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
+import { useConfirm } from "@/hooks/useConfirm";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { formatShortDate } from "@/utils/dates";
 import "./hr.css";
@@ -90,7 +91,8 @@ export default function AccountsPage() {
 
   const toggle = (id: number) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const onRoster = list.filter((u) => u.on_roster).map((u) => u.id);
-  const confirmThen = (text: string, action: () => void) => window.confirm(text) && action();
+  const confirm = useConfirm();
+  const confirmThen = confirm.ask;
 
   return (
     <div className="container stack">
@@ -249,6 +251,7 @@ export default function AccountsPage() {
         ))}
       </div>
 
+      {confirm.dialog}
       {rejecting && (
         <RejectDialog user={rejecting} onClose={() => setRejecting(null)} onDone={() => done(t("accounts.rejected", { name: rejecting.full_name }))} />
       )}

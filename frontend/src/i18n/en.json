@@ -41,7 +41,7 @@
     "checkIn": "Check in", "markPaid": "Mark paid", "toPay": "To pay: {{amount}} TND", "paid": "Paid"
   },
   "common": {
-    "save": "Save", "cancel": "Cancel", "close": "Close", "edit": "Edit", "search": "Search", "done": "Done"
+    "save": "Save", "cancel": "Cancel", "close": "Close", "edit": "Edit", "search": "Search", "done": "Done", "confirm": "Confirm", "confirmTitle": "Please confirm"
   },
   "dishes": {
     "title": "Dish library", "new": "New dish", "edit": "Edit dish", "name": "Dish name",

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { dishApi } from "@/api/endpoints";
 import { DISH_CATEGORIES, type Dish } from "@/api/types";
 import { Alert, Badge, Button, Card, Field, SelectField } from "@/components/ui";
+import { useConfirm } from "@/hooks/useConfirm";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { formatShortDate } from "@/utils/dates";
 import { DishFormDialog } from "./DishFormDialog";
@@ -19,6 +20,7 @@ export default function DishesPage() {
   const [archived, setArchived] = useState(false);
   const [editing, setEditing] = useState<Dish | "new" | null>(null);
   const [error, setError] = useState("");
+  const confirm = useConfirm();
 
   const dishes = useQuery({
     queryKey: ["dishes", { q, category, archived }],
@@ -80,7 +82,7 @@ export default function DishesPage() {
                   className="btn--sm"
                   variant="danger"
                   disabled={archive.isPending}
-                  onClick={() => window.confirm(t("dishes.archiveConfirm", { name: dish.name })) && archive.mutate(dish.id)}
+                  onClick={() => confirm.ask(t("dishes.archiveConfirm", { name: dish.name }), () => archive.mutate(dish.id))}
                 >
                   {t("dishes.archive")}
                 </Button>
@@ -89,6 +91,7 @@ export default function DishesPage() {
           </Card>
         ))}
       </div>
+      {confirm.dialog}
       {editing && (
         <DishFormDialog dish={editing === "new" ? undefined : editing} onClose={() => setEditing(null)} />
       )}

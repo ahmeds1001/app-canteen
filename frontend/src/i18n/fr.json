@@ -42,7 +42,7 @@
   },
   "common": {
     "save": "Enregistrer", "cancel": "Annuler", "close": "Fermer", "edit": "Modifier", "search": "Rechercher",
-    "done": "Terminé"
+    "done": "Terminé", "confirm": "Confirmer", "confirmTitle": "Confirmation"
   },
   "dishes": {
     "title": "Bibliothèque de plats", "new": "Nouveau plat", "edit": "Modifier le plat", "name": "Nom du plat",
