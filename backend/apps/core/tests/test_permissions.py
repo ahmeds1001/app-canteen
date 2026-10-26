@@ -75,3 +75,23 @@ class RoleMatrixTests(TestCase):
         client = APIClient()
         client.force_authenticate(f.user(role="chef", status="suspended"))
         self.assertEqual(client.get("/api/v1/dishes/").status_code, 403)
+
+
+class SuspendedAccountTests(TestCase):
+    """A suspension takes effect at once, even on a phone that was already logged in."""
+
+    def test_cannot_log_in_or_reserve_with_an_old_token(self):
+        user = f.user(password="Str0ng-pass-123")
+        client = APIClient()
+        token = client.post("/api/v1/auth/login/", {"work_email": user.work_email, "password": "Str0ng-pass-123"},
+                            format="json").json()["access"]
+        user.status = "suspended"
+        user.save()
+
+        login = client.post("/api/v1/auth/login/", {"work_email": user.work_email, "password": "Str0ng-pass-123"},
+                            format="json")
+        self.assertEqual((login.status_code, login.json()["code"]), (403, "suspended"))
+
+        client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+        self.assertEqual(client.post("/api/v1/reservations/", {"date": "2099-01-04"}, format="json").status_code, 401)
+        self.assertEqual(client.get("/api/v1/reservations/").status_code, 401)
