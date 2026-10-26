@@ -33,8 +33,14 @@ export default function RegisterPage() {
       await authApi.register(form);
       navigate(`/verify?email=${encodeURIComponent(form.work_email)}`);
     } catch (err) {
-      if (err instanceof ApiError && err.fields) setErrors(err.fields);
-      else setError(toMessage(err));
+      // Field errors go under their field; anything else (password rules checked across fields,
+      // "too many attempts"…) goes in the banner. Before, those were silently dropped.
+      const fields = err instanceof ApiError && err.fields && err.code === "http_400" ? err.fields : {};
+      const own = Object.fromEntries(Object.entries(fields).filter(([name]) => name in EMPTY));
+      const other = Object.entries(fields).filter(([name]) => !(name in EMPTY)).flatMap(([, msgs]) => msgs);
+      setErrors(own);
+      if (other.length) setError(other.join(" "));
+      else if (!Object.keys(own).length) setError(toMessage(err));
     } finally {
       setBusy(false);
     }

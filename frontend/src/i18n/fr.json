@@ -159,6 +159,7 @@
     "reservation_cancelled": "Réservation annulée.", "wrong_date": "Ce code n'est pas pour aujourd'hui.",
     "outside_service_window": "Hors des heures de service.", "account_not_active": "Compte inactif.",
     "http_403": "Votre rôle ne permet pas cette action.",
+    "http_429": "Trop de tentatives depuis cet appareil. Réessayez un peu plus tard.",
     "menu_locked": "Ce menu ne peut plus être modifié (réservations closes).",
     "dish_not_found": "Un des plats n'existe plus ou est archivé.",
     "not_draft": "Seul un menu en brouillon peut être publié.",

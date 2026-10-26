@@ -158,6 +158,7 @@
     "reservation_cancelled": "Reservation cancelled.", "wrong_date": "This code is not for today.",
     "outside_service_window": "Outside service hours.", "account_not_active": "Account not active.",
     "http_403": "Your role does not allow this action.",
+    "http_429": "Too many attempts from this device. Please try again a little later.",
     "menu_locked": "This menu can no longer be edited (reservations closed).",
     "dish_not_found": "One of the dishes no longer exists or is archived.",
     "not_draft": "Only a draft menu can be published.",
