@@ -2,6 +2,7 @@
 
     publish deadline  = end of D-2   (FR-07, FR-38)
     reservation cutoff = end of D-1  (FR-12)
+    finalization       = until 10:00 on D by default, then automatic (Settings)
     service window     = 12:00-15:00 on D by default (Settings)
 """
 from datetime import date, datetime, time, timedelta
@@ -33,6 +34,12 @@ def reservation_cutoff(day: date, cfg: CanteenSettings | None = None) -> datetim
 def service_start(day: date, cfg: CanteenSettings | None = None) -> datetime:
     cfg = cfg or CanteenSettings.load()
     return _at(day, cfg.service_window_start)
+
+
+def finalization_deadline(day: date, cfg: CanteenSettings | None = None) -> datetime:
+    """FR-26/27: the plate count locks here (10:00 by default), and never later than service start."""
+    cfg = cfg or CanteenSettings.load()
+    return min(_at(day, cfg.finalization_deadline), service_start(day, cfg))
 
 
 def service_end(day: date, cfg: CanteenSettings | None = None) -> datetime:

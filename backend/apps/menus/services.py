@@ -175,8 +175,8 @@ def finalize(menu: Menu, *, final_plate_count: int, by=None, auto: bool = False)
     cfg = CanteenSettings.load()
     if menu.status not in (Menu.Status.LOCKED, Menu.Status.FINALIZED):
         raise Conflict("not_locked", "A day can be finalized only after the reservation cutoff.")
-    if not auto and clock.now() >= rules.service_start(menu.date, cfg):
-        raise DomainError("finalization_closed", "The final count is locked once service starts.")
+    if not auto and clock.now() >= rules.finalization_deadline(menu.date, cfg):
+        raise DomainError("finalization_closed", "The final count is locked after the finalization deadline.")
     reserved = reserved_count(menu)
     if final_plate_count < reserved:
         raise DomainError("below_reserved", f"Final count cannot be below the {reserved} reservations.")

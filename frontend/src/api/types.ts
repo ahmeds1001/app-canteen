@@ -66,6 +66,8 @@ export interface PublicSettings {
   cutoff_time: string;
   service_window_start: string;
   service_window_end: string;
+  /** Plate count locked (and auto-finalized if not confirmed) at this time on day D. */
+  finalization_deadline: string;
   service_weekdays: string;
   publish_deadline_days: number;
   payment_enabled: boolean;

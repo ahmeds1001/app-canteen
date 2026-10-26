@@ -102,13 +102,22 @@ class FinalizationTests(TestCase):
             with self.assertRaises(DomainError):
                 services.finalize(self.menu, final_plate_count=19, by=self.manager)
 
-    def test_locked_after_service_start(self):
-        with clock.frozen(f.at(2026, 11, 2, 12, 0)):
+    def test_locked_at_the_finalization_deadline(self):
+        """FR-27: the count locks at 10:00 by default (decided 2026-10-26), before service at 12:00."""
+        with clock.frozen(f.at(2026, 11, 2, 9, 59)):
+            services.finalize(self.menu, final_plate_count=22, by=self.manager)
+        with clock.frozen(f.at(2026, 11, 2, 10, 0)):
             with self.assertRaises(DomainError):
-                services.finalize(self.menu, final_plate_count=22, by=self.manager)
+                services.finalize(self.menu, final_plate_count=23, by=self.manager)
 
-    def test_auto_finalize_at_service_start(self):
-        with clock.frozen(f.at(2026, 11, 2, 12, 0, 30)):
+    def test_no_auto_finalize_before_the_deadline(self):
+        with clock.frozen(f.at(2026, 11, 2, 9, 59)):
+            jobs.auto_finalize()
+        self.menu.refresh_from_db()
+        self.assertEqual(self.menu.status, Menu.Status.LOCKED)
+
+    def test_auto_finalize_at_the_deadline(self):
+        with clock.frozen(f.at(2026, 11, 2, 10, 0, 30)):
             jobs.auto_finalize()
         self.menu.refresh_from_db()
         self.assertTrue(self.menu.auto_finalized)

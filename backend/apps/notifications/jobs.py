@@ -22,7 +22,8 @@ def finalization_reminder() -> int:
     """Management, at `finalization_reminder_time` on day D, while today is locked and not finalized."""
     cfg = CanteenSettings.load()
     today = clock.today()
-    if not _due(cfg.finalization_reminder_time) or clock.now() >= rules.service_start(today, cfg):
+    deadline = rules.finalization_deadline(today, cfg)
+    if not _due(cfg.finalization_reminder_time) or clock.now() >= deadline:
         return 0
     menu = Menu.objects.filter(date=today, status=Menu.Status.LOCKED).first()
     if menu is None:
@@ -32,7 +33,7 @@ def finalization_reminder() -> int:
     return services.notify(
         active_users("management"), Kind.FINALIZATION_REMINDER,
         params={"date": today.isoformat(), "reserved": reserved_count(menu),
-                "time": cfg.service_window_start.strftime("%H:%M")},
+                "time": deadline.strftime("%H:%M")},  # already in the company time zone
         link="/management/finalize", dedupe_key=today.isoformat(),
     )
 

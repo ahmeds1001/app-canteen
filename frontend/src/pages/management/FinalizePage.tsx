@@ -20,12 +20,15 @@ export default function FinalizePage() {
   });
   const settings = useQuery({ queryKey: ["settings"], queryFn: settingsApi.public, staleTime: Infinity });
   const days = (menus.data ?? []).filter((m) => m.status !== "draft");
+  // FR-26/27: the count locks at the finalization deadline (10:00 by default), never after service start.
+  const start = settings.data?.service_window_start ?? "12:00:00";
+  const deadline = [settings.data?.finalization_deadline ?? "10:00:00", start].sort()[0];
 
   return (
     <div className="container stack">
       <h1>{t("finalize.title")}</h1>
       <p className="muted">
-        {t("finalize.help", { time: settings.data?.service_window_start.slice(0, 5) ?? "12:00" })}
+        {t("finalize.help", { time: deadline.slice(0, 5) })}
       </p>
       {menus.data && days.length === 0 && <p className="muted">{t("finalize.empty")}</p>}
       <div className="final-grid">
@@ -33,7 +36,7 @@ export default function FinalizePage() {
           <FinalizeCard
             key={menu.id}
             menu={menu}
-            serviceStart={settings.data?.service_window_start ?? "12:00:00"}
+            deadline={deadline}
             serverTime={serverTime}
           />
         ))}
@@ -42,9 +45,9 @@ export default function FinalizePage() {
   );
 }
 
-function FinalizeCard({ menu, serviceStart, serverTime }: {
+function FinalizeCard({ menu, deadline, serverTime }: {
   menu: StaffMenu;
-  serviceStart: string;
+  deadline: string;
   serverTime?: string;
 }) {
   const { t, i18n } = useTranslation();
@@ -54,9 +57,9 @@ function FinalizeCard({ menu, serviceStart, serverTime }: {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
 
-  // The final count is locked once the service window opens (FR-27). Both strings are company
+  // The final count is locked at the finalization deadline (FR-27). Both strings are company
   // wall-clock time, so they compare as text; the backend enforces the rule anyway.
-  const serviceStarted = Boolean(serverTime && serverTime.slice(0, 19) >= `${menu.date}T${serviceStart}`);
+  const serviceStarted = Boolean(serverTime && serverTime.slice(0, 19) >= `${menu.date}T${deadline}`);
   const canFinalize = (menu.status === "locked" || (menu.status === "finalized" && editing)) && !serviceStarted;
 
   const proposal = useQuery({

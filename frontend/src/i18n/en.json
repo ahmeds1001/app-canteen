@@ -165,7 +165,7 @@
     "publish_deadline_passed": "The publishing deadline has passed: the day will open as \"Menu to be announced\".",
     "cannot_close": "Only a draft or published day can be closed.",
     "not_locked": "Finalization is possible only after reservations close.",
-    "finalization_closed": "Service has started: the plate count is locked.",
+    "finalization_closed": "The finalization deadline has passed: the plate count is locked.",
     "below_reserved": "The final count cannot be below the number of reservations.",
     "above_kitchen_max": "The count exceeds the kitchen's maximum capacity.",
     "not_pending": "This account is no longer pending.", "reason_required": "Please give a reason.",

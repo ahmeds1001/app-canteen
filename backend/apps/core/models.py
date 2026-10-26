@@ -31,6 +31,10 @@ class CanteenSettings(models.Model):
     )
     cutoff_time = models.TimeField(default=time(23, 59, 59))
     service_window_start = models.TimeField(default=time(12, 0))
+    finalization_deadline = models.TimeField(
+        default=time(10, 0),
+        help_text="Plate count locked and, if not confirmed, auto-finalized (FR-26/27). Never after service start.",
+    )
     service_window_end = models.TimeField(default=time(15, 0))
     # Notification times (spec §8), company time zone.
     menu_missing_reminder_time = models.TimeField(default=time(8, 0), help_text="Chef: menus still to publish.")

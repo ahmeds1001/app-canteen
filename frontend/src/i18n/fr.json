@@ -166,7 +166,7 @@
     "publish_deadline_passed": "La date limite de publication est dépassée : le jour s'ouvrira en « Menu à venir ».",
     "cannot_close": "Seul un jour en brouillon ou publié peut être fermé.",
     "not_locked": "La finalisation est possible seulement après la clôture des réservations.",
-    "finalization_closed": "Le service a commencé : le nombre d'assiettes est verrouillé.",
+    "finalization_closed": "L'heure limite de finalisation est passée : le nombre d'assiettes est verrouillé.",
     "below_reserved": "Le nombre final ne peut pas être inférieur au nombre de réservations.",
     "above_kitchen_max": "Le nombre dépasse la capacité maximale de la cuisine.",
     "not_pending": "Ce compte n'est plus en attente.", "reason_required": "Indiquez un motif.",

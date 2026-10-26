@@ -14,6 +14,7 @@ class PublicSettingsSerializer(serializers.ModelSerializer):
             "cutoff_time",
             "service_window_start",
             "service_window_end",
+            "finalization_deadline",
             "service_weekdays",
             "publish_deadline_days",
             "payment_enabled",

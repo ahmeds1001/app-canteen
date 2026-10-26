@@ -50,10 +50,10 @@ def lock_menus() -> int:
 
 
 def auto_finalize() -> int:
-    """FR-26: at service start, finalize days management did not finalize."""
+    """FR-26: at the finalization deadline (10:00 by default), finalize days management did not finalize."""
     count = 0
     for menu in Menu.objects.filter(status=Menu.Status.LOCKED, date__lte=clock.today()):
-        if clock.now() >= rules.service_start(menu.date):
+        if clock.now() >= rules.finalization_deadline(menu.date):
             proposal = services.proposed_plate_count(menu)
             services.finalize(menu, final_plate_count=proposal["proposed"], auto=True)
             count += 1
