@@ -5,8 +5,17 @@ from . import rules
 from .models import Dish, Menu, MenuItem
 
 
+class RelativeImageField(serializers.ImageField):
+    """Always `/media/…`: an absolute URL would name the backend's own host (localhost:8000 behind the dev
+    proxy, an internal host behind the production proxy), which a phone cannot reach."""
+
+    def to_representation(self, value):
+        return value.url if value else None
+
+
 class DishSerializer(serializers.ModelSerializer):
     last_served_on = serializers.DateField(read_only=True, allow_null=True)
+    photo = RelativeImageField(required=False, allow_null=True)
 
     class Meta:
         model = Dish

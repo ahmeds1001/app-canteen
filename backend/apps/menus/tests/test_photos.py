@@ -58,6 +58,9 @@ class DishPhotoTests(TestCase):
         response = client.post("/api/v1/dishes/", {"name": "Ojja", "category": "main", "photo": png(800, 600)})
         self.assertEqual(response.status_code, 201)
         self.assertTrue(response.json()["photo"].startswith("/media/dishes/"))
+        # The list too (it is serialized with the request, which used to make the URL absolute).
+        listed = client.get("/api/v1/dishes/", HTTP_HOST="localhost:8000").json()
+        self.assertTrue(listed[0]["photo"].startswith("/media/dishes/"), listed[0]["photo"])
 
     def test_menu_items_expose_the_photo_url(self):
         dish = services.create_dish(by=self.chef, name="Couscous", category="main", photo=png(400, 300))
