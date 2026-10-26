@@ -56,6 +56,10 @@
 .field select:focus,
 .field textarea:focus { border-color: var(--color-primary); outline: none; box-shadow: 0 0 0 3px rgb(10 107 40 / 18%); }
 .field__error { color: var(--color-danger); font-size: var(--text-sm); }
+.password-rules { font-size: var(--text-sm); color: var(--color-text-muted); }
+.password-rules ul { margin: var(--space-1) 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.password-rules li > span { display: inline-block; inline-size: 1.2em; }
+.password-rules__met { color: var(--color-success); }
 .field input.otp { letter-spacing: 0.5em; font-size: var(--text-xl); text-align: center; font-family: var(--font-heading); }
 
 .alert { border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); }

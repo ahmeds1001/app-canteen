@@ -31,7 +31,7 @@ MATRIX = [
     ("post", f"/api/v1/auth/users/{ID}/reject/", {"hr"}),
     ("post", f"/api/v1/auth/users/{ID}/reset-password/", {"hr"}),
     ("post", f"/api/v1/auth/users/{ID}/status/suspend/", {"hr"}),
-    ("post", "/api/v1/auth/users/roster/import/", {"hr"}),
+    ("post", f"/api/v1/auth/users/{ID}/employee-number/", {"hr"}),
     ("get", "/api/v1/reservations/", EVERYONE),
     ("post", "/api/v1/scan/", {"scanner"}),
     ("get", "/api/v1/checkin/?q=zz", {"scanner"}),

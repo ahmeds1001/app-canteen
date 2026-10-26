@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { userAdminApi } from "@/api/endpoints";
 import type { AccountStatus, ManagedUser, Role } from "@/api/types";
@@ -25,7 +25,7 @@ type Transition = "suspend" | "reactivate" | "deactivate";
 
 const ROLES: Role[] = ["employee", "hr", "chef", "management", "scanner", "admin"];
 
-/** FR-04 to FR-06, FR-37, FR-40: HR approves registrations and manages accounts. */
+/** FR-04 to FR-06, FR-40: HR approves registrations (entering the matricule) and manages accounts. */
 export default function AccountsPage() {
   const { t, i18n } = useTranslation();
   const { user: me } = useAuth();
@@ -33,11 +33,10 @@ export default function AccountsPage() {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState(TABS[0]);
   const [q, setQ] = useState("");
-  const [selected, setSelected] = useState<number[]>([]);
   const [rejecting, setRejecting] = useState<ManagedUser | null>(null);
+  const [numbering, setNumbering] = useState<ManagedUser | null>(null);
   const [tempPassword, setTempPassword] = useState<{ user: ManagedUser; password: string; hours: number } | null>(null);
   const [message, setMessage] = useState<{ kind: "error" | "success"; text: string } | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
 
   const users = useQuery({
     queryKey: ["users", tab.key, q],
@@ -45,25 +44,13 @@ export default function AccountsPage() {
     placeholderData: keepPreviousData,
   });
   const list = users.data ?? [];
-  const pendingView = tab.key === "pending";
 
   const done = (text?: string) => {
     setMessage(text ? { kind: "success", text } : null);
-    setSelected([]);
     queryClient.invalidateQueries({ queryKey: ["users"] });
   };
   const fail = (e: unknown) => setMessage({ kind: "error", text: toMessage(e) });
 
-  const approve = useMutation({
-    mutationFn: userAdminApi.approve,
-    onSuccess: (u) => done(t("accounts.approved", { name: u.full_name })),
-    onError: fail,
-  });
-  const bulkApprove = useMutation({
-    mutationFn: userAdminApi.bulkApprove,
-    onSuccess: (list) => done(t("accounts.bulkApproved", { count: list.length })),
-    onError: fail,
-  });
   const changeStatus = useMutation({
     mutationFn: ({ id, transition }: { id: number; transition: Transition }) => userAdminApi.changeStatus(id, transition),
     onSuccess: (u) => done(t("accounts.statusChanged", { name: u.full_name, status: t(`accounts.status.${u.status}`) })),
@@ -82,15 +69,7 @@ export default function AccountsPage() {
     },
     onError: fail,
   });
-  const importRoster = useMutation({
-    mutationFn: userAdminApi.importRoster,
-    onSuccess: (res) => done(t("accounts.imported", { count: res.imported })),
-    onError: fail,
-    onSettled: () => { if (fileInput.current) fileInput.current.value = ""; },
-  });
 
-  const toggle = (id: number) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
-  const onRoster = list.filter((u) => u.on_roster).map((u) => u.id);
   const confirm = useConfirm();
   const confirmThen = confirm.ask;
 
@@ -98,20 +77,8 @@ export default function AccountsPage() {
     <div className="container stack">
       <div className="page-head">
         <h1>{t("accounts.title")}</h1>
-        <div className="actions">
-          <input
-            ref={fileInput}
-            type="file"
-            accept=".csv,text/csv"
-            hidden
-            onChange={(e) => e.target.files?.[0] && importRoster.mutate(e.target.files[0])}
-          />
-          <Button variant="ghost" disabled={importRoster.isPending} onClick={() => fileInput.current?.click()}>
-            {t("accounts.importRoster")}
-          </Button>
-        </div>
       </div>
-      <p className="muted">{t("accounts.rosterHelp")}</p>
+      <p className="muted">{t("accounts.help")}</p>
 
       <div className="tabs" role="tablist">
         {TABS.map((item) => (
@@ -120,7 +87,7 @@ export default function AccountsPage() {
             role="tab"
             aria-selected={tab.key === item.key}
             className={`tab ${tab.key === item.key ? "tab--active" : ""}`}
-            onClick={() => { setTab(item); setSelected([]); setMessage(null); }}
+            onClick={() => { setTab(item); setMessage(null); }}
           >
             {t(`accounts.tabs.${item.key}`)}
           </button>
@@ -132,40 +99,16 @@ export default function AccountsPage() {
       </div>
       {message && <Alert kind={message.kind}>{message.text}</Alert>}
 
-      {pendingView && list.length > 0 && (
-        <div className="actions">
-          <Button variant="ghost" className="btn--sm" disabled={onRoster.length === 0} onClick={() => setSelected(onRoster)}>
-            {t("accounts.selectOnRoster", { count: onRoster.length })}
-          </Button>
-          <Button
-            className="btn--sm"
-            disabled={selected.length === 0 || bulkApprove.isPending}
-            onClick={() => bulkApprove.mutate(selected)}
-          >
-            {t("accounts.approveSelected", { count: selected.length })}
-          </Button>
-        </div>
-      )}
-
       {users.data && list.length === 0 && <p className="muted">{t(`accounts.empty.${tab.key}`)}</p>}
       <div className="accounts">
         {list.map((user) => (
           <Card key={user.id} className="account">
             <div className="account__main">
-              {pendingView && (
-                <input
-                  type="checkbox"
-                  className="account__check"
-                  aria-label={user.full_name}
-                  checked={selected.includes(user.id)}
-                  onChange={() => toggle(user.id)}
-                />
-              )}
               <div className="account__who">
                 <strong>{user.full_name}</strong>
                 <span className="muted">{user.work_email}</span>
                 <span className="account__meta">
-                  {t("accounts.number", { number: user.employee_number })}
+                  {user.employee_number ? t("accounts.number", { number: user.employee_number }) : t("accounts.noNumber")}
                   {user.department && ` · ${user.department}`}
                   {` · ${t(`accounts.roles.${user.role}`)}`}
                   {` · ${t("accounts.since", { date: formatShortDate(user.created_at.slice(0, 10), i18n.language) })}`}
@@ -173,11 +116,6 @@ export default function AccountsPage() {
               </div>
               <div className="account__badges">
                 <Badge tone={STATUS_TONE[user.status]}>{t(`accounts.status.${user.status}`)}</Badge>
-                {user.status === "pending_hr" && (
-                  <Badge tone={user.on_roster ? "green" : "orange"}>
-                    {t(user.on_roster ? "accounts.onRoster" : "accounts.notOnRoster")}
-                  </Badge>
-                )}
               </div>
             </div>
             {user.id !== me?.id && <div className="actions">
@@ -202,7 +140,7 @@ export default function AccountsPage() {
               )}
               {user.status === "pending_hr" && (
                 <>
-                  <Button className="btn--sm" disabled={approve.isPending} onClick={() => approve.mutate(user.id)}>
+                  <Button className="btn--sm" onClick={() => setNumbering(user)}>
                     {t("accounts.approve")}
                   </Button>
                   <Button className="btn--sm" variant="danger" onClick={() => setRejecting(user)}>
@@ -227,6 +165,9 @@ export default function AccountsPage() {
               )}
               {(user.status === "active" || user.status === "suspended") && (
                 <>
+                  <Button className="btn--sm" variant="ghost" onClick={() => setNumbering(user)}>
+                    {t(user.employee_number ? "accounts.editNumber" : "accounts.addNumber")}
+                  </Button>
                   <Button
                     className="btn--sm"
                     variant="ghost"
@@ -255,6 +196,9 @@ export default function AccountsPage() {
       {rejecting && (
         <RejectDialog user={rejecting} onClose={() => setRejecting(null)} onDone={() => done(t("accounts.rejected", { name: rejecting.full_name }))} />
       )}
+      {numbering && (
+        <EmployeeNumberDialog user={numbering} onClose={() => setNumbering(null)} onDone={(text) => done(text)} />
+      )}
       {tempPassword && (
         <Dialog title={t("accounts.tempTitle")} onClose={() => setTempPassword(null)}>
           <div className="stack">
@@ -266,6 +210,46 @@ export default function AccountsPage() {
         </Dialog>
       )}
     </div>
+  );
+}
+
+/** FR-04: HR types the employee's matricule to approve a pending account, or corrects it on an approved one. */
+function EmployeeNumberDialog({ user, onClose, onDone }: {
+  user: ManagedUser;
+  onClose: () => void;
+  onDone: (message: string) => void;
+}) {
+  const { t } = useTranslation();
+  const toMessage = useErrorMessage();
+  const approving = user.status === "pending_hr";
+  const [number, setNumber] = useState(user.employee_number ?? "");
+  const [error, setError] = useState("");
+  const save = useMutation({
+    mutationFn: () => (approving ? userAdminApi.approve : userAdminApi.setEmployeeNumber)(user.id, number.trim()),
+    onSuccess: (u) => {
+      onDone(approving
+        ? t("accounts.approved", { name: u.full_name })
+        : t("accounts.numberChanged", { name: u.full_name, number: u.employee_number }));
+      onClose();
+    },
+    onError: (e) => setError(toMessage(e)),
+  });
+
+  return (
+    <Dialog title={t(approving ? "accounts.approveTitle" : "accounts.numberTitle", { name: user.full_name })} onClose={onClose}>
+      <form className="stack" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
+        {approving && <p className="muted">{t("accounts.approveHelp", { email: user.work_email })}</p>}
+        {error && <Alert>{error}</Alert>}
+        <Field label={t("accounts.numberLabel")} value={number} maxLength={40} onChange={(e) => setNumber(e.target.value)}
+          required autoFocus />
+        <div className="actions">
+          <Button type="submit" disabled={save.isPending || !number.trim()}>
+            {t(approving ? "accounts.approve" : "common.save")}
+          </Button>
+          <Button type="button" variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
+        </div>
+      </form>
+    </Dialog>
   );
 }
 

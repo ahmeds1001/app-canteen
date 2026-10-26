@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { authApi } from "@/api/endpoints";
 import { AuthLayout } from "@/components/layout/AuthLayout";
-import { Alert, Button, Field } from "@/components/ui";
+import { Alert, Button, Field, PasswordRules } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 
@@ -74,6 +74,7 @@ export function ResetPasswordPage() {
           <>
             <Field label={t("auth.newPassword")} type="password" autoComplete="new-password" required
               value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordRules password={password} />
             <Button type="submit" block>{t("auth.save")}</Button>
           </>
         )}
@@ -109,6 +110,7 @@ export function MustChangePasswordPage() {
         {error && <Alert>{error}</Alert>}
         <Field label={t("auth.newPassword")} type="password" autoComplete="new-password" required
           value={password} onChange={(e) => setPassword(e.target.value)} />
+        <PasswordRules password={password} />
         <Button type="submit" block>{t("auth.save")}</Button>
       </form>
     </AuthLayout>

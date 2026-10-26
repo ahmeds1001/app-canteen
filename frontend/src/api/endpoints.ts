@@ -26,7 +26,6 @@ export const authApi = {
     first_name: string;
     last_name: string;
     work_email: string;
-    employee_number: string;
     department: string;
     password: string;
   }) => api<{ status: string; work_email: string }>("/auth/register/", { method: "POST", json: data }),
@@ -43,7 +42,7 @@ export const authApi = {
     api("/auth/password/reset/", { method: "POST", json: { token, new_password } }),
 };
 
-/** HR dashboard (FR-04 to FR-06, FR-37, FR-40). */
+/** HR dashboard (FR-04 to FR-06, FR-40). */
 export const userAdminApi = {
   list: (filters: { status?: string; q?: string } = {}) => {
     const q = new URLSearchParams();
@@ -51,25 +50,22 @@ export const userAdminApi = {
     if (filters.q) q.set("q", filters.q);
     return api<ManagedUser[]>(`/auth/users/?${q}`);
   },
-  approve: (id: number) => api<ManagedUser>(`/auth/users/${id}/approve/`, { method: "POST" }),
+  /** HR types the employee's matricule when approving. */
+  approve: (id: number, employee_number: string) =>
+    api<ManagedUser>(`/auth/users/${id}/approve/`, { method: "POST", json: { employee_number } }),
+  setEmployeeNumber: (id: number, employee_number: string) =>
+    api<ManagedUser>(`/auth/users/${id}/employee-number/`, { method: "POST", json: { employee_number } }),
   reject: (id: number, reason: string) =>
     api<ManagedUser>(`/auth/users/${id}/reject/`, { method: "POST", json: { reason } }),
   /** FR-41: admin only. */
   setRole: (id: number, role: Role) =>
     api<ManagedUser>(`/auth/users/${id}/role/`, { method: "POST", json: { role } }),
-  bulkApprove: (ids: number[]) =>
-    api<ManagedUser[]>("/auth/users/bulk-approve/", { method: "POST", json: { ids } }),
   changeStatus: (id: number, transition: "suspend" | "reactivate" | "deactivate") =>
     api<ManagedUser>(`/auth/users/${id}/status/${transition}/`, { method: "POST" }),
   resetPassword: (id: number) =>
     api<{ temporary_password: string; expires_in_hours: number }>(`/auth/users/${id}/reset-password/`, {
       method: "POST",
     }),
-  importRoster: (file: File) => {
-    const body = new FormData();
-    body.append("file", file);
-    return api<{ imported: number }>("/auth/users/roster/import/", { method: "POST", body });
-  },
 };
 
 export type DishInput = {

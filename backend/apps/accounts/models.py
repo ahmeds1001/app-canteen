@@ -45,7 +45,9 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
     work_email = models.EmailField(unique=True)
-    employee_number = models.CharField(max_length=40, unique=True)
+    # Entered by HR when approving the account, never by the employee (FR-01, FR-04). Empty until then.
+    # NULL (not "") so the unique constraint below ignores accounts still waiting for one.
+    employee_number = models.CharField(max_length=40, null=True, blank=True)  # noqa: DJ001
     department = models.CharField(max_length=100, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.EMPLOYEE)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.REGISTERED, db_index=True)
@@ -70,6 +72,13 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
 
     class Meta:
         ordering = ["last_name", "first_name"]
+        constraints = [
+            # Unique once filled; many accounts may still be waiting for one (filtered index on SQL Server).
+            models.UniqueConstraint(
+                fields=["employee_number"], condition=Q(employee_number__isnull=False),
+                name="unique_employee_number",
+            )
+        ]
 
     @property
     def is_active_account(self) -> bool:
@@ -80,11 +89,12 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
         return f"{self.first_name} {self.last_name}".strip()
 
     def __str__(self) -> str:
-        return f"{self.full_name} ({self.employee_number})"
+        return f"{self.full_name} ({self.employee_number or self.work_email})"
 
 
 class EmployeeRoster(models.Model):
-    """List of valid employee numbers imported by HR (FR-37)."""
+    """List of employee numbers once imported by HR. No longer used since 2026-10-26 (HR types the
+    matricule at approval); kept because data is never deleted."""
 
     employee_number = models.CharField(max_length=40, primary_key=True)
     full_name = models.CharField(max_length=160)

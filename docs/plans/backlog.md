@@ -8,7 +8,7 @@ item into a plan file in this folder, then the **executor** to build it.
 - [x] Repo structure, settings per environment, SQL Server config, Docker files
 - [x] Models for every table in spec §6.1 + migrations
 - [x] Registration with email OTP, login, HR approve/reject/suspend, password reset by link and by HR (FR-01–06, FR-39, FR-40) — API + tests
-- [x] Roster CSV import (FR-37) — API
+- [x] ~~Roster CSV import (FR-37) — API~~ (removed 2026-10-26, see below)
 - [x] Dish library + menu building with snapshot, publishing deadline, placeholder menu job (FR-07, FR-29–31, FR-38) — API + tests
 - [x] Finalization with 10 % buffer and auto-finalization (FR-24–27) — API + tests
 - [x] Reservation / cancel with midnight cutoff, unique active reservation per day (FR-11–13) — API + tests
@@ -29,6 +29,9 @@ item into a plan file in this folder, then the **executor** to build it.
   employees who have not reserved for tomorrow.
 - [x] **Role assignment in the app** (FR-41, decided 2026-10-25): role dropdown for the admin on the Comptes screen;
   own role and last active admin protected; audited.
+- [x] **HR enters the employee number at approval** (FR-01, FR-04, decided 2026-10-26): no matricule on the sign-up
+  form; approve dialog asks for it (required, unique); HR can correct it later (audited `employee_number_change`).
+  CSV import, list badges and bulk approval removed. Sign-up and new-password forms list the password rules.
 - [x] Close day → cancel its reservations (`menus/services.close_day`). Notifying the employees is part of Notifications.
 - [ ] Refresh-token blacklist so a password change ends other sessions (FR-39) — `rest_framework_simplejwt.token_blacklist`.
 

@@ -95,7 +95,8 @@ class AuditLog(models.Model):
         REACTIVATE = "reactivate"
         DEACTIVATE = "deactivate"
         STATUS_CHANGE = "status_change"  # other account status changes made in the Django admin
-        ROSTER_IMPORT = "roster_import"
+        ROSTER_IMPORT = "roster_import"  # no longer recorded (CSV import removed 2026-10-26); kept for old rows
+        EMPLOYEE_NUMBER_CHANGE = "employee_number_change"
         DISH_CREATE = "dish_create"
         DISH_EDIT = "dish_edit"
         DISH_ARCHIVE = "dish_archive"

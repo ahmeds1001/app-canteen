@@ -107,6 +107,30 @@ export function Badge({ tone, children }: { tone?: "green" | "orange" | "red"; c
   return <span className={`badge ${tone ? `badge--${tone}` : ""}`}>{children}</span>;
 }
 
+/** The server's password rules (AUTH_PASSWORD_VALIDATORS), listed under a new-password field. The first two
+ * are ticked as the person types; the other two can only be checked by the server. */
+export function PasswordRules({ password }: { password: string }) {
+  const { t } = useTranslation();
+  const rules: { key: string; met?: boolean }[] = [
+    { key: "minLength", met: password.length >= 8 },
+    { key: "notNumeric", met: password.length > 0 && !/^\d+$/.test(password) },
+    { key: "notCommon" },
+    { key: "notPersonal" },
+  ];
+  return (
+    <div className="password-rules" aria-live="polite">
+      <span>{t("auth.passwordRules.title")}</span>
+      <ul>
+        {rules.map(({ key, met }) => (
+          <li key={key} className={met ? "password-rules__met" : ""}>
+            <span aria-hidden="true">{met ? "✓" : "•"}</span> {t(`auth.passwordRules.${key}`)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function Logo({ size = 120 }: { size?: number }) {
   return <img className="logo" src="/logo.png" alt="OVAGRI Groupe" width={size} height={size} />;
 }

@@ -12,11 +12,11 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import F
 
 from apps.core import audit, clock, notifications
-from apps.core.exceptions import DomainError, NotAllowed
+from apps.core.exceptions import Conflict, DomainError, NotAllowed
 from apps.notifications import events as notification_events
 
 from .models import EmailOTP, PasswordResetToken, User
@@ -36,13 +36,13 @@ def _hash(value: str) -> str:
 
 # --- Registration and email OTP (FR-01, FR-02) ---------------------------------------
 @transaction.atomic
-def register(*, first_name, last_name, work_email, employee_number, department, password) -> User:
+def register(*, first_name, last_name, work_email, department, password) -> User:
+    """The employee does not give a matricule: HR enters it at approval (FR-04)."""
     user = User.objects.create_user(
         work_email=work_email,
         password=password,
         first_name=first_name,
         last_name=last_name,
-        employee_number=employee_number,
         department=department,
     )
     audit.record(audit.AuditLog.Action.REGISTER, actor=user, target=user)
@@ -122,13 +122,53 @@ def login(work_email: str, password: str) -> User:
 
 
 # --- HR approval (FR-04 to FR-06) -----------------------------------------------------
-def approve(user: User, *, by: User) -> User:
-    if user.status != User.Status.PENDING_HR:
+def _clean_employee_number(number: str, *, exclude: User) -> str:
+    number = (number or "").strip()
+    if not number:
+        raise DomainError("employee_number_required", "Enter the employee number.")
+    if User.objects.filter(employee_number=number).exclude(pk=exclude.pk).exists():
+        raise Conflict("employee_number_taken", "Another account already has this employee number.")
+    return number
+
+
+@transaction.atomic
+def approve(user: User, *, by: User, employee_number: str) -> User:
+    """HR types the employee's matricule when approving (FR-04): required and unique."""
+    number = _clean_employee_number(employee_number, exclude=user)
+    # Conditional update: a double tap or two HR users approving at once activate the account only once.
+    try:
+        with transaction.atomic():
+            changed = User.objects.filter(pk=user.pk, status=User.Status.PENDING_HR).update(
+                status=User.Status.ACTIVE, employee_number=number, approved_by=by, approved_at=clock.now(),
+                updated_at=clock.now(),
+            )
+    except IntegrityError:  # the same matricule was given to someone else at the same moment
+        raise Conflict("employee_number_taken", "Another account already has this employee number.") from None
+    user.refresh_from_db()
+    if not changed:
+        if user.status == User.Status.ACTIVE:
+            return user  # idempotent
         raise DomainError("not_pending", "Only pending accounts can be approved.")
-    user.status, user.approved_by, user.approved_at = User.Status.ACTIVE, by, clock.now()
-    user.save(update_fields=["status", "approved_by", "approved_at", "updated_at"])
-    audit.record(audit.AuditLog.Action.APPROVE, actor=by, target=user)
+    audit.record(audit.AuditLog.Action.APPROVE, actor=by, target=user, employee_number=number)
     notifications.account_approved(user)
+    return user
+
+
+@transaction.atomic
+def set_employee_number(user: User, employee_number: str, *, by: User) -> User:
+    """HR corrects the matricule of an approved account."""
+    number = _clean_employee_number(employee_number, exclude=user)
+    old = user.employee_number
+    if old == number:
+        return user
+    try:
+        with transaction.atomic():
+            User.objects.filter(pk=user.pk).update(employee_number=number, updated_at=clock.now())
+    except IntegrityError:
+        raise Conflict("employee_number_taken", "Another account already has this employee number.") from None
+    user.refresh_from_db()
+    audit.record(audit.AuditLog.Action.EMPLOYEE_NUMBER_CHANGE, actor=by, target=user, old_value=old or "",
+                 new_value=number)
     return user
 
 

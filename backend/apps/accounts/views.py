@@ -1,8 +1,5 @@
 """Accounts API controllers: validate input, call a service, return a representation."""
-import csv
-import io
-
-from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action
@@ -13,13 +10,13 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.core import audit
 from apps.core.permissions import IsHR
 
 from . import services
-from .models import EmployeeRoster, User
+from .models import User
 from .serializers import (
     EmailSerializer,
+    EmployeeNumberSerializer,
     LoginSerializer,
     OTPVerifySerializer,
     PasswordChangeSerializer,
@@ -123,7 +120,7 @@ class PasswordChangeView(APIView):
 
 
 class UserAdminViewSet(GenericViewSet):
-    """HR dashboard: list accounts and act on them (FR-04, FR-06, FR-37, FR-40)."""
+    """HR dashboard: list accounts and act on them (FR-04, FR-06, FR-40)."""
 
     permission_classes = [IsHR]
     serializer_class = UserSerializer
@@ -133,12 +130,11 @@ class UserAdminViewSet(GenericViewSet):
         if status_filter := self.request.query_params.get("status"):
             qs = qs.filter(status=status_filter)
         if search := self.request.query_params.get("q"):
-            qs = qs.filter(last_name__icontains=search) | qs.filter(employee_number__icontains=search)
+            qs = qs.filter(
+                Q(last_name__icontains=search) | Q(first_name__icontains=search)
+                | Q(employee_number__icontains=search) | Q(work_email__icontains=search)
+            )
         return qs
-
-    def get_serializer_context(self):
-        roster = set(EmployeeRoster.objects.values_list("employee_number", flat=True))
-        return {**super().get_serializer_context(), "roster_numbers": roster}
 
     def list(self, request):
         return Response(self.get_serializer(self.get_queryset(), many=True).data)
@@ -149,20 +145,22 @@ class UserAdminViewSet(GenericViewSet):
 
     @action(detail=True, methods=["post"])
     def approve(self, request, pk=None):
-        return self._act(request, pk, services.approve)
+        data = EmployeeNumberSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        return self._act(request, pk, services.approve, employee_number=data.validated_data["employee_number"])
+
+    @action(detail=True, methods=["post"], url_path="employee-number")
+    def employee_number(self, request, pk=None):
+        data = EmployeeNumberSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        return self._act(request, pk, services.set_employee_number,
+                         employee_number=data.validated_data["employee_number"])
 
     @action(detail=True, methods=["post"])
     def reject(self, request, pk=None):
         data = RejectSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         return self._act(request, pk, services.reject, reason=data.validated_data["reason"])
-
-    @action(detail=False, methods=["post"], url_path="bulk-approve")
-    def bulk_approve(self, request):
-        ids = request.data.get("ids", [])
-        with transaction.atomic():
-            users = [services.approve(u, by=request.user) for u in User.objects.filter(pk__in=ids)]
-        return Response(self.get_serializer(users, many=True).data)
 
     @action(detail=True, methods=["post"], url_path=r"status/(?P<transition>suspend|reactivate|deactivate)")
     def change_status(self, request, pk=None, transition=None):
@@ -180,28 +178,3 @@ class UserAdminViewSet(GenericViewSet):
     def reset_password(self, request, pk=None):
         temp = services.staff_reset_password(get_object_or_404(User, pk=pk), by=request.user)
         return Response({"temporary_password": temp, "expires_in_hours": 72})
-
-    @action(detail=False, methods=["post"], url_path="roster/import")
-    def import_roster(self, request):
-        """CSV with header: employee_number,full_name,department"""
-        upload = request.FILES.get("file")
-        if upload is None:
-            return Response({"code": "file_required"}, status=status.HTTP_400_BAD_REQUEST)
-        rows = csv.DictReader(io.StringIO(upload.read().decode("utf-8-sig")))
-        count = 0
-        with transaction.atomic():
-            for row in rows:
-                number = (row.get("employee_number") or "").strip()
-                if not number:
-                    continue
-                EmployeeRoster.objects.update_or_create(
-                    employee_number=number,
-                    defaults={
-                        "full_name": (row.get("full_name") or "").strip(),
-                        "department": (row.get("department") or "").strip(),
-                        "imported_by": request.user,
-                    },
-                )
-                count += 1
-        audit.record(audit.AuditLog.Action.ROSTER_IMPORT, actor=request.user, rows=count)
-        return Response({"imported": count})

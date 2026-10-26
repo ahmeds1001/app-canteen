@@ -18,7 +18,7 @@ Decisions taken with management on 23 oct. 2026:
 - **Scanning:** a dedicated phone stays in the canteen, used by the **Scanner** role. This role will later also act as **cashier** (marks meals as paid).
 - **Email OTP:** email verification now uses a 6-digit one-time code instead of a link (FR-02). The OTP is used **only at registration**: no OTP at login, no OTP for password reset. New **Email OTP** table.
 - **Forgotten password, two ways:** a self-service reset link by email, valid 30 minutes (FR-39), or a reset by HR/admin with a temporary password handed over in person and changed at the next login (FR-40).
-- **No HR directory:** all employees register themselves. HR can import a CSV of valid employee numbers to speed up approval (FR-37).
+- **No HR directory:** all employees register themselves. ~~HR can import a CSV of valid employee numbers to speed up approval (FR-37).~~ **[2026-10-26] Employees no longer give their employee number: HR enters it when approving the account (FR-01, FR-04). The CSV import (FR-37) and bulk approval are dropped.**
 - **Hosting:** company server, already reachable from the internet (it serves the ERP desktop app and the salesmen's mobile app). The canteen app is isolated from the ERP on that server (NFR, section 5).
 - **Users:** about 200 at most; performance targets sized on 200 simultaneous users at the evening cutoff.
 - **Booking horizon:** no limit. Employees can reserve any day whose menu is published, however far ahead; in practice the limit is how far ahead the chef publishes.
@@ -97,16 +97,16 @@ The requirements below cover the full flow from registration to reporting; M = m
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| FR-01 | An employee registers with first and last name, work email, employee number, department and password. | M |
+| FR-01 | An employee registers with first and last name, work email, department (optional) and password. **[2026-10-26] The employee does not enter an employee number; HR enters it at approval (FR-04). The form lists the password rules: at least 8 characters, not only digits, not a common password, not similar to the name or email.** | M |
 | FR-02 | **[v3] The employee confirms ownership of the email with a one-time code (OTP).** Right after registration, the system emails a 6-digit code and shows a "Enter the code we sent to your email" screen. The code is valid **10 minutes** and for **one use**; after **5 wrong attempts** it is invalidated and a new code must be requested. A **"Resend code"** button is available after 60 seconds (maximum 5 codes per hour per account); requesting a new code cancels the previous one. If the employee closes the page, he can come back by logging in: an unverified account is sent to the code screen. **The OTP is used only for this registration step; logging in afterwards needs only email and password.** | M |
 | **FR-39** | **Forgotten password, self-service: on "Forgot password", the employee enters his work email and receives a reset link, valid 30 minutes and usable once. The screen always answers "If this email exists, a link has been sent", so it never reveals which emails have an account. Limited to 3 requests per hour per email; a new request cancels the previous link. Setting the new password ends all the user's open sessions.** | M |
 | **FR-40** | **Forgotten password, reset by HR or admin: for an employee who has no access to his email or prefers to ask, HR or admin clicks "Reset password" on the user's account. The system generates a temporary password, shown once on HR's screen to be given to the employee in person (never sent by email). At the next login the employee must choose a new password before doing anything else; the temporary password expires after 72 hours if unused. Every reset records who did it.** | M |
 | FR-03 | A new account is in status Pending: login is refused with the message "Your account is waiting for HR approval". | M |
 | **FR-41** | **Role assignment in the app [2026-10-25]: on the "Comptes" screen, the admin (and only the admin) changes a person's role with a dropdown (employee, HR, chef, scanner, management, admin). The admin cannot change their own role, and the last active admin cannot lose the role. Giving the admin role also opens the technical administration site (/admin); removing it closes it. Every change is recorded in the audit log (`role_change`).** | S |
-| FR-04 | HR has a dashboard of pending accounts with approve and reject actions (reject requires a reason) and bulk approval. | M |
+| FR-04 | HR has a dashboard of pending accounts with approve and reject actions (reject requires a reason). **[2026-10-26] To approve, HR types the employee's number (matricule): required, unique across accounts. HR can correct it later on an approved account; each change is audited (`employee_number_change`). No bulk approval, since each account needs its own number.** | M |
 | FR-05 | On approval the employee receives an email saying the account is now active; on rejection, an email with the reason. | M |
 | FR-06 | HR can suspend, reactivate or deactivate an account (for example when someone leaves the company). | M |
-| **FR-37** | **HR can import a CSV list of valid employee numbers (with name and department). On the pending-accounts dashboard, each registration is flagged "Matches list" or "Not on list", and matching accounts can be bulk-approved.** | S |
+| ~~FR-37~~ | ~~HR can import a CSV list of valid employee numbers (with name and department). On the pending-accounts dashboard, each registration is flagged "Matches list" or "Not on list", and matching accounts can be bulk-approved.~~ **Dropped 2026-10-26: HR enters the number at approval (FR-04). Rows already imported are kept.** | — |
 
 ### 3.2 Dish library and menu management (chef)
 
@@ -231,7 +231,7 @@ Ten tables hold everything; the reservation record is the center, because it car
 | first_name | text |  |
 | last_name | text |  |
 | work_email | text, unique | Used for login and verification |
-| employee_number | text, unique | Used by scanners for the manual fallback and visual check; matched against the roster (FR-37) |
+| employee_number | text, NULL, unique when set | Entered by HR at approval (FR-04); NULL while the account waits. Used by scanners for the manual fallback and visual check |
 | department | text |  |
 | password_hash | text | Argon2 or bcrypt |
 | must_change_password | boolean, default false **[v3]** | True after an HR/admin reset (FR-40); forces the change at next login |
@@ -246,7 +246,7 @@ Ten tables hold everything; the reservation record is the center, because it car
 | rejection_reason | text, NULL | Required by FR-04 |
 | created_at / updated_at | timestamp |  |
 
-**Employee roster [v3]** — list imported by HR (FR-37)
+**Employee roster [v3]** — list imported by HR (FR-37). **No longer used since 2026-10-26; the table and its rows are kept.**
 
 | Field | Type | Notes |
 | --- | --- | --- |
@@ -419,7 +419,7 @@ Push uses VAPID keys stored only in `.env`.
 | --- | --- | --- |
 | id | PK |  |
 | actor_id | FK → User | Who (system user for scheduled jobs) |
-| action | enum: register, otp_send **[v3]**, otp_fail **[v3]**, verify_email, password_reset_request **[v3]**, password_reset **[v3]**, password_reset_by_staff **[v3]**, approve, reject, suspend, reactivate, deactivate, status_change **[2026-10-24]**, roster_import **[v3]**, dish_create **[v3]**, dish_edit **[v3]**, dish_archive **[v3]**, menu_create, menu_edit, menu_publish, placeholder_publish **[v3]**, menu_announce **[v3]**, menu_lock, finalize **[v2]**, auto_finalize **[v2]**, payment_config_change **[v3]**, reserve, cancel, serve, manual_checkin, mark_paid **[v3]**, no_show **[v2]**, no_show_warning **[v3]**, data_export **[v3]**, role_change, setting_change **[v3]** | Changes made in the Django admin are recorded too (`meta.source = django_admin`): `role_change` for role and admin rights, the matching status action (approve, suspend…) for a status change, `status_change` for any other status move. Accounts cannot be deleted from the admin. |
+| action | enum: register, otp_send **[v3]**, otp_fail **[v3]**, verify_email, password_reset_request **[v3]**, password_reset **[v3]**, password_reset_by_staff **[v3]**, approve, reject, suspend, reactivate, deactivate, status_change **[2026-10-24]**, roster_import **[v3]** (no longer recorded), employee_number_change **[2026-10-26]**, dish_create **[v3]**, dish_edit **[v3]**, dish_archive **[v3]**, menu_create, menu_edit, menu_publish, placeholder_publish **[v3]**, menu_announce **[v3]**, menu_lock, finalize **[v2]**, auto_finalize **[v2]**, payment_config_change **[v3]**, reserve, cancel, serve, manual_checkin, mark_paid **[v3]**, no_show **[v2]**, no_show_warning **[v3]**, data_export **[v3]**, role_change, setting_change **[v3]** | Changes made in the Django admin are recorded too (`meta.source = django_admin`): `role_change` for role and admin rights, the matching status action (approve, suspend…) for a status change, `status_change` for any other status move. Accounts cannot be deleted from the admin. |
 | target_type / target_id | text / id | What |
 | old_value / new_value | text, NULL **[v2]** | For status and setting changes |
 | meta | JSON (NVARCHAR(MAX) in SQL Server) | Free details (e.g., scan timestamp for offline syncs) |
@@ -436,7 +436,7 @@ erDiagram
     MENU ||--o{ RESERVATION : "reserved for"
     USER ||--o{ AUDIT_LOG : "acts in"
     USER ||--o{ MENU : creates
-    EMPLOYEE_ROSTER |o--o| USER : "matches by employee_number"
+    EMPLOYEE_ROSTER |o--o| USER : "unused since 2026-10-26"
 
     USER {
         uuid id PK
@@ -514,7 +514,7 @@ stateDiagram-v2
 stateDiagram-v2
     [*] --> Registered : employee registers
     Registered --> EmailVerified : enters the 6-digit email OTP
-    EmailVerified --> PendingHR : awaits HR (flagged against roster)
+    EmailVerified --> PendingHR : awaits HR (who enters the employee number)
     PendingHR --> Active : HR approves
     PendingHR --> Rejected : HR rejects (reason required)
     Active --> Suspended : HR suspends
@@ -590,7 +590,7 @@ notification**, never an email:
 | **Password changed** | **Employee** | Email | **Confirmation that the password was changed (self-service or by HR), with who to contact if it wasn't him** | **S** |
 | Account approved | Employee | Email | "Your account is now active" with a login link | M |
 | Account rejected | Employee | Email | Reason given by HR and who to contact | M |
-| New account verified | HR | In-app + push | Accounts are waiting for approval, with roster match | M |
+| New account verified | HR | In-app + push | Accounts are waiting for approval (name and email; HR enters the employee number) | M |
 | Menu changed after reservations exist | Employees who reserved | In-app + push | The change and the option to cancel before the cutoff | S |
 | **Day switched to paid / price changed** | **Employees who reserved** | In-app + push | **The new price and the option to cancel before the cutoff** | S |
 | **Day closed (FR-10)** | **Employees who reserved** | In-app + push | **The canteen is closed that day (reason); the reservation was cancelled** | **M** |
@@ -617,7 +617,7 @@ The biggest risks are human rather than technical: people forgetting to reserve,
 | Weak Wi-Fi or mobile data at the canteen | Scans or QR display fail | Check coverage before go-live; queue scans offline; allow the QR to be saved for the day |
 | **Canteen app shares the ERP server** | **A fault or overload in the canteen app affects the ERP, or exposes ERP data** | **Separate containers, database, login and subdomain; resource limits on the canteen containers; no database rights on ERP data** |
 | **No named backup for finalization** | **Final count left to auto-finalization when management is absent** | **Auto-finalization at 10:00 (FR-26) and finalization reminder; admin can give the management role to more than one person** |
-| HR approvals pile up | New employees cannot reserve for days | Daily digest, bulk approval, roster CSV import (FR-37), a named backup approver |
+| HR approvals pile up | New employees cannot reserve for days | Daily digest, in-app + push alert to HR, a named backup approver |
 | The chef does not publish the menu in time | Employees reserve without knowing the dishes | Daily reminder listing missing days, weekly planning, dish library and menu duplication; placeholder menu keeps the day reservable (FR-38); management alert if still empty at cutoff; lateness tracked monthly |
 | Management forgets to finalize the day | Chef has no number to cook | Finalization reminder at 08:00, auto-finalization at 10:00 (FR-26) |
 | Buffer systematically too high | Leftovers persist despite reservations | Monthly report of buffer vs. leftovers; adjust the Settings default |
@@ -638,7 +638,7 @@ Decided on 23 oct. 2026:
 - [x] No-show policy → reporting only for one month, then warning after 3 per month.
 - [x] Walk-ins → none in v1.
 - [x] Scanning → employee shows his QR; a dedicated canteen phone scans (Scanner role, cashier later).
-- [x] HR directory → none; self-registration, optional roster CSV.
+- [x] HR directory → none; self-registration, HR enters the employee number at approval (roster CSV dropped 2026-10-26).
 - [x] Languages → French and English; Arabic later.
 - [x] Hosting → company server, already exposed to the internet (ERP desktop and mobile apps); canteen app isolated from the ERP.
 - [x] Users → about 200 maximum.

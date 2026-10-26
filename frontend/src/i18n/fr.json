@@ -7,7 +7,12 @@
   },
   "auth": {
     "login": "Se connecter", "register": "Créer un compte", "email": "Email professionnel",
-    "password": "Mot de passe", "firstName": "Prénom", "lastName": "Nom", "employeeNumber": "Matricule",
+    "password": "Mot de passe", "firstName": "Prénom", "lastName": "Nom",
+    "passwordRules": {
+      "title": "Le mot de passe doit :", "minLength": "contenir au moins 8 caractères",
+      "notNumeric": "ne pas contenir que des chiffres", "notCommon": "ne pas être un mot de passe courant (azerty123…)",
+      "notPersonal": "ne pas ressembler à votre nom ou à votre email"
+    },
     "department": "Département", "forgot": "Mot de passe oublié ?", "noAccount": "Pas encore de compte ?",
     "haveAccount": "Déjà inscrit ?", "otpTitle": "Vérifiez votre email",
     "otpHelp": "Saisissez le code à 6 chiffres envoyé à {{email}}. Il est valable 10 minutes.",
@@ -87,16 +92,15 @@
     "finalCount": "Nombre final d'assiettes", "confirm": "Confirmer", "change": "Modifier le nombre"
   },
   "accounts": {
-    "title": "Comptes", "importRoster": "Importer la liste des matricules (CSV)",
-    "rosterHelp": "Fichier CSV avec les colonnes employee_number, full_name, department. Chaque inscription est ensuite marquée « Sur la liste » ou « Hors liste ».",
+    "title": "Comptes",
+    "help": "Les employés s'inscrivent sans matricule. Vérifiez chaque demande, puis saisissez le matricule en approuvant le compte.",
     "tabs": { "pending": "En attente", "active": "Actifs", "suspended": "Suspendus", "all": "Tous" },
-    "search": "Rechercher (nom ou matricule)",
-    "selectOnRoster": "Sélectionner ceux sur la liste ({{count}})", "approveSelected": "Approuver la sélection ({{count}})",
+    "search": "Rechercher (nom, email ou matricule)",
     "empty": {
       "pending": "Aucun compte en attente.", "active": "Aucun compte actif.", "suspended": "Aucun compte suspendu.",
       "all": "Aucun compte."
     },
-    "number": "Matricule {{number}}", "since": "inscrit le {{date}}",
+    "number": "Matricule {{number}}", "noNumber": "Matricule à saisir", "since": "inscrit le {{date}}",
     "roles": {
       "employee": "Employé", "hr": "RH", "chef": "Chef", "scanner": "Scanner", "management": "Direction",
       "admin": "Administrateur"
@@ -105,7 +109,6 @@
       "registered": "Email non vérifié", "email_verified": "Email vérifié", "pending_hr": "En attente RH",
       "active": "Actif", "rejected": "Refusé", "suspended": "Suspendu", "deactivated": "Désactivé"
     },
-    "onRoster": "Sur la liste", "notOnRoster": "Hors liste",
     "approve": "Approuver", "reject": "Refuser", "suspend": "Suspendre", "reactivate": "Réactiver",
     "resetPassword": "Réinitialiser le mot de passe", "deactivate": "Désactiver",
     "confirm": {
@@ -116,8 +119,13 @@
       "makeAdmin": "Donner le rôle « {{role}} » à {{name}} ? Cette personne pourra gérer tous les comptes, les rôles et les paramètres."
     },
     "roleLabel": "Rôle", "roleChanged": "{{name}} a maintenant le rôle « {{role}} ».",
-    "approved": "{{name}} est approuvé. Un email lui a été envoyé.", "bulkApproved": "Comptes approuvés : {{count}}.",
-    "statusChanged": "{{name}} : {{status}}.", "imported": "Matricules importés : {{count}}.",
+    "approved": "{{name}} est approuvé. Un email lui a été envoyé.",
+    "approveTitle": "Approuver {{name}}",
+    "approveHelp": "Vérifiez que {{email}} est bien un employé, puis saisissez son matricule.",
+    "numberLabel": "Matricule", "numberTitle": "Matricule de {{name}}",
+    "editNumber": "Modifier le matricule", "addNumber": "Saisir le matricule",
+    "numberChanged": "Matricule de {{name}} : {{number}}.",
+    "statusChanged": "{{name}} : {{status}}.",
     "rejected": "La demande de {{name}} est refusée.",
     "tempTitle": "Mot de passe temporaire",
     "tempHelp": "Remettez ce mot de passe en main propre à {{name}}. Il devra en choisir un nouveau à sa prochaine connexion. Valable {{hours}} heures.",
@@ -172,7 +180,8 @@
     "above_kitchen_max": "Le nombre dépasse la capacité maximale de la cuisine.",
     "not_pending": "Ce compte n'est plus en attente.", "reason_required": "Indiquez un motif.",
     "invalid_transition": "Ce changement de statut n'est pas possible.",
-    "file_required": "Choisissez un fichier CSV.",
+    "employee_number_required": "Saisissez le matricule.",
+    "employee_number_taken": "Un autre compte a déjà ce matricule.",
     "admin_only": "Seul un administrateur peut changer les rôles.",
     "cannot_change_own_role": "Vous ne pouvez pas changer votre propre rôle.",
     "last_admin": "C'est le dernier administrateur actif : il doit garder ce rôle.",

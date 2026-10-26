@@ -20,12 +20,9 @@ def _dishes(menu) -> list[str]:
 
 
 def account_pending(user) -> None:
-    from apps.accounts.models import EmployeeRoster
-
-    on_roster = EmployeeRoster.objects.filter(employee_number=user.employee_number).exists()
     services.notify(
         active_users("hr"), Kind.ACCOUNTS_PENDING,
-        params={"name": user.full_name, "number": user.employee_number, "on_roster": on_roster},
+        params={"name": user.full_name, "email": user.work_email},
         link="/hr/accounts", dedupe_key=f"user:{user.pk}",
     )
 

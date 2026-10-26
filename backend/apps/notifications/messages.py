@@ -22,8 +22,8 @@ _MONTHS = {
 # kind -> language -> (title, body). Bodies use str.format with the prepared params.
 TEXTS: dict[str, dict[str, tuple[str, str]]] = {
     K.ACCOUNTS_PENDING: {
-        "fr": ("Nouveau compte à valider", "{name} ({number}) attend votre validation — {roster}."),
-        "en": ("New account to approve", "{name} ({number}) is waiting for approval — {roster}."),
+        "fr": ("Nouveau compte à valider", "{name} ({email}) attend votre validation. Saisissez son matricule."),
+        "en": ("New account to approve", "{name} ({email}) is waiting for approval. Enter their employee number."),
     },
     K.MENU_CHANGED: {
         "fr": ("Menu modifié",
@@ -84,10 +84,8 @@ TEXTS: dict[str, dict[str, tuple[str, str]]] = {
 }
 
 _WORDS = {
-    "fr": {"on_roster": "sur la liste", "not_on_roster": "hors liste", "free": "gratuit",
-           "paid": "payant ({price} TND)", "tba": "menu à venir"},
-    "en": {"on_roster": "on the list", "not_on_roster": "not on the list", "free": "free",
-           "paid": "paid ({price} TND)", "tba": "menu to be announced"},
+    "fr": {"free": "gratuit", "paid": "payant ({price} TND)", "tba": "menu à venir"},
+    "en": {"free": "free", "paid": "paid ({price} TND)", "tba": "menu to be announced"},
 }
 
 
@@ -111,8 +109,8 @@ def render(kind: str, params: dict, lang: str) -> tuple[str, str]:
         p["dates"] = ", ".join(format_day(d, lang) for d in p["dates"])
     if "dishes" in p:
         p["dishes"] = " · ".join(p["dishes"]) or words["tba"]
-    if "on_roster" in p:
-        p["roster"] = words["on_roster" if p["on_roster"] else "not_on_roster"]
+    if kind == K.ACCOUNTS_PENDING and "email" not in p:
+        p["email"] = p.get("number", "")  # notifications stored before 2026-10-26 carried the matricule
     if "is_paid" in p:
         p["price"] = words["paid"].format(price=p.get("price")) if p["is_paid"] else words["free"]
     if "reason" in p:

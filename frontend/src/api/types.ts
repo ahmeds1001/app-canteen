@@ -16,14 +16,14 @@ export interface User {
   last_name: string;
   full_name: string;
   work_email: string;
-  employee_number: string;
+  /** Entered by HR at approval; null while the account is waiting. */
+  employee_number: string | null;
   department: string;
   role: Role;
   status: AccountStatus;
   preferred_language: string;
   must_change_password: boolean;
   evening_reminder: boolean;
-  on_roster: boolean | null;
 }
 
 /** In-app notification (spec §8). Title and body come translated from the server. */

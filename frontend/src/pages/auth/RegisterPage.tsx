@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 import { ApiError } from "@/api/client";
 import { authApi } from "@/api/endpoints";
 import { AuthLayout } from "@/components/layout/AuthLayout";
-import { Alert, Button, Field } from "@/components/ui";
+import { Alert, Button, Field, PasswordRules } from "@/components/ui";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 
-const EMPTY = { first_name: "", last_name: "", work_email: "", employee_number: "", department: "", password: "" };
+// No employee number here: HR enters it when approving the account.
+const EMPTY = { first_name: "", last_name: "", work_email: "", department: "", password: "" };
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -53,10 +54,10 @@ export default function RegisterPage() {
         <Field label={t("auth.firstName")} required autoComplete="given-name" {...bind("first_name")} />
         <Field label={t("auth.lastName")} required autoComplete="family-name" {...bind("last_name")} />
         <Field label={t("auth.email")} type="email" required autoComplete="email" {...bind("work_email")} />
-        <Field label={t("auth.employeeNumber")} required {...bind("employee_number")} />
         <Field label={t("auth.department")} {...bind("department")} />
         <Field label={t("auth.password")} type="password" required autoComplete="new-password"
           {...bind("password")} />
+        <PasswordRules password={form.password} />
         <Button type="submit" block disabled={busy}>{t("auth.register")}</Button>
         <p className="muted">
           {t("auth.haveAccount")} <Link to="/login">{t("auth.login")}</Link>

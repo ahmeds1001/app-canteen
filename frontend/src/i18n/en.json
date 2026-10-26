@@ -7,7 +7,12 @@
   },
   "auth": {
     "login": "Log in", "register": "Create an account", "email": "Work email",
-    "password": "Password", "firstName": "First name", "lastName": "Last name", "employeeNumber": "Employee number",
+    "password": "Password", "firstName": "First name", "lastName": "Last name",
+    "passwordRules": {
+      "title": "The password must:", "minLength": "have at least 8 characters",
+      "notNumeric": "not be only digits", "notCommon": "not be a common password (password123…)",
+      "notPersonal": "not look like your name or email"
+    },
     "department": "Department", "forgot": "Forgot password?", "noAccount": "No account yet?",
     "haveAccount": "Already registered?", "otpTitle": "Check your email",
     "otpHelp": "Enter the 6-digit code sent to {{email}}. It is valid for 10 minutes.",
@@ -86,16 +91,15 @@
     "finalCount": "Final number of plates", "confirm": "Confirm", "change": "Change the number"
   },
   "accounts": {
-    "title": "Accounts", "importRoster": "Import employee numbers (CSV)",
-    "rosterHelp": "CSV file with the columns employee_number, full_name, department. Each registration is then flagged \"On list\" or \"Not on list\".",
+    "title": "Accounts",
+    "help": "Employees sign up without an employee number. Check each request, then enter the employee number when approving the account.",
     "tabs": { "pending": "Pending", "active": "Active", "suspended": "Suspended", "all": "All" },
-    "search": "Search (name or employee number)",
-    "selectOnRoster": "Select those on the list ({{count}})", "approveSelected": "Approve selection ({{count}})",
+    "search": "Search (name, email or employee number)",
     "empty": {
       "pending": "No pending accounts.", "active": "No active accounts.", "suspended": "No suspended accounts.",
       "all": "No accounts."
     },
-    "number": "No. {{number}}", "since": "registered {{date}}",
+    "number": "No. {{number}}", "noNumber": "Employee number to enter", "since": "registered {{date}}",
     "roles": {
       "employee": "Employee", "hr": "HR", "chef": "Chef", "scanner": "Scanner", "management": "Management",
       "admin": "Admin"
@@ -104,7 +108,6 @@
       "registered": "Email not verified", "email_verified": "Email verified", "pending_hr": "Pending HR",
       "active": "Active", "rejected": "Rejected", "suspended": "Suspended", "deactivated": "Deactivated"
     },
-    "onRoster": "On list", "notOnRoster": "Not on list",
     "approve": "Approve", "reject": "Reject", "suspend": "Suspend", "reactivate": "Reactivate",
     "resetPassword": "Reset password", "deactivate": "Deactivate",
     "confirm": {
@@ -115,8 +118,13 @@
       "makeAdmin": "Give {{name}} the role \"{{role}}\"? They will be able to manage every account, role and setting."
     },
     "roleLabel": "Role", "roleChanged": "{{name}} now has the role \"{{role}}\".",
-    "approved": "{{name}} is approved. An email has been sent.", "bulkApproved": "Accounts approved: {{count}}.",
-    "statusChanged": "{{name}}: {{status}}.", "imported": "Employee numbers imported: {{count}}.",
+    "approved": "{{name}} is approved. An email has been sent.",
+    "approveTitle": "Approve {{name}}",
+    "approveHelp": "Check that {{email}} is really an employee, then enter their employee number.",
+    "numberLabel": "Employee number", "numberTitle": "Employee number of {{name}}",
+    "editNumber": "Edit employee number", "addNumber": "Enter employee number",
+    "numberChanged": "{{name}}'s employee number: {{number}}.",
+    "statusChanged": "{{name}}: {{status}}.",
     "rejected": "{{name}}'s request was rejected.",
     "tempTitle": "Temporary password",
     "tempHelp": "Give this password to {{name}} in person. They will have to choose a new one at their next login. Valid for {{hours}} hours.",
@@ -171,7 +179,8 @@
     "above_kitchen_max": "The count exceeds the kitchen's maximum capacity.",
     "not_pending": "This account is no longer pending.", "reason_required": "Please give a reason.",
     "invalid_transition": "This status change is not possible.",
-    "file_required": "Choose a CSV file.",
+    "employee_number_required": "Enter the employee number.",
+    "employee_number_taken": "Another account already has this employee number.",
     "admin_only": "Only an admin can change roles.",
     "cannot_change_own_role": "You cannot change your own role.",
     "last_admin": "This is the last active admin: they must keep the role.",

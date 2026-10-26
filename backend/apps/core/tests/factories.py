@@ -21,7 +21,7 @@ def user(role: str = "employee", status: str = User.Status.ACTIVE, **extra) -> U
     return User.objects.create_user(
         work_email=extra.pop("work_email", f"user{n}@example.com"),
         password=extra.pop("password", "Str0ng-pass-123"),
-        first_name="Test", last_name=f"User{n}", employee_number=f"E{n:04d}",
+        first_name="Test", last_name=f"User{n}", employee_number=extra.pop("employee_number", f"E{n:04d}"),
         role=role, status=status, **extra,
     )
 
