@@ -6,7 +6,7 @@ from apps.core.models import CanteenSettings
 from apps.menus import rules
 from apps.menus.models import Menu
 
-from . import messages, push, services
+from . import events, messages, push, services
 from .models import Notification, PushSubscription
 from .services import EATING_ROLES, Kind, active_users
 
@@ -45,16 +45,8 @@ def menu_missing_reminder() -> int:
         return 0
     today = clock.today()
     days = [today + timedelta(days=n) for n in range(1, 8)]
-    menus = {m.date: m for m in Menu.objects.filter(date__in=days).prefetch_related("items")}
-    missing = []
-    for day in days:
-        if not cfg.is_service_day(day):
-            continue
-        menu = menus.get(day)
-        if menu is None or menu.status == Menu.Status.DRAFT:
-            missing.append(day)
-        elif menu.is_placeholder and menu.status != Menu.Status.CLOSED and not menu.items.all():
-            missing.append(day)
+    menus = {m.date: m for m in Menu.objects.filter(date__in=days)}
+    missing = [day for day in days if events.needs_menu(menus.get(day), day, cfg)]
     if not missing:
         return 0
     return services.notify(
@@ -87,6 +79,8 @@ def send_pending_pushes() -> int:
     """Send each new notification to the user's phones. Requests never wait for the push service."""
     now = clock.now()
     pending = Notification.objects.filter(pushed_at__isnull=True)
+    # Already handled by someone before the push went out: no point ringing a phone for it.
+    pending.filter(resolved_at__isnull=False).update(pushed_at=now)
     # Too old to be useful on a lock screen (or push was off): keep in-app only.
     pending.filter(created_at__lt=now - PUSH_MAX_AGE).update(pushed_at=now)
     if not push.enabled():

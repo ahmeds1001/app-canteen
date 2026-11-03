@@ -35,6 +35,8 @@ export interface AppNotification {
   link: string;
   created_at: string;
   read_at: string | null;
+  /** The matter was dealt with (by this person or a colleague): shown as "already handled". */
+  resolved_at: string | null;
 }
 
 export interface NotificationList {

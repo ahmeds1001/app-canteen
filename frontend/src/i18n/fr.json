@@ -190,6 +190,7 @@
     "rejectTitle": "Refuser la demande de {{name}}", "rejectReason": "Motif du refus (envoyé à l'employé)"
   },
   "notifications": {
+    "handled": "Déjà traité",
     "title": "Notifications", "bellUnread": "Notifications : {{count}} non lue(s)", "readAll": "Tout marquer comme lu",
     "empty": "Aucune notification pour le moment.",
     "pushTitle": "Notifications sur ce téléphone",

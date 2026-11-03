@@ -44,6 +44,9 @@ item into a plan file in this folder, then the **executor** to build it.
 ## Sprint 2 — reliability and reports
 
 - [ ] Scanner offline queue: store scans with their timestamp when the network fails, resend later (rule "Offline scan sync").
+- [x] **Notifications handled for everyone** (2026-11-03): once someone deals with the matter (account approved,
+  day finalized, menu published or filled, meal reserved), the notification is handled and read for every
+  recipient, greyed with "Déjà traité", not pushed; past notifications brought in line by a data migration.
 - [x] **Attendance per employee per month** (FR-22, 2026-11-03): "Rapports" screen for management and HR —
   reserved vs served, no-shows, still to come, cancelled, rate, menus, spent; drill-down per employee; CSV.
 - [ ] Remaining report screens: daily/monthly trends with charts, buffer vs leftovers per menu (FR-21, FR-23),

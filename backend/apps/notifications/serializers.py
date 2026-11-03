@@ -10,7 +10,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ["id", "kind", "title", "body", "link", "created_at", "read_at"]
+        fields = ["id", "kind", "title", "body", "link", "created_at", "read_at", "resolved_at"]
 
     def _text(self, obj: Notification) -> tuple[str, str]:
         return messages.render(obj.kind, obj.params, self.context.get("language", "fr"))

@@ -31,6 +31,8 @@ def publish_placeholders() -> int:
         count += 1
         if menu.is_placeholder:
             notification_events.placeholder_published(menu)
+    if count:
+        notification_events.menus_published()  # a draft with dishes published at the deadline counts too
     return count
 
 

@@ -123,6 +123,7 @@ def set_items(menu: Menu, dish_ids: list[int], *, by, dish_ids_2: list[int] | No
         menu.save(update_fields=["menu_announced_at", "updated_at"])
         audit.record(A.MENU_ANNOUNCE, actor=by, target=menu)
         notification_events.menu_announced(menu)
+        notification_events.menu_filled(menu)
     elif had_items and menu.status == Menu.Status.PUBLISHED:
         notification_events.menu_changed(menu)  # only reaches employees who already reserved
     return menu
@@ -138,6 +139,7 @@ def publish(menu: Menu, *, by) -> Menu:
     menu.status, menu.published_at = Menu.Status.PUBLISHED, clock.now()
     menu.save(update_fields=["status", "published_at", "updated_at"])
     audit.record(A.MENU_PUBLISH, actor=by, target=menu)
+    notification_events.menus_published()
     return menu
 
 
@@ -168,6 +170,7 @@ def close_day(menu: Menu, *, by, reason: str = "") -> Menu:
             wallet.refund_meal(reservation, by=by)  # the canteen closed: the meal is paid back
             cancelled_for.append(reservation.user)
     notification_events.day_closed(menu, cancelled_for)
+    notification_events.menu_filled(menu)  # nothing left to publish or fill for a closed day
     return menu
 
 

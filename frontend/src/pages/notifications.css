@@ -23,7 +23,9 @@
 }
 .notif:hover { border-color: var(--color-primary); }
 .notif--unread { border-inline-start-color: var(--color-accent); background: var(--color-warning-bg); }
-.notif__title { font-weight: 600; }
+.notif__title { font-weight: 600; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+/* Dealt with by someone: kept for the record, but visually set aside */
+.notif--done { opacity: 0.65; }
 .notif--unread .notif__title { font-weight: 700; }
 .notif__body { font-size: var(--text-sm); }
 .notif__time { font-size: var(--text-sm); color: var(--color-text-muted); }

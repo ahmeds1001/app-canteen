@@ -189,6 +189,7 @@
     "rejectTitle": "Reject {{name}}'s request", "rejectReason": "Reason (sent to the employee)"
   },
   "notifications": {
+    "handled": "Already handled",
     "title": "Notifications", "bellUnread": "Notifications: {{count}} unread", "readAll": "Mark all as read",
     "empty": "No notifications yet.",
     "pushTitle": "Notifications on this phone",

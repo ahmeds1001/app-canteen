@@ -151,6 +151,7 @@ def approve(user: User, *, by: User, employee_number: str) -> User:
         raise DomainError("not_pending", "Only pending accounts can be approved.")
     audit.record(audit.AuditLog.Action.APPROVE, actor=by, target=user, employee_number=number)
     notifications.account_approved(user)
+    notification_events.account_handled(user)  # done for every HR person
     return user
 
 
@@ -181,6 +182,7 @@ def reject(user: User, *, by: User, reason: str) -> User:
     user.save(update_fields=["status", "rejection_reason", "updated_at"])
     audit.record(audit.AuditLog.Action.REJECT, actor=by, target=user, reason=reason)
     notifications.account_rejected(user)
+    notification_events.account_handled(user)  # done for every HR person
     return user
 
 

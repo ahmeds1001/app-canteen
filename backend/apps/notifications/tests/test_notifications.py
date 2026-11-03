@@ -219,3 +219,84 @@ class MessageTests(TestCase):
     def test_english_dates(self):
         title, body = messages.render(K.MENU_MISSING, {"dates": ["2026-11-02"]}, "en")
         self.assertEqual(body, "No menu published yet for: Monday, November 2.")
+
+
+class HandledForEveryoneTests(TestCase):
+    """Decided 2026-11-03: once the matter is dealt with (by anyone), the notification is handled — and read —
+    for every recipient; it stays in the list, is no longer counted as unread, and is not pushed."""
+
+    def setUp(self):
+        self.chef = f.user(role="chef")
+        self.managers = [f.user(role="management"), f.user(role="management")]
+
+    def _state(self, user, kind):
+        return list(Notification.objects.filter(user=user, kind=kind).values_list("read_at", "resolved_at"))
+
+    def _handled(self, user, kind) -> bool:
+        return all(read and resolved for read, resolved in self._state(user, kind)) and bool(self._state(user, kind))
+
+    def test_one_hr_approves_it_is_done_for_all_hr(self):
+        hr1, hr2 = f.user(role="hr"), f.user(role="hr")
+        pending = f.user(status=User.Status.PENDING_HR, employee_number=None)
+        from apps.notifications import events
+        events.account_pending(pending)
+        account_services.approve(pending, by=hr1, employee_number="M-9")
+        self.assertTrue(self._handled(hr1, K.ACCOUNTS_PENDING))
+        self.assertTrue(self._handled(hr2, K.ACCOUNTS_PENDING))
+        self.assertEqual(Notification.objects.filter(user=hr2, read_at__isnull=True).count(), 0)
+
+    def test_finalizing_handles_the_reminder_for_all_managers(self):
+        menu = f.menu(MONDAY, status=Menu.Status.LOCKED)
+        with clock.frozen(f.at(2026, 11, 2, 8, 1)):
+            jobs.finalization_reminder()
+        with clock.frozen(f.at(2026, 11, 2, 9)):
+            menu_services.finalize(menu, plates={1: 0}, by=self.managers[0])
+        for manager in self.managers:
+            self.assertTrue(self._handled(manager, K.FINALIZATION_REMINDER))
+
+    def test_menus_to_publish_done_when_every_listed_day_has_its_menu(self):
+        tue, wed = date(2026, 11, 3), date(2026, 11, 4)
+        from apps.notifications import services as notification_services
+        notification_services.notify([self.chef], K.MENU_MISSING, params={"dates": [tue.isoformat(), wed.isoformat()]},
+                                     dedupe_key="2026-11-01")
+        dish = f.dish(self.chef)
+        with clock.frozen(f.at(2026, 11, 1, 9)):
+            first = menu_services.get_or_create_menu(tue, by=self.chef)
+            menu_services.set_items(first, [dish.pk], by=self.chef)
+            menu_services.publish(first, by=self.chef)
+            self.assertFalse(self._handled(self.chef, K.MENU_MISSING))  # Wednesday still missing
+            menu_services.close_day(menu_services.get_or_create_menu(wed, by=self.chef), by=self.chef, reason="Férié")
+        self.assertTrue(self._handled(self.chef, K.MENU_MISSING))
+
+    def test_placeholder_alerts_done_when_the_chef_adds_dishes(self):
+        menu = f.menu(MONDAY, status=Menu.Status.PUBLISHED, is_placeholder=True)
+        from apps.notifications import events
+        events.placeholder_published(menu)
+        with clock.frozen(f.at(2026, 10, 31, 10)):
+            menu_services.set_items(menu, [f.dish(self.chef).pk], by=self.chef)
+        self.assertTrue(self._handled(self.chef, K.PLACEHOLDER_PUBLISHED))
+        self.assertTrue(self._handled(self.managers[1], K.PLACEHOLDER_PUBLISHED))
+
+    def test_evening_reminder_done_only_for_who_reserved(self):
+        menu = f.menu(MONDAY)
+        f.items(menu, self.chef, 1)
+        eater, other = f.user(), f.user()
+        with clock.frozen(f.at(2026, 11, 1, 20, 5)):
+            jobs.evening_reservation_reminder()
+            reservation_services.reserve(eater, menu)
+        self.assertTrue(self._handled(eater, K.RESERVATION_REMINDER))
+        self.assertEqual(self._state(other, K.RESERVATION_REMINDER)[0], (None, None))
+
+    @override_settings(VAPID_PUBLIC_KEY="pub", VAPID_PRIVATE_KEY="priv")
+    def test_handled_before_the_push_is_not_pushed(self):
+        hr = f.user(role="hr")
+        PushSubscription.objects.create(user=hr, endpoint="https://push.example/a", p256dh="k", auth="a",
+                                        created_at=f.at(2026, 11, 1))
+        pending = f.user(status=User.Status.PENDING_HR, employee_number=None)
+        from apps.notifications import events
+        with clock.frozen(f.at(2026, 11, 2, 9)):
+            events.account_pending(pending)
+            account_services.reject(pending, by=hr, reason="Pas employé")
+            with mock.patch("apps.notifications.push.send", return_value=True) as send:
+                jobs.send_pending_pushes()
+        send.assert_not_called()

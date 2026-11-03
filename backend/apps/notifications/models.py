@@ -28,6 +28,9 @@ class Notification(models.Model):
     created_at = models.DateTimeField()
     read_at = models.DateTimeField(null=True, blank=True)
     pushed_at = models.DateTimeField(null=True, blank=True, help_text="Push handled (sent, or no device).")
+    # The matter was dealt with (account approved, day finalized, menu published, meal reserved…), by this
+    # person or someone else: shown as "already handled", no longer unread, not pushed (decided 2026-11-03).
+    resolved_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at", "-id"]

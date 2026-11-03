@@ -15,6 +15,7 @@ from apps.core.exceptions import Conflict, DomainError
 from apps.core.models import AuditLog, CanteenSettings
 from apps.menus import rules
 from apps.menus.models import Menu
+from apps.notifications import events as notification_events
 from apps.wallet import services as wallet
 
 from .models import Reservation
@@ -74,6 +75,7 @@ def reserve(user, menu: Menu, choice: int = 1) -> Reservation:
     except IntegrityError:  # double tap raced past the check: return the winner
         return Reservation.objects.active().get(user=user, date=menu.date)
     audit.record(A.RESERVE, actor=user, target=reservation, choice=choice)
+    notification_events.meal_reserved(user, menu.date)  # the evening reminder for that day is done
     return reservation
 
 

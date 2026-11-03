@@ -428,6 +428,7 @@ Constraints: `UNIQUE (user_id, date)` for active reservations — a SQL Server f
 | dedupe_key | text | `UNIQUE (user_id, kind, dedupe_key)`: a scheduled job that runs late or twice never notifies twice |
 | created_at | timestamp |  |
 | read_at | timestamp, NULL | Set when opened or "mark all as read" |
+| resolved_at | timestamp, NULL **[2026-11-03]** | The matter was dealt with by someone: handled for every recipient (§8) |
 | pushed_at | timestamp, NULL | Set when the push was handled by the scheduler (sent, or no device) |
 
 Kept indefinitely like all other data.
@@ -615,6 +616,15 @@ notification**, never an email:
   Each user turns it on once per phone ("Activer les notifications"); the browser asks for permission. Push needs
   the app on HTTPS; on iPhone, the app must be added to the home screen first. If push is off or fails, the in-app
   notification is still there.
+
+**Handled for everyone [2026-11-03].** When the matter behind a notification is dealt with, by its recipient or
+by a colleague, the notification is marked handled (and read) for every recipient: it stays in the list, greyed,
+with "Déjà traité", no longer counts in the bell, and is not pushed if the push had not gone out yet. Rules:
+"new account to approve" when one HR person approves or rejects it; "confirm today's plates" when the day is
+finalized (by a manager or automatically); "menus to publish" when every day it listed has a published menu or is
+closed; "menu to complete" and "menu still empty" when the chef adds the dishes or the day is closed; the evening
+"reserve for tomorrow" when that employee reserves. Informational messages are not concerned. Notifications from
+before this rule were brought in line once (migration `0004_resolve_past_notifications`).
 
 | Trigger | Recipient | Channel | Content | Priority |
 | --- | --- | --- | --- | --- |

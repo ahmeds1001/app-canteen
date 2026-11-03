@@ -40,6 +40,17 @@ def notify(users: Iterable, kind: str, *, params: dict, link: str = "", dedupe_k
     return len(rows)
 
 
+def resolve(kind: str, *, dedupe_key: str, users: Iterable | None = None) -> int:
+    """The matter behind these notifications was dealt with: mark them handled — and read — for every
+    recipient (or only `users`). Rows are kept; idempotent."""
+    now = clock.now()
+    rows = Notification.objects.filter(kind=kind, dedupe_key=dedupe_key, resolved_at__isnull=True)
+    if users is not None:
+        rows = rows.filter(user__in=list(users))
+    rows.filter(read_at__isnull=True).update(read_at=now)  # first: `rows` still selects them (not resolved yet)
+    return rows.update(resolved_at=now)
+
+
 def for_user(user, limit: int = 50):
     return Notification.objects.filter(user=user)[:limit]
 

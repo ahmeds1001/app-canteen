@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { notificationApi } from "@/api/endpoints";
 import type { AppNotification } from "@/api/types";
-import { Alert, Button, Card } from "@/components/ui";
+import { Alert, Badge, Button, Card } from "@/components/ui";
 import { usePush } from "@/hooks/usePush";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { formatCompanyDateTime } from "@/utils/dates";
@@ -67,8 +67,15 @@ export default function NotificationsPage() {
       <ul className="notif-list">
         {data?.results.map((note) => (
           <li key={note.id}>
-            <button type="button" className={`notif ${note.read_at ? "" : "notif--unread"}`} onClick={() => open(note)}>
-              <span className="notif__title">{note.title}</span>
+            <button
+              type="button"
+              className={`notif ${note.read_at ? "" : "notif--unread"} ${note.resolved_at ? "notif--done" : ""}`}
+              onClick={() => open(note)}
+            >
+              <span className="notif__title">
+                {note.title}
+                {note.resolved_at && <Badge tone="green">{t("notifications.handled")}</Badge>}
+              </span>
               <span className="notif__body">{note.body}</span>
               <span className="notif__time">{formatCompanyDateTime(note.created_at, i18n.language)}</span>
             </button>

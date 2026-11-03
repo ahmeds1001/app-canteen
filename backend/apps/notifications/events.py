@@ -77,7 +77,9 @@ def placeholder_empty_at_cutoff(menu, reserved: int) -> None:
 
 
 def day_finalized(menu) -> None:
-    """FR-28: the chef gets the final plate count (a changed count is sent again)."""
+    """FR-28: the chef gets the final plate count (a changed count is sent again).
+    Management's "confirm today's plates" is handled from now on, for every manager."""
+    services.resolve(Kind.FINALIZATION_REMINDER, dedupe_key=menu.date.isoformat())
     services.notify(
         active_users("chef"), Kind.DAY_FINALIZED,
         params={"date": menu.date.isoformat(), "plates": menu.final_plate_count,
@@ -85,3 +87,55 @@ def day_finalized(menu) -> None:
                 "by_choice": menu.final_plates_by_choice},
         link="/chef/planner", dedupe_key=f"{menu.date.isoformat()}:{menu.finalized_at.isoformat()}",
     )
+
+
+# --- Handled for everyone (decided 2026-11-03) ------------------------------------------------
+# When the matter behind a notification is dealt with, by its recipient or by a colleague, the notification is
+# marked handled (and read) for every recipient, so nobody acts twice and the bell only counts what is left.
+
+def account_handled(user) -> None:
+    """One HR person approved or rejected the account: "new account to approve" is done for all of HR."""
+    services.resolve(Kind.ACCOUNTS_PENDING, dedupe_key=f"user:{user.pk}")
+
+
+def meal_reserved(user, day) -> None:
+    """The evening "reserve for tomorrow" reminder is done for whoever reserved that day."""
+    services.resolve(Kind.RESERVATION_REMINDER, dedupe_key=day.isoformat(), users=[user])
+
+
+def menu_filled(menu) -> None:
+    """A placeholder got its dishes, or the day was closed: the chef and management alerts about it are done."""
+    key = menu.date.isoformat()
+    services.resolve(Kind.PLACEHOLDER_PUBLISHED, dedupe_key=key)
+    services.resolve(Kind.PLACEHOLDER_EMPTY_AT_CUTOFF, dedupe_key=key)
+    menus_published()
+
+
+def needs_menu(menu, day=None, cfg=None) -> bool:
+    """A service day still waiting for the chef: no menu, a draft, or an empty placeholder still open."""
+    from apps.core.models import CanteenSettings
+    from apps.menus.models import Menu
+
+    if day is not None and not (cfg or CanteenSettings.load()).is_service_day(day):
+        return False
+    if menu is None or menu.status == Menu.Status.DRAFT:
+        return True
+    return menu.is_placeholder and menu.status != Menu.Status.CLOSED and not menu.items.exists()
+
+
+def menus_published() -> None:
+    """A chef's "menus to publish" reminder is done once every day it listed has its menu (or is closed)."""
+    from datetime import date
+
+    from apps.core.models import CanteenSettings
+    from apps.menus.models import Menu
+
+    from .models import Notification
+
+    cfg = CanteenSettings.load()
+    open_notes = Notification.objects.filter(kind=Kind.MENU_MISSING, resolved_at__isnull=True)
+    for key, params in dict(open_notes.values_list("dedupe_key", "params")).items():
+        days = [date.fromisoformat(d) for d in params.get("dates", [])]
+        menus = {m.date: m for m in Menu.objects.filter(date__in=days)}
+        if not any(needs_menu(menus.get(d), d, cfg) for d in days):
+            services.resolve(Kind.MENU_MISSING, dedupe_key=key)
