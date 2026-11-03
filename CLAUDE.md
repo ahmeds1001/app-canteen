@@ -98,3 +98,56 @@ Adapted from oh-my-claudecode. Suggested flow for a backlog item:
 - `npm run typecheck` and `npm run build` pass; new strings exist in **both** fr.json and en.json.
 - New sensitive actions are audited; new time logic uses `clock`; no hard-coded colours.
 - `docs/plans/backlog.md` updated (item ticked or moved).
+
+## Working notes (kept up to date between sessions)
+
+### Where we are (3 Nov 2026)
+Everything is committed and pushed. Built and tested (118 backend tests): registration + HR approval with the
+matricule typed by HR, dish library + planner, **two menus per day** (FR-42), reservations, **prepaid balance** —
+the only way to pay, no counter payment (FR-43, `apps/wallet`), finalization per menu at 10:00, signed QR + scanner
+showing the menu to serve, **day lists** (FR-44), **attendance per employee per month** ("Rapports", FR-22),
+notifications in-app + push with **"handled for everyone"** (`Notification.resolved_at`), roles set by the admin.
+French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-semaine.md` (+ PDF).
+
+### Next steps (agreed order — confirm with the user before starting)
+1. Quick fixes before real use: send account emails **after** the DB transaction commits (`transaction.on_commit`;
+   today `approve` sends inside `@transaction.atomic`, which locked SQLite on another PC) and give SQLite a busy
+   timeout; **block deletes in the Django admin** for reservations, menus, dishes, roster, balance (rule 4);
+   refresh-token blacklist (suspended accounts must not renew tokens; password change logs out other devices).
+2. Run the test suite and a manual pass on **SQL Server** (filtered unique constraints, JSON fields, decimals).
+3. Decide with management: balance of an employee who leaves; who may collect cash; daily cash check
+   (→ cash reconciliation report: top-ups per cashier per day); backup person for finalization; leftover plates.
+4. Deploy on the company server (Docker, SQL Server, HTTPS, backups + restore test), load test (200 users), pilot.
+5. Then: no-show warning after 3 per month, management trend charts (FR-23), chef live count (FR-21), offline scans.
+
+### How the user works
+- Writes in English (sometimes French); the **app, PDFs and user guides are in French**. Answers short and clear.
+- After each change: tests + typecheck + build, then **check in the browser**; the user then says "commit and push".
+  Commit only when asked; push to `origin main`. Repo: `github.com/ahmeds1001/app-canteen`, local git identity
+  `ahmeds1001` — **never use or touch the user's other GitHub account (sigma.garay1)**.
+- Ask before changing a business rule (spec first); several short questions at once are welcome.
+- Not decided / declined so far: deleting data from the admin ("not now" on 2026-10-26 — still to do, see step 1).
+
+### Windows environment (this PC)
+- Shells: PowerShell 5.1 (no `&&`; use `;` / `if ($?)`), and Git Bash. Use **`npm.cmd`** in PowerShell (the
+  execution policy blocks `npm.ps1`). Git needs PATH refreshed in PowerShell:
+  `$env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')`.
+  `git push` writes to stderr, so PowerShell may report exit 255 even when the push succeeded.
+- PowerShell piping into `manage.py shell` adds a BOM: use `manage.py shell -c "..."` from Git Bash instead.
+- Local DB is SQLite (`DB_ENGINE=sqlite` in `.env`, file `backend/db.sqlite3`). Data is never deleted, even here.
+- The user's own servers usually run in cmd windows; if they freeze, clicking in a cmd window pauses it (Windows
+  QuickEdit) — press Esc.
+
+### Test tools
+- Test clock (DEBUG only): `python manage.py dev_clock set 2026-11-25 08:30` / `dev_clock reset` (shared by API and
+  scheduler, file `backend/.dev_clock`; the clock keeps running from the set time). Moving it back undoes nothing.
+- Test week: `python manage.py demo_week [--monday YYYY-MM-DD]` — adds a Monday–Saturday week (two-menu days,
+  balances, history) without deleting anything, then sets the clock to that Tuesday 20:30. On this PC the weeks of
+  9 and 23 Nov are built and the week of 16 Nov is half-built (an old bug, kept); use a later Monday for a new one.
+- Test accounts: `admin@`, `hr@`, `chef@`, `management@`, `scanner@`, `employee@ovagri.test` + generated employees;
+  password = `DEV_SEED_PASSWORD` in `.env` (never write it in files or chat).
+- Pixel 6 Pro over wireless debugging: `adb pair` / `adb connect`, then `adb reverse tcp:5173 tcp:5173` and open
+  `http://localhost:5173` in Chrome on the phone (camera needs localhost). Redo `adb reverse` after reconnecting.
+  `npm run dev:lan` exposes Vite on the Wi-Fi (no camera there: phone shows the QR, PC scans).
+- PDFs are printed from HTML with headless Edge (`msedge --headless --print-to-pdf`, `--virtual-time-budget=20000`
+  for the mermaid diagrams); check pages by rendering them (pypdfium2) before sending.
