@@ -11,7 +11,7 @@ const STATUS_TONE: Record<ReservationStatus, "green" | "orange" | "red" | undefi
   reserved: "green", served: undefined, cancelled: undefined, no_show: "red",
 };
 const PAY_TONE: Record<PaymentStatus, "green" | "orange" | undefined> = {
-  not_required: undefined, unpaid: "orange", paid: "green",
+  not_required: undefined, unpaid: "orange", paid: "green", refunded: undefined,
 };
 
 /** FR-15 to FR-17: "My reservations" with the QR code shown on the employee's phone. */
@@ -28,9 +28,12 @@ export default function ReservationsPage() {
         <Card key={r.id} className="qr-card">
           <h2>{formatDay(r.date, i18n.language)}</h2>
           <div>
+            {r.menu_choices > 1 && <Badge tone="orange">{t("menus.menuN", { n: r.choice })}</Badge>}{" "}
             <Badge tone={STATUS_TONE[r.status]}>{t(`reservations.status.${r.status}`)}</Badge>{" "}
             {r.payment_status !== "not_required" && (
-              <Badge tone={PAY_TONE[r.payment_status]}>{t(`reservations.payment.${r.payment_status}`)}</Badge>
+              <Badge tone={PAY_TONE[r.payment_status]}>
+                {t(`reservations.payment.${r.payment_status}`, { amount: r.amount_due })}
+              </Badge>
             )}
           </div>
           {r.menu_items.length > 0 && <p className="muted">{r.menu_items.join(" · ")}</p>}

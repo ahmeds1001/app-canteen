@@ -5,6 +5,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.db import transaction
+from django.db.models import Count
 
 from apps.core import audit, clock
 from apps.core.exceptions import Conflict, DomainError
@@ -21,6 +22,16 @@ def reserved_count(menu: Menu) -> int:
     from apps.reservations.models import Reservation  # lazy: reservations depends on menus
 
     return Reservation.objects.active().filter(menu=menu).count()
+
+
+def reserved_by_choice(menu: Menu) -> dict[int, int]:
+    """Active reservations per menu of the day, every offered menu included (0 when nobody chose it)."""
+    from apps.reservations.models import Reservation
+
+    counts = dict(
+        Reservation.objects.active().filter(menu=menu).order_by().values_list("choice").annotate(n=Count("id"))
+    )
+    return {choice: counts.get(choice, 0) for choice in sorted(set(menu.choices()) | set(counts))}
 
 
 # --- Dish library (FR-29 to FR-31) ---------------------------------------------------
@@ -76,26 +87,36 @@ def get_or_create_menu(day: date, *, by) -> Menu:
 
 
 @transaction.atomic
-def set_items(menu: Menu, dish_ids: list[int], *, by) -> Menu:
-    """Replace the menu's dishes, copying each dish's details (snapshot)."""
+def set_items(menu: Menu, dish_ids: list[int], *, by, dish_ids_2: list[int] | None = None) -> Menu:
+    """Replace the day's dishes, copying each dish's details (snapshot). `dish_ids` is menu 1;
+    `dish_ids_2`, when not empty, is a second menu employees can choose instead (decided 2026-11-03)."""
+    from apps.reservations.models import Reservation
+
+    dish_ids_2 = dish_ids_2 or []
     menu = Menu.objects.select_for_update().get(pk=menu.pk)
     cfg = CanteenSettings.load()
     if not _editable(menu, cfg):
         raise DomainError("menu_locked", "This menu can no longer be edited.")
-    dishes = {d.pk: d for d in Dish.objects.filter(pk__in=dish_ids, is_archived=False)}
-    if len(dishes) != len(set(dish_ids)):
+    if not dish_ids:
+        raise DomainError("menu_empty", "Menu 1 needs at least one dish.")
+    wanted = set(dish_ids) | set(dish_ids_2)
+    dishes = {d.pk: d for d in Dish.objects.filter(pk__in=wanted, is_archived=False)}
+    if len(dishes) != len(wanted):
         raise DomainError("dish_not_found", "One or more dishes do not exist or are archived.")
+    if not dish_ids_2 and Reservation.objects.active().filter(menu=menu, choice=2).exists():
+        raise Conflict("choice_has_reservations", "Employees reserved menu 2: it cannot be removed.")
 
     had_items = menu.items.exists()
     menu.items.all().delete()
     MenuItem.objects.bulk_create(
         MenuItem(
-            menu=menu, dish=d, name=d.name, description=d.description, category=d.category,
+            menu=menu, choice=choice, dish=d, name=d.name, description=d.description, category=d.category,
             allergens=d.allergens, photo=d.photo.name if d.photo else "", position=i,
         )
-        for i, d in enumerate(dishes[pk] for pk in dish_ids)
+        for choice, ids in ((1, dish_ids), (2, dish_ids_2))
+        for i, d in enumerate(dishes[pk] for pk in ids)
     )
-    audit.record(A.MENU_EDIT, actor=by, target=menu, dishes=dish_ids)
+    audit.record(A.MENU_EDIT, actor=by, target=menu, dishes=dish_ids, dishes_2=dish_ids_2)
 
     if menu.is_placeholder and not had_items and dish_ids and menu.menu_announced_at is None:
         menu.menu_announced_at = clock.now()
@@ -134,6 +155,8 @@ def close_day(menu: Menu, *, by, reason: str = "") -> Menu:
     menu.save(update_fields=["status", "closed_reason", "updated_at"])
     audit.record(A.MENU_EDIT, actor=by, target=menu, closed=reason)
 
+    from apps.wallet import services as wallet  # lazy: wallet depends on reservations
+
     now = clock.now()
     cancelled_for = []
     for reservation in Reservation.objects.filter(menu=menu, status=Reservation.Status.RESERVED).select_related("user"):
@@ -142,13 +165,16 @@ def close_day(menu: Menu, *, by, reason: str = "") -> Menu:
         )
         if updated:
             audit.record(A.CANCEL, actor=by, target=reservation, reason="day_closed")
+            wallet.refund_meal(reservation, by=by)  # the canteen closed: the meal is paid back
             cancelled_for.append(reservation.user)
     notification_events.day_closed(menu, cancelled_for)
     return menu
 
 
 def set_payment(menu: Menu, *, is_paid: bool, price: Decimal | None, by) -> Menu:
-    """FR-32: paid flag and price can change until the cutoff, then they are frozen."""
+    """FR-32: one price per day, the same for both menus; it can change until the cutoff, then it is frozen.
+    Since the prepaid balance (2026-11-03) a meal is paid when reserved: a new price applies to new
+    reservations only, so nobody who already reserved is notified."""
     if clock.now() > rules.reservation_cutoff(menu.date):
         raise DomainError("payment_frozen", "Price is frozen after the reservation cutoff.")
     if is_paid and (price is None or price <= 0):
@@ -157,38 +183,51 @@ def set_payment(menu: Menu, *, is_paid: bool, price: Decimal | None, by) -> Menu
     menu.is_paid, menu.price = is_paid, price if is_paid else None
     menu.save(update_fields=["is_paid", "price", "updated_at"])
     audit.record(A.PAYMENT_CONFIG_CHANGE, actor=by, target=menu, old_value=old, new_value=(is_paid, price))
-    if old != (menu.is_paid, menu.price):
-        notification_events.price_changed(menu)
     return menu
 
 
-# --- Finalization (FR-24 to FR-27) --------------------------------------------------
+# --- Finalization (FR-24 to FR-27), one plate count per menu of the day ---------------
 def proposed_plate_count(menu: Menu) -> dict:
-    reserved = reserved_count(menu)
-    buffer = rules.default_buffer(reserved)
-    return {"reserved": reserved, "buffer": buffer, "proposed": reserved + buffer}
+    """Reservations + buffer, per menu and in total (10 % per menu, rounded up)."""
+    choices = []
+    for choice, reserved in reserved_by_choice(menu).items():
+        buffer = rules.default_buffer(reserved)
+        choices.append({"choice": choice, "reserved": reserved, "buffer": buffer, "proposed": reserved + buffer})
+    return {
+        "reserved": sum(c["reserved"] for c in choices),
+        "buffer": sum(c["buffer"] for c in choices),
+        "proposed": sum(c["proposed"] for c in choices),
+        "choices": choices,
+    }
 
 
 @transaction.atomic
-def finalize(menu: Menu, *, final_plate_count: int, by=None, auto: bool = False) -> Menu:
+def finalize(menu: Menu, *, plates: dict[int, int], by=None, auto: bool = False) -> Menu:
+    """`plates` gives the number of plates per menu, e.g. {1: 25, 2: 12}."""
     menu = Menu.objects.select_for_update().get(pk=menu.pk)
     cfg = CanteenSettings.load()
     if menu.status not in (Menu.Status.LOCKED, Menu.Status.FINALIZED):
         raise Conflict("not_locked", "A day can be finalized only after the reservation cutoff.")
     if not auto and clock.now() >= rules.finalization_deadline(menu.date, cfg):
         raise DomainError("finalization_closed", "The final count is locked after the finalization deadline.")
-    reserved = reserved_count(menu)
-    if final_plate_count < reserved:
-        raise DomainError("below_reserved", f"Final count cannot be below the {reserved} reservations.")
-    if cfg.kitchen_max_plates and final_plate_count > cfg.kitchen_max_plates:
+    reserved = reserved_by_choice(menu)
+    plates = {int(choice): count for choice, count in plates.items()}
+    if set(plates) != set(reserved):
+        raise DomainError("plates_per_menu_required", "Give the number of plates for each menu of the day.")
+    for choice, count in plates.items():
+        if count < reserved[choice]:
+            raise DomainError("below_reserved", f"Menu {choice}: cannot be below its {reserved[choice]} reservations.")
+    total, total_reserved = sum(plates.values()), sum(reserved.values())
+    if cfg.kitchen_max_plates and total > cfg.kitchen_max_plates:
         raise DomainError("above_kitchen_max", f"Kitchen maximum is {cfg.kitchen_max_plates} plates.")
 
     menu.status = Menu.Status.FINALIZED
-    menu.final_plate_count = final_plate_count
-    menu.reserved_count_at_finalization = reserved
-    menu.buffer = final_plate_count - reserved
+    menu.final_plate_count, menu.reserved_count_at_finalization = total, total_reserved
+    menu.buffer = total - total_reserved
+    menu.final_plates_by_choice = {str(c): n for c, n in sorted(plates.items())}
+    menu.reserved_by_choice_at_finalization = {str(c): n for c, n in sorted(reserved.items())}
     menu.finalized_by, menu.finalized_at, menu.auto_finalized = by, clock.now(), auto
     menu.save()
-    audit.record(A.AUTO_FINALIZE if auto else A.FINALIZE, actor=by, target=menu, plates=final_plate_count)
+    audit.record(A.AUTO_FINALIZE if auto else A.FINALIZE, actor=by, target=menu, plates=menu.final_plates_by_choice)
     notification_events.day_finalized(menu)  # FR-28
     return menu

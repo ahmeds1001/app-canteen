@@ -16,6 +16,8 @@ class Notification(models.Model):
         DAY_FINALIZED = "day_finalized"
         MENU_MISSING = "menu_missing"
         RESERVATION_REMINDER = "reservation_reminder"
+        BALANCE_TOPUP = "balance_topup"
+        BALANCE_CORRECTED = "balance_corrected"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="notifications")
     kind = models.CharField(max_length=40, choices=Kind.choices)

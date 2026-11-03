@@ -32,6 +32,12 @@ item into a plan file in this folder, then the **executor** to build it.
 - [x] **HR enters the employee number at approval** (FR-01, FR-04, decided 2026-10-26): no matricule on the sign-up
   form; approve dialog asks for it (required, unique); HR can correct it later (audited `employee_number_change`).
   CSV import, list badges and bulk approval removed. Sign-up and new-password forms list the password rules.
+- [x] **Two menus per day** (FR-42, decided 2026-11-03): menu 2 optional in the planner; employees pick and switch
+  until the cutoff; plate count per menu (manual and automatic); the scanner sees which menu to serve.
+- [x] **Prepaid balance** (FR-43, decided 2026-11-03): `wallet` app with an append-only history; top-ups by the
+  scanner or management, corrections by management; meals paid when reserved, refunded on cancel or closed day,
+  kept on no-show; counter payment ("mark paid") removed; day price set on the Finalization screen; "My balance".
+- [x] **Reservation lists** (FR-44, decided 2026-11-03): any day, for the scanner and management, filters and CSV.
 - [x] Close day → cancel its reservations (`menus/services.close_day`). Notifying the employees is part of Notifications.
 - [ ] Refresh-token blacklist so a password change ends other sessions (FR-39) — `rest_framework_simplejwt.token_blacklist`.
 

@@ -36,7 +36,7 @@ class TriggerTests(TestCase):
     def test_day_finalized_goes_to_the_chef_only(self):
         menu = f.menu(MONDAY, status=Menu.Status.LOCKED)
         with clock.frozen(f.at(2026, 11, 2, 9)):
-            menu_services.finalize(menu, final_plate_count=3, by=self.manager)
+            menu_services.finalize(menu, plates={1: 3}, by=self.manager)
         self.assertEqual(kinds_for(self.chef), [K.DAY_FINALIZED])
         self.assertEqual(kinds_for(self.manager), [])
         note = Notification.objects.get(user=self.chef)
@@ -67,13 +67,22 @@ class TriggerTests(TestCase):
             menu_services.set_items(menu, [f.dish(self.chef, "Lablabi").pk], by=self.chef)
         self.assertEqual(kinds_for(self.eater), [K.MENU_CHANGED])
 
-    def test_price_change_tells_who_reserved(self):
+    def test_price_change_does_not_concern_who_already_reserved(self):
+        """Since the prepaid balance (2026-11-03) the meal is paid when reserved: a new price only
+        applies to new reservations, so those who reserved are not told."""
         menu = f.menu(MONDAY)
         with clock.frozen(f.at(2026, 10, 30, 10)):
             reservation_services.reserve(self.eater, menu)
             menu_services.set_payment(menu, is_paid=True, price=Decimal("3.500"), by=self.manager)
-            menu_services.set_payment(menu, is_paid=True, price=Decimal("3.500"), by=self.manager)  # no change
-        self.assertEqual(kinds_for(self.eater), [K.PRICE_CHANGED])
+        self.assertEqual(kinds_for(self.eater), [])
+
+    def test_day_finalized_gives_the_plates_per_menu(self):
+        menu = f.menu(MONDAY, status=Menu.Status.LOCKED)
+        f.items(menu, self.chef, 1, 2)
+        with clock.frozen(f.at(2026, 11, 2, 9)):
+            menu_services.finalize(menu, plates={1: 5, 2: 3}, by=self.manager)
+        title, body = messages.render(K.DAY_FINALIZED, Notification.objects.get(user=self.chef).params, "fr")
+        self.assertIn("8 assiettes à préparer (menu 1 : 5, menu 2 : 3)", body)
 
     def test_verified_email_tells_hr(self):
         user = f.user(status=User.Status.REGISTERED)
@@ -156,7 +165,7 @@ class PushTests(TestCase):
         )
         menu = f.menu(MONDAY, status=Menu.Status.LOCKED)
         with clock.frozen(f.at(2026, 11, 2, 9)):
-            menu_services.finalize(menu, final_plate_count=0, by=None, auto=True)
+            menu_services.finalize(menu, plates={1: 0}, by=None, auto=True)
 
     def test_push_sent_once_with_the_text(self):
         with mock.patch("apps.notifications.push.send", return_value=True) as send:

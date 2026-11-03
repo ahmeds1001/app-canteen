@@ -89,3 +89,16 @@ export async function api<T>(path: string, options: RequestInit & { json?: unkno
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
+
+/** Download a file the API builds (CSV export) under `filename`, with the same login as `api()`. */
+export async function download(path: string, filename: string, retry = true): Promise<void> {
+  const headers = new Headers();
+  if (tokens.access) headers.set("Authorization", `Bearer ${tokens.access}`);
+  const res = await fetch(`${BASE}${path}`, { headers });
+  if (res.status === 401 && retry && (await refreshAccess())) return download(path, filename, false);
+  if (!res.ok) throw await toError(res);
+  const url = URL.createObjectURL(await res.blob());
+  const link = Object.assign(document.createElement("a"), { href: url, download: filename });
+  link.click();
+  URL.revokeObjectURL(url);
+}

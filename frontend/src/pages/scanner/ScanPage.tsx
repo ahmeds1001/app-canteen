@@ -19,7 +19,8 @@ function vibrate(pattern: number | number[]) {
   }
 }
 
-/** FR-18 to FR-20, FR-34: dedicated canteen phone. Big green / red result, payment badge.
+/** FR-18 to FR-20: dedicated canteen phone. Big green / red result with the menu to serve.
+ *  Meals are paid from the balance when reserved: nothing is collected here.
  *  TODO (backlog): offline queue — store failed-network scans with their timestamp and resend. */
 export default function ScanPage() {
   const { t } = useTranslation();
@@ -97,13 +98,10 @@ export default function ScanPage() {
           <strong>{t("scan.ok")}</strong>
           <span className="scanner__name">{result.full_name}</span>
           <span>{result.employee_number}</span>
-          {result.payment_status === "unpaid" && (
-            <>
-              <Badge tone="orange">{t("scan.toPay", { amount: result.amount_due })}</Badge>
-              <Button variant="accent" onClick={() => act(() => scanApi.markPaid(result.id))}>{t("scan.markPaid")}</Button>
-            </>
-          )}
-          {result.payment_status === "paid" && <Badge tone="green">{t("scan.paid")}</Badge>}
+          {/* Which plate to hand out: decided 2026-11-03, a day can offer two menus. */}
+          <span className="scanner__menu">{t("menus.menuN", { n: result.choice })}</span>
+          {result.menu_items.length > 0 && <span>{result.menu_items.join(" · ")}</span>}
+          {result.payment_status === "paid" && <Badge tone="green">{t("scan.paidBalance", { amount: result.amount_due })}</Badge>}
         </div>
       )}
       {!result && !error && <Alert kind="info">{t("scan.hint")}</Alert>}
@@ -119,7 +117,7 @@ export default function ScanPage() {
         <Field label={t("scan.manualSearch")} value={query} onChange={(e) => search(e.target.value)} />
         {matches.map((m) => (
           <div key={m.id} className="scanner__match">
-            <span>{m.full_name} · {m.employee_number}</span>
+            <span>{m.full_name} · {m.employee_number} · {t("menus.menuN", { n: m.choice })}</span>
             {m.status === "reserved" ? (
               <Button variant="ghost" onClick={() => act(() => scanApi.manual(m.id))}>{t("scan.checkIn")}</Button>
             ) : (

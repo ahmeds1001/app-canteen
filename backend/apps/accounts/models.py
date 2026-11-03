@@ -57,6 +57,9 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     approved_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
     evening_reminder = models.BooleanField(default=True, help_text="20:00 reminder when tomorrow is not reserved.")
+    # Prepaid balance in TND (decided 2026-11-03). Changed only by apps.wallet.services, which writes the
+    # matching BalanceTransaction; a conditional update keeps it from ever going below zero.
+    balance = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     must_change_password = models.BooleanField(default=False)
     temp_password_expires_at = models.DateTimeField(null=True, blank=True)
 

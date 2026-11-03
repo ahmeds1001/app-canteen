@@ -81,6 +81,7 @@ def day_finalized(menu) -> None:
     services.notify(
         active_users("chef"), Kind.DAY_FINALIZED,
         params={"date": menu.date.isoformat(), "plates": menu.final_plate_count,
-                "reserved": menu.reserved_count_at_finalization, "buffer": menu.buffer},
+                "reserved": menu.reserved_count_at_finalization, "buffer": menu.buffer,
+                "by_choice": menu.final_plates_by_choice},
         link="/chef/planner", dedupe_key=f"{menu.date.isoformat()}:{menu.finalized_at.isoformat()}",
     )

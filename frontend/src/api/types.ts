@@ -91,8 +91,13 @@ export interface Dish {
   last_served_on: string | null;
 }
 
+/** A day offers menu 1, and optionally menu 2; each employee picks one (decided 2026-11-03). */
+export type MenuChoice = 1 | 2;
+
 export interface MenuItem {
   id: number;
+  /** Which menu of the day this dish belongs to. */
+  choice: MenuChoice;
   dish: number | null;
   name: string;
   description: string;
@@ -109,40 +114,61 @@ export interface Menu {
   status: MenuStatus;
   is_placeholder: boolean;
   items: MenuItem[];
+  /** Menus offered that day: [1] or [1, 2]. */
+  choices: MenuChoice[];
+  /** One price for the day, the same for both menus; paid from the balance when reserving. */
   is_paid: boolean;
   price: string | null;
   reservation_cutoff: string;
   is_open_for_reservation: boolean;
 }
 
+/** Counts per menu, keyed "1" / "2". */
+export type PerMenu = Partial<Record<"1" | "2", number>>;
+
 /** Extra fields returned to chef / management / admin (MenuStaffSerializer). */
 export interface StaffMenu extends Menu {
   reserved_count: number;
+  reserved_by_choice: PerMenu;
   final_plate_count: number | null;
+  final_plates_by_choice: PerMenu;
   buffer: number | null;
   auto_finalized: boolean;
   finalized_at: string | null;
   closed_reason: string;
 }
 
-export interface FinalizationProposal {
+export interface ChoiceProposal {
+  choice: MenuChoice;
   reserved: number;
   buffer: number;
   proposed: number;
 }
 
+export interface FinalizationProposal {
+  reserved: number;
+  buffer: number;
+  proposed: number;
+  choices: ChoiceProposal[];
+}
+
 export type ReservationStatus = "reserved" | "cancelled" | "served" | "no_show";
-export type PaymentStatus = "not_required" | "unpaid" | "paid";
+/** Paid from the balance when reserving; refunded when cancelled in time. "unpaid" only exists in old rows. */
+export type PaymentStatus = "not_required" | "unpaid" | "paid" | "refunded";
 
 export interface Reservation {
   id: number;
   date: string;
+  choice: MenuChoice;
+  /** How many menus the day offers (the menu number is shown only when there are two). */
+  menu_choices: number;
   status: ReservationStatus;
   reserved_at: string;
   served_at: string | null;
   payment_status: PaymentStatus;
   amount_due: string | null;
   qr_payload: string | null;
+  /** Dishes of the chosen menu. */
   menu_items: string[];
 }
 
@@ -152,7 +178,60 @@ export interface ScanResult {
   status: ReservationStatus;
   full_name: string;
   employee_number: string;
+  /** Which plate to serve. */
+  choice: MenuChoice;
+  menu_items: string[];
   payment_status: PaymentStatus;
   amount_due: string | null;
   served_at: string | null;
+}
+
+/** A row of a day's reservation list (scanner and management). */
+export interface DayReservation extends ScanResult {
+  department: string;
+  reserved_at: string;
+  cancelled_at: string | null;
+  scan_method: "qr" | "manual" | "";
+}
+
+export interface DayList {
+  date: string;
+  menu: null | {
+    status: MenuStatus;
+    is_placeholder: boolean;
+    price: string | null;
+    final_plate_count: number | null;
+    final_plates_by_choice: PerMenu;
+    choices: { choice: MenuChoice; dishes: string[]; reserved: number }[];
+  };
+  counts: Record<ReservationStatus | "total", number>;
+  rows: DayReservation[];
+}
+
+/** Prepaid balance (decided 2026-11-03). Amounts are TND strings with 3 decimals. */
+export type TransactionKind = "topup" | "meal" | "refund" | "correction";
+
+export interface BalanceTransaction {
+  id: number;
+  kind: TransactionKind;
+  amount: string;
+  balance_after: string;
+  meal_date: string | null;
+  note: string;
+  by_name: string;
+  created_at: string;
+}
+
+export interface MyBalance {
+  balance: string;
+  transactions: BalanceTransaction[];
+}
+
+/** An account as the cashier (scanner / management) sees it. */
+export interface WalletAccount {
+  id: number;
+  full_name: string;
+  employee_number: string | null;
+  department: string;
+  balance: string;
 }

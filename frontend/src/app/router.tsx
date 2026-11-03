@@ -16,10 +16,13 @@ import {
 import VerifyOtpPage from "@/pages/auth/VerifyOtpPage";
 import DishesPage from "@/pages/chef/DishesPage";
 import PlannerPage from "@/pages/chef/PlannerPage";
+import BalancePage from "@/pages/employee/BalancePage";
 import HomePage from "@/pages/employee/HomePage";
 import ReservationsPage from "@/pages/employee/ReservationsPage";
 import AccountsPage from "@/pages/hr/AccountsPage";
 import FinalizePage from "@/pages/management/FinalizePage";
+import CashierPage from "@/pages/scanner/CashierPage";
+import DayListPage from "@/pages/staff/DayListPage";
 
 // The camera library is heavy: load the scanner screen only on the canteen phone.
 const ScanPage = lazy(() => import("@/pages/scanner/ScanPage"));
@@ -51,7 +54,16 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "reservations", element: <ReservationsPage /> },
+      { path: "balance", element: <BalancePage /> },
       { path: "notifications", element: <NotificationsPage /> },
+      {
+        path: "day-list",
+        element: <Protected roles={["scanner", "management"]}><DayListPage /></Protected>,
+      },
+      {
+        path: "cashier",
+        element: <Protected roles={["scanner", "management"]}><CashierPage /></Protected>,
+      },
       {
         path: "scan",
         element: <Protected roles={["scanner"]}><Suspense fallback={null}><ScanPage /></Suspense></Protected>,

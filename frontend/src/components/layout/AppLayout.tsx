@@ -14,6 +14,7 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
   employee: [
     { to: "/", key: "nav.home" },
     { to: "/reservations", key: "nav.reservations" },
+    { to: "/balance", key: "nav.balance" },
   ],
   chef: [
     { to: "/", key: "nav.home" },
@@ -23,6 +24,8 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
   management: [
     { to: "/", key: "nav.home" },
     { to: "/management/finalize", key: "nav.finalize" },
+    { to: "/day-list", key: "nav.dayList" },
+    { to: "/cashier", key: "nav.cashier" },
     { to: "/management/reports", key: "nav.reports" },
   ],
   hr: [
@@ -33,6 +36,8 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
   // The canteen phone scans, and the staff using it eat at the canteen too.
   scanner: [
     { to: "/scan", key: "nav.scan" },
+    { to: "/day-list", key: "nav.dayList" },
+    { to: "/cashier", key: "nav.cashier" },
     { to: "/", key: "nav.home" },
     { to: "/reservations", key: "nav.reservations" },
   ],
@@ -40,6 +45,8 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
     { to: "/", key: "nav.home" },
     { to: "/chef/planner", key: "nav.planner" },
     { to: "/management/finalize", key: "nav.finalize" },
+    { to: "/day-list", key: "nav.dayList" },
+    { to: "/cashier", key: "nav.cashier" },
     { to: "/hr/accounts", key: "nav.accounts" },
     { to: "/management/reports", key: "nav.reports" },
   ],

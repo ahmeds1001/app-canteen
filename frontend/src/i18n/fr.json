@@ -3,7 +3,8 @@
     "devClock": "Horloge de test (développement) : {{time}}" },
   "nav": {
     "home": "Menus", "reservations": "Mes réservations", "dishes": "Plats", "planner": "Planning",
-    "finalize": "Finalisation", "reports": "Rapports", "accounts": "Comptes", "scan": "Scanner"
+    "finalize": "Finalisation", "reports": "Rapports", "accounts": "Comptes", "scan": "Scanner",
+    "balance": "Mon solde", "dayList": "Liste du jour", "cashier": "Caisse"
   },
   "auth": {
     "login": "Se connecter", "register": "Créer un compte", "email": "Email professionnel",
@@ -30,20 +31,52 @@
     "closed": "Réservations closes", "toBeAnnounced": "Menu à venir",
     "deadline": "Réservez avant {{time}} la veille", "price": "Prix : {{price}} TND", "free": "Gratuit",
     "empty": "Aucun menu publié pour le moment.",
-    "dayClosed": "Fermé", "dayClosedHelp": "La cantine est fermée ce jour-là."
+    "dayClosed": "Fermé", "dayClosedHelp": "La cantine est fermée ce jour-là.",
+    "menuN": "Menu {{n}}", "yourChoice": "Votre choix", "reserveN": "Réserver le menu {{n}}",
+    "switchTo": "Prendre ce menu à la place",
+    "notEnough": "Solde insuffisant pour ce repas ({{price}} TND).",
+    "cancelRefund": "Annuler (remboursé : {{price}} TND)",
+    "refunded": "Réservation annulée : {{amount}} TND remboursés sur votre solde."
+  },
+  "balance": {
+    "title": "Mon solde", "current": "Solde disponible", "short": "Solde : {{amount}} TND",
+    "how": "Comment recharger ?",
+    "howHelp": "Pour recharger votre solde, donnez l'argent au personnel de la cantine : il l'enregistre aussitôt. Chaque repas est payé avec votre solde au moment de la réservation, et remboursé si vous annulez avant minuit la veille.",
+    "history": "Historique", "empty": "Aucun mouvement pour le moment.", "after": "solde : {{amount}} TND",
+    "kind": { "topup": "Recharge", "meal": "Repas", "refund": "Remboursement", "correction": "Correction" }
   },
   "reservations": {
     "title": "Mes réservations", "showQr": "Présentez ce code à l'entrée de la cantine.",
     "qrTitle": "QR code de votre repas",
     "status": { "reserved": "Réservé", "cancelled": "Annulé", "served": "Servi", "no_show": "Absent" },
-    "payment": { "not_required": "Gratuit", "unpaid": "À payer", "paid": "Payé" },
+    "payment": { "not_required": "Gratuit", "unpaid": "À payer", "paid": "Payé ({{amount}} TND)", "refunded": "Remboursé" },
     "empty": "Aucune réservation à venir."
   },
   "scan": {
     "title": "Scanner les repas", "start": "Démarrer la caméra", "stop": "Arrêter",
     "hint": "Démarrez la caméra et visez le QR code affiché sur le téléphone de l'employé.",
     "ok": "Repas validé", "manualSearch": "Recherche manuelle (nom ou matricule)",
-    "checkIn": "Valider la présence", "markPaid": "Marquer payé", "toPay": "À payer : {{amount}} TND", "paid": "Payé"
+    "checkIn": "Valider la présence", "paidBalance": "Payé par le solde ({{amount}} TND)"
+  },
+  "cashier": {
+    "title": "Caisse — recharger un solde",
+    "help": "Un employé vous donne de l'argent : retrouvez son compte, saisissez le montant reçu et enregistrez-le. Il reçoit une notification avec son nouveau solde.",
+    "search": "Rechercher (nom, matricule ou email)", "noMatch": "Aucun compte actif ne correspond.",
+    "back": "Autre employé", "topUp": "Argent reçu", "amount": "Montant (TND)",
+    "record": "Enregistrer {{amount}} TND",
+    "confirm": "Vous avez bien reçu {{amount}} TND de {{name}} ?",
+    "done": "{{amount}} TND ajoutés. Nouveau solde : {{balance}} TND.",
+    "correct": "Corriger le solde",
+    "correctHelp": "Pour réparer une erreur (mauvais montant, mauvaise personne). Montant négatif pour retirer. Le motif est conservé et l'employé est prévenu.",
+    "correctAmount": "Montant de la correction (TND, ex. -45)", "reason": "Motif",
+    "corrected": "Correction enregistrée. Nouveau solde : {{balance}} TND."
+  },
+  "dayList": {
+    "title": "Réservations du jour", "export": "Exporter (CSV)", "prev": "Jour précédent", "next": "Jour suivant",
+    "today": "Aujourd'hui", "date": "Date", "noMenu": "Pas de menu ce jour-là.",
+    "total": "réservations", "waiting": "à servir", "menu": "Menu", "reservedN": "{{count}} réservation(s)",
+    "all": "Toutes", "search": "Rechercher (nom, matricule ou service)", "empty": "Aucune réservation.",
+    "manual": "manuel"
   },
   "common": {
     "save": "Enregistrer", "cancel": "Annuler", "close": "Fermer", "edit": "Modifier", "search": "Rechercher",
@@ -78,18 +111,26 @@
     "sourceDay": "Copier les plats du jour", "sourceEmpty": "Ce jour n'a aucun plat à copier.",
     "closeTitle": "Fermer le {{date}}",
     "closeHelp": "Le jour ne sera plus réservable et les réservations existantes seront annulées.",
-    "closeReason": "Motif (jour férié, maintenance…)"
+    "closeReason": "Motif (jour férié, maintenance…)",
+    "menu1Help": "Le menu principal du jour (obligatoire).",
+    "menu2Help": "Facultatif : un deuxième menu que les employés peuvent choisir à la place. Laissez vide pour un seul menu."
   },
   "finalize": {
     "title": "Finalisation des repas",
     "help": "Après la clôture des réservations (minuit la veille), confirmez le nombre d'assiettes à préparer. Sans confirmation, le système finalise automatiquement à {{time}}.",
     "empty": "Aucun jour publié pour les 7 prochains jours.",
-    "status": { "published": "Réservations ouvertes", "locked": "À finaliser", "finalized": "Finalisé", "closed": "Fermé" },
+    "status": { "draft": "Brouillon", "published": "Réservations ouvertes", "locked": "À finaliser", "finalized": "Finalisé", "closed": "Fermé" },
     "reserved": "réservations", "plates": "assiettes à préparer",
     "waitCutoff": "Finalisation possible après la clôture des réservations ({{date}}).",
     "auto": "Finalisé automatiquement (réservations + marge).", "buffer": "Dont {{buffer}} assiette(s) de marge.",
     "proposal": "Proposition : {{reserved}} réservations + {{buffer}} de marge = {{proposed}} assiettes.",
-    "finalCount": "Nombre final d'assiettes", "confirm": "Confirmer", "change": "Modifier le nombre"
+    "finalCount": "Nombre final d'assiettes", "confirm": "Confirmer", "change": "Modifier le nombre",
+    "finalCountN": "Assiettes du menu {{n}}",
+    "splitReserved": "{{count}} réservation(s)", "splitPlates": "{{count}} assiette(s)",
+    "paymentOff": "Le paiement est désactivé dans les paramètres : tous les repas sont gratuits.",
+    "price": "Prix du jour (TND, les deux menus)", "priceFreePlaceholder": "Vide = gratuit",
+    "priceHelp": "Modifiable jusqu'à minuit la veille. Un nouveau prix ne s'applique qu'aux réservations faites après.",
+    "priceIs": "Prix du jour : {{price}} TND.", "priceFree": "Repas gratuit ce jour-là."
   },
   "accounts": {
     "title": "Comptes",
@@ -187,6 +228,16 @@
     "last_admin": "C'est le dernier administrateur actif : il doit garder ce rôle.",
     "invalid_role": "Rôle inconnu.",
     "photo_invalid": "Utilisez une photo JPEG, PNG ou WebP.",
-    "photo_too_large": "La photo doit faire 5 Mo au maximum."
+    "photo_too_large": "La photo doit faire 5 Mo au maximum.",
+    "insufficient_balance": "Solde insuffisant. Rechargez votre solde auprès de la cantine.",
+    "invalid_choice": "Ce menu n'est pas proposé ce jour-là.",
+    "choice_has_reservations": "Des employés ont réservé le menu 2 : il ne peut plus être retiré.",
+    "plates_per_menu_required": "Indiquez le nombre d'assiettes de chaque menu.",
+    "amount_positive": "Le montant doit être supérieur à zéro.",
+    "amount_too_large": "Une recharge ne peut pas dépasser 1000 TND.",
+    "amount_zero": "La correction ne peut pas être nulle.",
+    "management_only": "Seule la Direction peut corriger un solde.",
+    "payment_frozen": "Le prix est figé après la clôture des réservations.",
+    "price_required": "Indiquez un prix pour un jour payant."
   }
 }

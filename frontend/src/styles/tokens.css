@@ -22,6 +22,7 @@
   --color-primary: var(--brand-green-700);
   --color-primary-hover: var(--brand-green-800);
   --color-on-primary: #ffffff;
+  --color-on-accent: #1f1300; /* dark text on the brand orange (accent buttons, "Menu 2" badge on the scanner) */
   --color-accent: var(--brand-orange-500);
   --color-accent-text: var(--brand-orange-800);
   --color-success: #1e7d32;

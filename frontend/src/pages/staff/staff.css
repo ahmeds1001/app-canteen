@@ -1,0 +1,28 @@
+/* Day reservation list (scanner and management) */
+.day-nav { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.day-nav > .field { flex: 0 1 180px; }
+.day-nav__label { margin: 0; text-transform: capitalize; }
+
+.day-summary { display: grid; gap: var(--space-2); }
+.day-summary__counts { display: flex; flex-wrap: wrap; gap: var(--space-6); }
+.day-summary__counts > div { display: grid; }
+.day-summary__value { font-family: var(--font-heading); font-weight: 700; font-size: var(--text-xl); line-height: 1.1; }
+.day-summary__label { font-size: var(--text-sm); color: var(--color-text-muted); }
+.day-summary__menu { margin: 0; }
+
+.day-table { display: grid; border-block-start: 1px solid var(--color-border); }
+.day-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+}
+.day-row__who { display: grid; gap: 2px; min-inline-size: 0; }
+.day-row__who .muted { font-size: var(--text-sm); }
+.day-row__when { font-size: var(--text-sm); white-space: nowrap; text-align: end; }
+@media (max-width: 560px) {
+  .day-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .day-row__when { grid-column: 1 / -1; text-align: start; }
+}

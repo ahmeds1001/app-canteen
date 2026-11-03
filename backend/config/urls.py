@@ -10,6 +10,7 @@ api_v1 = [
     path("", include("apps.reservations.urls")),
     path("reports/", include("apps.reports.urls")),
     path("notifications/", include("apps.notifications.urls")),
+    path("wallet/", include("apps.wallet.urls")),
 ]
 
 urlpatterns = [

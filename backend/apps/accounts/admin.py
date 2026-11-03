@@ -16,12 +16,13 @@ class UserAdmin(BaseUserAdmin):
         ("Identity", {"fields": ("first_name", "last_name", "employee_number", "department", "preferred_language")}),
         ("Access", {"fields": ("role", "status", "is_staff", "is_superuser")}),
         ("History", {"fields": ("email_verified_at", "approved_by", "approved_at", "rejection_reason")}),
+        ("Balance", {"fields": ("balance",), "description": "Changed only from the app (top-up, meals, refunds)."}),
     )
     add_fieldsets = (
         (None, {"fields": ("work_email", "first_name", "last_name", "employee_number", "role",
                            "password1", "password2")}),
     )
-    readonly_fields = ("email_verified_at", "approved_by", "approved_at")
+    readonly_fields = ("email_verified_at", "approved_by", "approved_at", "balance")
 
     def save_model(self, request, obj, form, change):
         # Role, admin rights and status changes go to the audit log (spec §5 Security).

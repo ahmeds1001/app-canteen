@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import secrets
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 from django.conf import settings
 from django.core import signing
@@ -14,6 +15,7 @@ from apps.core.exceptions import Conflict, DomainError
 from apps.core.models import AuditLog, CanteenSettings
 from apps.menus import rules
 from apps.menus.models import Menu
+from apps.wallet import services as wallet
 
 from .models import Reservation
 
@@ -28,45 +30,67 @@ def _new_qr() -> tuple[str, str]:
 
 
 # --- Reserve / cancel (FR-11 to FR-13) ------------------------------------------------
-def reserve(user, menu: Menu) -> Reservation:
-    """Idempotent: reserving twice returns the existing reservation."""
+def meal_price(menu: Menu, cfg: CanteenSettings | None = None) -> Decimal | None:
+    """One price per day, the same for both menus; None on a free day."""
+    cfg = cfg or CanteenSettings.load()
+    return menu.price if cfg.payment_enabled and menu.is_paid and menu.price else None
+
+
+def reserve(user, menu: Menu, choice: int = 1) -> Reservation:
+    """Reserve menu 1 or 2 of a day. Idempotent: reserving the same menu twice returns the existing
+    reservation; choosing the other menu of the day switches the choice (same price, nothing to pay).
+    On a paid day the price is taken from the balance; without enough money nothing is reserved."""
     cfg = CanteenSettings.load()
     now = clock.now()
     if menu.status != Menu.Status.PUBLISHED or now > rules.reservation_cutoff(menu.date, cfg):
         raise DomainError("reservation_closed", "Reservations for this day are closed.")
     if cfg.booking_horizon_days and (menu.date - clock.today()).days > cfg.booking_horizon_days:
         raise DomainError("beyond_horizon", "This day is not open for booking yet.")
+    if choice not in menu.choices():
+        raise DomainError("invalid_choice", "This menu is not offered that day.")
 
     existing = Reservation.objects.active().filter(user=user, date=menu.date).first()
     if existing:
+        if existing.choice != choice and Reservation.objects.filter(
+            pk=existing.pk, status=Reservation.Status.RESERVED
+        ).update(choice=choice):
+            existing.refresh_from_db()
+            audit.record(A.RESERVE, actor=user, target=existing, choice=choice, switched=True)
         return existing
 
-    paid = cfg.payment_enabled and menu.is_paid
+    price = meal_price(menu, cfg)
+    P = Reservation.PaymentStatus
     token, payload = _new_qr()
     try:
         with transaction.atomic():
             reservation = Reservation.objects.create(
-                user=user, menu=menu, date=menu.date, reserved_at=now,
+                user=user, menu=menu, date=menu.date, choice=choice, reserved_at=now,
                 qr_token=token, qr_signed_payload=payload,
-                payment_status=Reservation.PaymentStatus.UNPAID if paid else Reservation.PaymentStatus.NOT_REQUIRED,
-                amount_due=menu.price if paid else None,
+                payment_status=P.PAID if price else P.NOT_REQUIRED,
+                amount_due=price, paid_at=now if price else None,
             )
+            if price:
+                wallet.pay_meal(reservation, price)  # not enough money → everything is rolled back
     except IntegrityError:  # double tap raced past the check: return the winner
         return Reservation.objects.active().get(user=user, date=menu.date)
-    audit.record(A.RESERVE, actor=user, target=reservation)
+    audit.record(A.RESERVE, actor=user, target=reservation, choice=choice)
     return reservation
 
 
 def cancel(reservation: Reservation, *, by) -> Reservation:
+    """Until the cutoff (midnight the day before); a meal paid from the balance is paid back."""
     if reservation.status == Reservation.Status.CANCELLED:
         return reservation  # idempotent
     if reservation.status != Reservation.Status.RESERVED:
         raise Conflict("cannot_cancel", "This meal can no longer be cancelled.")
     if clock.now() > rules.reservation_cutoff(reservation.date):
         raise DomainError("reservation_closed", "The cancellation deadline has passed.")
-    updated = Reservation.objects.filter(pk=reservation.pk, status=Reservation.Status.RESERVED).update(
-        status=Reservation.Status.CANCELLED, cancelled_at=clock.now()
-    )
+    with transaction.atomic():
+        updated = Reservation.objects.filter(pk=reservation.pk, status=Reservation.Status.RESERVED).update(
+            status=Reservation.Status.CANCELLED, cancelled_at=clock.now()
+        )
+        if updated:
+            wallet.refund_meal(reservation, by=by)
     reservation.refresh_from_db()
     if updated:
         audit.record(A.CANCEL, actor=by, target=reservation)
@@ -119,17 +143,3 @@ def scan(payload: str, *, by, scanned_at: datetime | None = None) -> Reservation
 def manual_checkin(reservation: Reservation, *, by) -> Reservation:
     return _claim(reservation, by=by, at=clock.now(), method=Reservation.ScanMethod.MANUAL)
 
-
-# --- Payment (FR-34, FR-35) -----------------------------------------------------------
-def mark_paid(reservation: Reservation, *, by) -> Reservation:
-    if reservation.payment_status == Reservation.PaymentStatus.PAID:
-        return reservation  # idempotent: a double tap records one payment
-    if reservation.payment_status != Reservation.PaymentStatus.UNPAID:
-        raise DomainError("payment_not_required", "This meal is free.")
-    updated = Reservation.objects.filter(
-        pk=reservation.pk, payment_status=Reservation.PaymentStatus.UNPAID
-    ).update(payment_status=Reservation.PaymentStatus.PAID, paid_at=clock.now(), paid_marked_by=by)
-    reservation.refresh_from_db()
-    if updated:
-        audit.record(A.MARK_PAID, actor=by, target=reservation, amount=reservation.amount_due)
-    return reservation

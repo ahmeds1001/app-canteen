@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { dishApi, menuApi, settingsApi } from "@/api/endpoints";
-import { DISH_CATEGORIES, type Dish, type StaffMenu } from "@/api/types";
+import { DISH_CATEGORIES, type Dish, type MenuChoice, type StaffMenu } from "@/api/types";
 import { Alert, Badge, Button, Card, Dialog, Field, SelectField } from "@/components/ui";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { useServerTime } from "@/hooks/useServerTime";
@@ -121,14 +121,24 @@ export default function PlannerPage() {
               </div>
               {menu?.is_placeholder && <Badge tone="orange">{t("planner.placeholder")}</Badge>}
               {menu && menu.items.length > 0 ? (
-                <ul className="plan-day__items">
-                  {menu.items.map((item) => (
-                    <li key={item.id}>
-                      <span>{item.name}</span>
-                      <span>{t(`dishes.categories.${item.category}`)}</span>
-                    </li>
-                  ))}
-                </ul>
+                menu.choices.map((choice) => (
+                  <div key={choice}>
+                    {menu.choices.length > 1 && (
+                      <p className="plan-day__menu">
+                        {t("menus.menuN", { n: choice })}
+                        {status !== "draft" && ` · ${t("planner.reservedCount", { count: menu.reserved_by_choice[`${choice}`] ?? 0 })}`}
+                      </p>
+                    )}
+                    <ul className="plan-day__items">
+                      {menu.items.filter((i) => i.choice === choice).map((item) => (
+                        <li key={item.id}>
+                          <span>{item.name}</span>
+                          <span>{t(`dishes.categories.${item.category}`)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
               ) : (
                 status !== "closed" && <p className="plan-day__empty">{t("planner.noDishes")}</p>
               )}
@@ -199,10 +209,16 @@ export default function PlannerPage() {
   );
 }
 
-/** Save dishes for a day: the menu is created as a draft if needed (idempotent on the backend). */
-async function saveDishes(date: string, dishIds: number[]) {
+/** Save dishes for a day: the menu is created as a draft if needed (idempotent on the backend).
+ *  `dishIds2` empty = one menu that day. */
+async function saveDishes(date: string, dishIds: number[], dishIds2: number[] = []) {
   await menuApi.create(date);
-  return menuApi.setItems(date, dishIds);
+  return menuApi.setItems(date, dishIds, dishIds2);
+}
+
+function dishIdsOf(menu: StaffMenu | undefined, choice: MenuChoice): number[] {
+  return (menu?.items ?? []).filter((i) => i.choice === choice).map((i) => i.dish)
+    .filter((id): id is number => id !== null);
 }
 
 function DishPickerDialog({ date, menu, onClose, onSaved }: {
@@ -215,9 +231,12 @@ function DishPickerDialog({ date, menu, onClose, onSaved }: {
   const toMessage = useErrorMessage();
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
-  const [selected, setSelected] = useState<number[]>(
-    () => (menu?.items ?? []).map((i) => i.dish).filter((id): id is number => id !== null),
+  // A day has menu 1 and, optionally, menu 2 that employees can choose instead (decided 2026-11-03).
+  const [tab, setTab] = useState<MenuChoice>(1);
+  const [picked, setPicked] = useState<Record<MenuChoice, number[]>>(
+    () => ({ 1: dishIdsOf(menu, 1), 2: dishIdsOf(menu, 2) }),
   );
+  const selected = picked[tab];
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
 
@@ -228,11 +247,12 @@ function DishPickerDialog({ date, menu, onClose, onSaved }: {
   );
 
   const save = useMutation({
-    mutationFn: () => saveDishes(date, selected),
+    mutationFn: () => saveDishes(date, picked[1], picked[2]),
     onSuccess: () => { onSaved(); onClose(); },
     onError: (e) => setError(toMessage(e)),
   });
 
+  const setSelected = (update: (ids: number[]) => number[]) => setPicked((p) => ({ ...p, [tab]: update(p[tab]) }));
   const toggle = (id: number) =>
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
@@ -240,6 +260,21 @@ function DishPickerDialog({ date, menu, onClose, onSaved }: {
     <Dialog title={t("planner.pickTitle", { date: formatDay(date, i18n.language) })} onClose={onClose} wide>
       <div className="picker">
         {error && <Alert>{error}</Alert>}
+        <div className="tabs" role="tablist">
+          {([1, 2] as MenuChoice[]).map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="tab"
+              aria-selected={tab === c}
+              className={`tab ${tab === c ? "tab--active" : ""}`}
+              onClick={() => setTab(c)}
+            >
+              {t("menus.menuN", { n: c })} ({picked[c].length})
+            </button>
+          ))}
+        </div>
+        <p className="muted">{t(tab === 1 ? "planner.menu1Help" : "planner.menu2Help")}</p>
         <div className="toolbar">
           <Field label={t("common.search")} type="search" value={q} onChange={(e) => setQ(e.target.value)} />
           <SelectField label={t("dishes.category")} value={category} onChange={(e) => setCategory(e.target.value)}>
@@ -270,12 +305,14 @@ function DishPickerDialog({ date, menu, onClose, onSaved }: {
             ))}
           </ul>
         )}
-        <p className="picker__selected">
-          <strong>{t("planner.selected", { count: selected.length })}</strong>{" "}
-          {selected.map((id) => byId.get(id)?.name).filter(Boolean).join(" · ")}
-        </p>
+        {([1, 2] as MenuChoice[]).map((c) => (
+          <p key={c} className="picker__selected">
+            <strong>{t("menus.menuN", { n: c })} — {t("planner.selected", { count: picked[c].length })}</strong>{" "}
+            {picked[c].map((id) => byId.get(id)?.name).filter(Boolean).join(" · ")}
+          </p>
+        ))}
         <div className="actions">
-          <Button disabled={save.isPending || selected.length === 0} onClick={() => save.mutate()}>
+          <Button disabled={save.isPending || picked[1].length === 0} onClick={() => save.mutate()}>
             {t("common.save")}
           </Button>
           <Button variant="ghost" onClick={onClose}>{t("common.cancel")}</Button>
@@ -307,11 +344,13 @@ function DuplicateDialog({ date, onClose, onDone }: {
       const [menus, library] = await Promise.all([menuApi.staffList(source, source), dishApi.list()]);
       const items = menus[0]?.items ?? [];
       if (items.length === 0) throw new Error("source_empty");
+      // Both menus of the source day are copied; archived dishes are skipped.
       const available = new Set(library.map((d) => d.id));
-      const ids = items.map((i) => i.dish).filter((id): id is number => id !== null && available.has(id));
-      if (ids.length === 0) throw new Error("source_empty");
-      await saveDishes(date, ids);
-      return items.length - ids.length;
+      const keep = (choice: MenuChoice) => dishIdsOf(menus[0], choice).filter((id) => available.has(id));
+      const [ids1, ids2] = [keep(1), keep(2)];
+      if (ids1.length === 0) throw new Error("source_empty");
+      await saveDishes(date, ids1, ids2);
+      return items.length - ids1.length - ids2.length;
     },
     onSuccess: (skipped) => { onDone(skipped); onClose(); },
     onError: (e) => setError(e instanceof Error && e.message === "source_empty" ? t("planner.sourceEmpty") : toMessage(e)),

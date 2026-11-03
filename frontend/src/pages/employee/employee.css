@@ -35,3 +35,35 @@
 }
 .meal-qr__caption { font-family: var(--font-heading); font-weight: 600; font-size: var(--text-sm); color: var(--color-text-muted); }
 .day > .badge { align-self: flex-start; }
+.day__hint { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted); }
+
+/* Menu 1 / menu 2 of a day: each block has its dishes and its own button */
+.menu-option { display: grid; gap: var(--space-2); }
+.menu-option + .menu-option { padding-block-start: var(--space-3); border-block-start: 1px dashed var(--color-border); }
+.menu-option__head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.menu-option--chosen {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+}
+.menu-option--chosen + .menu-option, .menu-option + .menu-option--chosen { border-block-start: 0; }
+
+/* Balance */
+.balance-chip {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  font-weight: 700;
+  text-decoration: none;
+}
+.balance-card { display: grid; gap: var(--space-1); text-align: center; }
+.balance-card__amount { font-family: var(--font-heading); font-size: 2.4rem; font-weight: 700; color: var(--color-primary); }
+.ledger { list-style: none; margin: 0; padding: 0; display: grid; }
+.ledger li { display: flex; justify-content: space-between; gap: var(--space-3); padding-block: var(--space-3); border-block-end: 1px solid var(--color-border); }
+.ledger__what { display: grid; gap: 2px; }
+.ledger__meta { font-size: var(--text-sm); color: var(--color-text-muted); }
+.ledger__amount { font-weight: 700; white-space: nowrap; text-align: end; }
+.ledger__amount--in { color: var(--color-success); }
+.ledger__amount--out { color: var(--color-danger); }

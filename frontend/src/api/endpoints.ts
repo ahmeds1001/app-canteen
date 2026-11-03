@@ -1,19 +1,25 @@
 /** One function per backend endpoint, grouped by domain. Pages never call `api()` directly. */
-import { api } from "./client";
+import { api, download } from "./client";
 import type {
   AuthTokens,
+  BalanceTransaction,
+  DayList,
   Dish,
   FinalizationProposal,
   Health,
   ManagedUser,
   Menu,
+  MenuChoice,
+  MyBalance,
   NotificationList,
+  PerMenu,
   PublicSettings,
   Reservation,
   Role,
   ScanResult,
   StaffMenu,
   User,
+  WalletAccount,
 } from "./types";
 
 export const settingsApi = {
@@ -111,14 +117,19 @@ export const menuApi = {
   /** Same endpoint; chef / management / admin get the staff fields. */
   staffList: (from: string, to: string) => api<StaffMenu[]>(`/menus/?from=${from}&to=${to}`),
   create: (date: string) => api<StaffMenu>("/menus/", { method: "POST", json: { date } }),
-  setItems: (date: string, dish_ids: number[]) =>
-    api<StaffMenu>(`/menus/${date}/items/`, { method: "PUT", json: { dish_ids } }),
+  /** `dishIds2` empty = the day offers one menu. */
+  setItems: (date: string, dishIds: number[], dishIds2: number[] = []) =>
+    api<StaffMenu>(`/menus/${date}/items/`, { method: "PUT", json: { dish_ids: dishIds, dish_ids_2: dishIds2 } }),
   publish: (date: string) => api<StaffMenu>(`/menus/${date}/publish/`, { method: "POST" }),
   close: (date: string, reason: string) =>
     api<StaffMenu>(`/menus/${date}/close/`, { method: "POST", json: { reason } }),
   finalization: (date: string) => api<FinalizationProposal>(`/menus/${date}/finalization/`),
-  finalize: (date: string, final_plate_count: number) =>
-    api<StaffMenu>(`/menus/${date}/finalize/`, { method: "POST", json: { final_plate_count } }),
+  /** Plates per menu, e.g. { "1": 25, "2": 12 }. */
+  finalize: (date: string, plates: PerMenu) =>
+    api<StaffMenu>(`/menus/${date}/finalize/`, { method: "POST", json: { plates } }),
+  /** Management: the day's price (same for both menus), until the cutoff. Free day = isPaid false. */
+  setPrice: (date: string, isPaid: boolean, price: string | null) =>
+    api<StaffMenu>(`/menus/${date}/payment/`, { method: "POST", json: { is_paid: isPaid, price } }),
 };
 
 /** In-app notifications and phone push (spec §8). */
@@ -140,8 +151,21 @@ export const pushApi = {
 
 export const reservationApi = {
   mine: (upcoming = true) => api<Reservation[]>(`/reservations/${upcoming ? "?upcoming=1" : ""}`),
-  reserve: (date: string) => api<Reservation>("/reservations/", { method: "POST", json: { date } }),
+  /** Reserving the other menu of a day you already reserved switches your choice. */
+  reserve: ({ date, choice }: { date: string; choice: MenuChoice }) =>
+    api<Reservation>("/reservations/", { method: "POST", json: { date, choice } }),
   cancel: (id: number) => api<Reservation>(`/reservations/${id}/cancel/`, { method: "POST" }),
+};
+
+/** A day's reservation list, any day (scanner and management). */
+export const dayListApi = {
+  get: (date: string, filters: { status?: string; q?: string } = {}) => {
+    const q = new URLSearchParams({ date });
+    if (filters.status) q.set("status", filters.status);
+    if (filters.q) q.set("q", filters.q);
+    return api<DayList>(`/reservations/day/?${q}`);
+  },
+  exportCsv: (date: string) => download(`/reservations/day/?date=${date}&export=csv`, `reservations-${date}.csv`),
 };
 
 export const scanApi = {
@@ -149,5 +173,18 @@ export const scanApi = {
     api<ScanResult>("/scan/", { method: "POST", json: { payload, scanned_at } }),
   search: (q: string) => api<ScanResult[]>(`/checkin/?q=${encodeURIComponent(q)}`),
   manual: (id: number) => api<ScanResult>(`/checkin/${id}/manual/`, { method: "POST" }),
-  markPaid: (id: number) => api<ScanResult>(`/checkin/${id}/mark-paid/`, { method: "POST" }),
+};
+
+/** Prepaid balance (decided 2026-11-03): the only way meals are paid. */
+export const walletApi = {
+  me: () => api<MyBalance>("/wallet/me/"),
+  /** Cashier (scanner / management): find an account by name, employee number or email (2+ letters). */
+  search: (q: string) => api<WalletAccount[]>(`/wallet/accounts/?q=${encodeURIComponent(q)}`),
+  history: (id: number) =>
+    api<{ account: WalletAccount; transactions: BalanceTransaction[] }>(`/wallet/accounts/${id}/transactions/`),
+  topUp: (id: number, amount: string) =>
+    api<{ account: WalletAccount }>(`/wallet/accounts/${id}/topup/`, { method: "POST", json: { amount } }),
+  /** Management only: a signed amount and a reason. */
+  correct: (id: number, amount: string, reason: string) =>
+    api<{ account: WalletAccount }>(`/wallet/accounts/${id}/correct/`, { method: "POST", json: { amount, reason } }),
 };

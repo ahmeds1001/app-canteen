@@ -113,11 +113,13 @@ class AuditLog(models.Model):
         CANCEL = "cancel"
         SERVE = "serve"
         MANUAL_CHECKIN = "manual_checkin"
-        MARK_PAID = "mark_paid"
+        MARK_PAID = "mark_paid"  # old rows only: counter payment was replaced by the balance (2026-11-03)
         NO_SHOW = "no_show"
         NO_SHOW_WARNING = "no_show_warning"
         DATA_EXPORT = "data_export"
         ROLE_CHANGE = "role_change"
+        BALANCE_TOPUP = "balance_topup"
+        BALANCE_CORRECTION = "balance_correction"
         SETTING_CHANGE = "setting_change"
 
     actor = models.ForeignKey(

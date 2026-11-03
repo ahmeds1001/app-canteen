@@ -26,12 +26,14 @@ class Reservation(TimeStampedModel):
 
     class PaymentStatus(models.TextChoices):
         NOT_REQUIRED = "not_required", "Not required"
-        UNPAID = "unpaid", "Unpaid"
-        PAID = "paid", "Paid"
+        UNPAID = "unpaid", "Unpaid"  # old rows only: counter payment was dropped for the balance (2026-11-03)
+        PAID = "paid", "Paid"  # taken from the employee's balance when reserving
+        REFUNDED = "refunded", "Refunded"  # cancelled before the cutoff: the money went back to the balance
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="reservations")
     menu = models.ForeignKey(Menu, on_delete=models.PROTECT, related_name="reservations")
     date = models.DateField(db_index=True, help_text="Copy of menu.date, used by the unique rule.")
+    choice = models.PositiveSmallIntegerField(default=1, help_text="Menu 1 or menu 2 of the day.")
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.RESERVED, db_index=True)
 
     qr_token = models.CharField(max_length=64, unique=True)

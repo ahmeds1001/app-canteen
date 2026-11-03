@@ -28,7 +28,8 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MenuItem
-        fields = ["id", "dish", "name", "description", "category", "allergens", "photo", "photo_url", "position"]
+        fields = ["id", "choice", "dish", "name", "description", "category", "allergens", "photo", "photo_url",
+                  "position"]
 
     def get_photo_url(self, obj: MenuItem) -> str | None:
         # `photo` is the snapshot of the dish's stored file name (FR-30); the URL is built like ImageField's.
@@ -37,15 +38,19 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 class MenuSerializer(serializers.ModelSerializer):
     items = MenuItemSerializer(many=True, read_only=True)
+    choices = serializers.SerializerMethodField()
     reservation_cutoff = serializers.SerializerMethodField()
     is_open_for_reservation = serializers.SerializerMethodField()
 
     class Meta:
         model = Menu
         fields = [
-            "id", "date", "status", "is_placeholder", "menu_announced_at", "published_at", "items",
+            "id", "date", "status", "is_placeholder", "menu_announced_at", "published_at", "items", "choices",
             "is_paid", "price", "reservation_cutoff", "is_open_for_reservation",
         ]
+
+    def get_choices(self, obj: Menu) -> list[int]:
+        return obj.choices()
 
     def get_reservation_cutoff(self, obj: Menu) -> str:
         return rules.reservation_cutoff(obj.date).isoformat()
@@ -60,11 +65,18 @@ class MenuStaffSerializer(MenuSerializer):
     """Extra fields for chef / management."""
 
     reserved_count = serializers.IntegerField(read_only=True)
+    reserved_by_choice = serializers.SerializerMethodField()
 
     class Meta(MenuSerializer.Meta):
         fields = MenuSerializer.Meta.fields + [
-            "reserved_count", "final_plate_count", "buffer", "auto_finalized", "finalized_at", "closed_reason",
+            "reserved_count", "reserved_by_choice", "final_plate_count", "final_plates_by_choice", "buffer",
+            "auto_finalized", "finalized_at", "closed_reason",
         ]
+
+    def get_reserved_by_choice(self, obj: Menu) -> dict[str, int]:
+        from .services import reserved_by_choice
+
+        return {str(choice): n for choice, n in reserved_by_choice(obj).items()}
 
 
 class MenuCreateSerializer(serializers.Serializer):
@@ -72,7 +84,8 @@ class MenuCreateSerializer(serializers.Serializer):
 
 
 class SetItemsSerializer(serializers.Serializer):
-    dish_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+    dish_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)  # menu 1
+    dish_ids_2 = serializers.ListField(child=serializers.IntegerField(), required=False, default=list)  # menu 2
 
 
 class CloseDaySerializer(serializers.Serializer):
@@ -80,7 +93,14 @@ class CloseDaySerializer(serializers.Serializer):
 
 
 class FinalizeSerializer(serializers.Serializer):
-    final_plate_count = serializers.IntegerField(min_value=0)
+    """Plates per menu: {"plates": {"1": 25, "2": 12}}."""
+
+    plates = serializers.DictField(child=serializers.IntegerField(min_value=0), allow_empty=False)
+
+    def validate_plates(self, value):
+        if not set(value) <= {"1", "2"}:
+            raise serializers.ValidationError("Menus are numbered 1 and 2.")
+        return {int(k): v for k, v in value.items()}
 
 
 class PaymentSerializer(serializers.Serializer):

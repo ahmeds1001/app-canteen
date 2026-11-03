@@ -3,7 +3,8 @@
     "devClock": "Test clock (development): {{time}}" },
   "nav": {
     "home": "Menus", "reservations": "My reservations", "dishes": "Dishes", "planner": "Planner",
-    "finalize": "Finalization", "reports": "Reports", "accounts": "Accounts", "scan": "Scan"
+    "finalize": "Finalization", "reports": "Reports", "accounts": "Accounts", "scan": "Scan",
+    "balance": "My balance", "dayList": "Day list", "cashier": "Cashier"
   },
   "auth": {
     "login": "Log in", "register": "Create an account", "email": "Work email",
@@ -30,20 +31,52 @@
     "closed": "Reservations closed", "toBeAnnounced": "Menu to be announced",
     "deadline": "Reserve before {{time}} the day before", "price": "Price: {{price}} TND", "free": "Free",
     "empty": "No menu published yet.",
-    "dayClosed": "Closed", "dayClosedHelp": "The canteen is closed that day."
+    "dayClosed": "Closed", "dayClosedHelp": "The canteen is closed that day.",
+    "menuN": "Menu {{n}}", "yourChoice": "Your choice", "reserveN": "Reserve menu {{n}}",
+    "switchTo": "Take this menu instead",
+    "notEnough": "Not enough balance for this meal ({{price}} TND).",
+    "cancelRefund": "Cancel (refund: {{price}} TND)",
+    "refunded": "Reservation cancelled: {{amount}} TND paid back to your balance."
+  },
+  "balance": {
+    "title": "My balance", "current": "Available balance", "short": "Balance: {{amount}} TND",
+    "how": "How to top up?",
+    "howHelp": "To top up your balance, give the money to the canteen staff: they record it straight away. Each meal is paid from your balance when you reserve it, and paid back if you cancel before midnight the day before.",
+    "history": "History", "empty": "No movement yet.", "after": "balance: {{amount}} TND",
+    "kind": { "topup": "Top-up", "meal": "Meal", "refund": "Refund", "correction": "Correction" }
   },
   "reservations": {
     "title": "My reservations", "showQr": "Show this code at the canteen entrance.",
     "qrTitle": "Your meal QR code",
     "status": { "reserved": "Reserved", "cancelled": "Cancelled", "served": "Served", "no_show": "No-show" },
-    "payment": { "not_required": "Free", "unpaid": "To pay", "paid": "Paid" },
+    "payment": { "not_required": "Free", "unpaid": "To pay", "paid": "Paid ({{amount}} TND)", "refunded": "Refunded" },
     "empty": "No upcoming reservation."
   },
   "scan": {
     "title": "Scan meals", "start": "Start camera", "stop": "Stop",
     "hint": "Start the camera and point it at the QR code on the employee's phone.",
     "ok": "Meal validated", "manualSearch": "Manual search (name or employee number)",
-    "checkIn": "Check in", "markPaid": "Mark paid", "toPay": "To pay: {{amount}} TND", "paid": "Paid"
+    "checkIn": "Check in", "paidBalance": "Paid from balance ({{amount}} TND)"
+  },
+  "cashier": {
+    "title": "Cashier — top up a balance",
+    "help": "An employee gives you money: find their account, enter the amount received and record it. They get a notification with their new balance.",
+    "search": "Search (name, employee number or email)", "noMatch": "No active account matches.",
+    "back": "Another employee", "topUp": "Money received", "amount": "Amount (TND)",
+    "record": "Record {{amount}} TND",
+    "confirm": "Did you receive {{amount}} TND from {{name}}?",
+    "done": "{{amount}} TND added. New balance: {{balance}} TND.",
+    "correct": "Correct the balance",
+    "correctHelp": "To fix a mistake (wrong amount, wrong person). Negative amount to take money off. The reason is kept and the employee is told.",
+    "correctAmount": "Correction amount (TND, e.g. -45)", "reason": "Reason",
+    "corrected": "Correction recorded. New balance: {{balance}} TND."
+  },
+  "dayList": {
+    "title": "Reservations of the day", "export": "Export (CSV)", "prev": "Previous day", "next": "Next day",
+    "today": "Today", "date": "Date", "noMenu": "No menu that day.",
+    "total": "reservations", "waiting": "to serve", "menu": "Menu", "reservedN": "{{count}} reservation(s)",
+    "all": "All", "search": "Search (name, employee number or department)", "empty": "No reservations.",
+    "manual": "manual"
   },
   "common": {
     "save": "Save", "cancel": "Cancel", "close": "Close", "edit": "Edit", "search": "Search", "done": "Done", "confirm": "Confirm", "confirmTitle": "Please confirm"
@@ -77,18 +110,26 @@
     "sourceDay": "Copy the dishes of", "sourceEmpty": "That day has no dishes to copy.",
     "closeTitle": "Close {{date}}",
     "closeHelp": "The day can no longer be reserved and existing reservations will be cancelled.",
-    "closeReason": "Reason (holiday, maintenance…)"
+    "closeReason": "Reason (holiday, maintenance…)",
+    "menu1Help": "The day's main menu (required).",
+    "menu2Help": "Optional: a second menu employees can choose instead. Leave empty for a single menu."
   },
   "finalize": {
     "title": "Meal finalization",
     "help": "After reservations close (midnight the day before), confirm how many plates to prepare. Without confirmation, the system finalizes automatically at {{time}}.",
     "empty": "No published day in the next 7 days.",
-    "status": { "published": "Reservations open", "locked": "To finalize", "finalized": "Finalized", "closed": "Closed" },
+    "status": { "draft": "Draft", "published": "Reservations open", "locked": "To finalize", "finalized": "Finalized", "closed": "Closed" },
     "reserved": "reservations", "plates": "plates to prepare",
     "waitCutoff": "Finalization opens when reservations close ({{date}}).",
     "auto": "Finalized automatically (reservations + buffer).", "buffer": "Including {{buffer}} extra plate(s).",
     "proposal": "Proposal: {{reserved}} reservations + {{buffer}} buffer = {{proposed}} plates.",
-    "finalCount": "Final number of plates", "confirm": "Confirm", "change": "Change the number"
+    "finalCount": "Final number of plates", "confirm": "Confirm", "change": "Change the number",
+    "finalCountN": "Plates of menu {{n}}",
+    "splitReserved": "{{count}} reservation(s)", "splitPlates": "{{count}} plate(s)",
+    "paymentOff": "Payment is turned off in the settings: every meal is free.",
+    "price": "Day price (TND, both menus)", "priceFreePlaceholder": "Empty = free",
+    "priceHelp": "Can change until midnight the day before. A new price only applies to reservations made after it.",
+    "priceIs": "Day price: {{price}} TND.", "priceFree": "Free meal that day."
   },
   "accounts": {
     "title": "Accounts",
@@ -186,6 +227,16 @@
     "last_admin": "This is the last active admin: they must keep the role.",
     "invalid_role": "Unknown role.",
     "photo_invalid": "Use a JPEG, PNG or WebP photo.",
-    "photo_too_large": "The photo must be 5 MB or less."
+    "photo_too_large": "The photo must be 5 MB or less.",
+    "insufficient_balance": "Not enough balance. Top it up at the canteen.",
+    "invalid_choice": "This menu is not offered that day.",
+    "choice_has_reservations": "Employees reserved menu 2: it can no longer be removed.",
+    "plates_per_menu_required": "Give the number of plates for each menu.",
+    "amount_positive": "The amount must be greater than zero.",
+    "amount_too_large": "A top-up cannot exceed 1000 TND.",
+    "amount_zero": "The correction cannot be zero.",
+    "management_only": "Only management can correct a balance.",
+    "payment_frozen": "The price is frozen after reservations close.",
+    "price_required": "Give a price for a paid day."
   }
 }

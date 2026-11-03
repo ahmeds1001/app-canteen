@@ -1,4 +1,7 @@
+import csv
+
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 from rest_framework import status
@@ -7,13 +10,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from apps.core import clock
-from apps.core.permissions import IsEmployee, IsScanner
+from apps.core import audit, clock
+from apps.core.permissions import IsEmployee, IsScanner, IsScannerOrManagement
 from apps.menus.models import Menu
 
-from . import services
+from . import selectors, services
 from .models import Reservation
-from .serializers import ReservationSerializer, ReserveSerializer, ScanResultSerializer, ScanSerializer
+from .serializers import (
+    DayReservationSerializer,
+    ReservationSerializer,
+    ReserveSerializer,
+    ScanResultSerializer,
+    ScanSerializer,
+)
 
 
 class MyReservationViewSet(GenericViewSet):
@@ -35,13 +44,43 @@ class MyReservationViewSet(GenericViewSet):
         data = ReserveSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         menu = get_object_or_404(Menu, date=data.validated_data["date"])
-        reservation = services.reserve(request.user, menu)
+        reservation = services.reserve(request.user, menu, choice=data.validated_data["choice"])
         return Response(self.get_serializer(reservation).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"])
     def cancel(self, request, pk=None):
         reservation = get_object_or_404(self.get_queryset(), pk=pk)
         return Response(self.get_serializer(services.cancel(reservation, by=request.user)).data)
+
+
+class DayListView(APIView):
+    """A day's reservation list, any day (scanner and management). `?format=csv` downloads it."""
+
+    permission_classes = [IsScannerOrManagement]
+
+    def get(self, request):
+        p = request.query_params
+        day = parse_date(p.get("date", "")) or clock.today()
+        rows = selectors.day_list(day, status=p.get("status", ""), q=p.get("q", "").strip())
+        if p.get("export") == "csv":
+            audit.record(audit.AuditLog.Action.DATA_EXPORT, actor=request.user, report="day_list",
+                         date=day.isoformat(), rows=rows.count())
+            return _csv(day, DayReservationSerializer(rows, many=True).data)
+        return Response({**selectors.day_summary(day), "rows": DayReservationSerializer(rows, many=True).data})
+
+
+def _csv(day, rows) -> HttpResponse:
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="reservations-{day.isoformat()}.csv"'
+    response.write("﻿")  # BOM: Excel opens the accents correctly
+    writer = csv.writer(response, delimiter=";")
+    writer.writerow(["nom", "matricule", "departement", "menu", "statut", "paiement", "montant", "reserve_le",
+                     "servi_le", "methode"])
+    for r in rows:
+        writer.writerow([r["full_name"], r["employee_number"] or "", r["department"], r["choice"], r["status"],
+                         r["payment_status"], r["amount_due"] or "", r["reserved_at"], r["served_at"] or "",
+                         r["scan_method"]])
+    return response
 
 
 class ScanView(APIView):
@@ -59,13 +98,13 @@ class ScanView(APIView):
 
 
 class CheckinViewSet(GenericViewSet):
-    """Manual fallback (FR-20) and payment marking (FR-34) for the canteen phone."""
+    """Manual fallback (FR-20) for the canteen phone. Meals are paid from the balance, never at the counter."""
 
     permission_classes = [IsScanner]
     serializer_class = ScanResultSerializer
 
     def get_queryset(self):
-        return Reservation.objects.active().select_related("user")
+        return Reservation.objects.active().select_related("user", "menu").prefetch_related("menu__items")
 
     def list(self, request):
         """Search today's reservations by name or employee number: ?q=..."""
@@ -82,9 +121,4 @@ class CheckinViewSet(GenericViewSet):
     @action(detail=True, methods=["post"])
     def manual(self, request, pk=None):
         reservation = services.manual_checkin(get_object_or_404(self.get_queryset(), pk=pk), by=request.user)
-        return Response(self.get_serializer(reservation).data)
-
-    @action(detail=True, methods=["post"], url_path="mark-paid")
-    def mark_paid(self, request, pk=None):
-        reservation = services.mark_paid(get_object_or_404(self.get_queryset(), pk=pk), by=request.user)
         return Response(self.get_serializer(reservation).data)

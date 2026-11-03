@@ -2,6 +2,12 @@
 
 23 oct. 2026 · @ahmed · Revision 3
 
+## Decisions of 3 November 2026
+
+- **Two menus per day:** the chef can publish a second menu next to menu 1; each employee picks one when reserving and can switch until the cutoff. The plate count is finalized per menu (FR-42). Replaces "one menu per day".
+- **Prepaid balance, the only way to pay:** each employee has a balance in TND. They give cash to the canteen staff, who record it as a top-up (scanner or management). A meal is paid from the balance when reserved; without enough money it cannot be reserved. Cancelling before midnight the day before pays it back; a no-show keeps it paid; a closed day pays everyone back. **No more payment at the counter** ("mark paid" removed). Management corrects mistakes with a reason. One price per day, the same for both menus (FR-43, replaces FR-33 to FR-35).
+- **Reservation lists:** the scanner and management see the list of each day's reservations, past, today and future, with CSV export (FR-44).
+
 ## Changelog v3
 
 Decisions taken with management on 23 oct. 2026:
@@ -53,7 +59,7 @@ Objectives:
 - Allow only approved employees to use the service (HR validation of every account).
 - Give the chef a fast way to publish the menu for each day, **reusing dishes from his own library**.
 - Measure, per employee and per day, how many meals were reserved, finalized for production and actually collected (no-shows).
-- **Be ready for paid meals:** record whether each meal was paid, without handling money in the app.
+- ~~**Be ready for paid meals:** record whether each meal was paid, without handling money in the app.~~ **[2026-11-03] Meals are paid from a prepaid balance that canteen staff top up when they receive cash.**
 - Produce reports that HR and management can use to adjust quantities and policy.
 
 ## 2. Scope and user roles
@@ -62,11 +68,11 @@ Version 1 serves six roles and covers registration, HR approval, the dish librar
 
 | Role | Who | Main actions |
 | --- | --- | --- |
-| Employee | Any staff member | Register, log in once approved, see the menu, reserve or cancel a meal, show the daily QR code |
+| Employee | Any staff member | Register, log in once approved, see the menu, reserve (menu 1 or 2) or cancel a meal, see their balance and its history, show the daily QR code |
 | HR | HR team | Approve or reject new accounts, import the employee-number list, deactivate leavers, consult attendance reports |
 | Chef | Head of the kitchen | Manage the dish library, publish the menu per day, see the reserved and final headcount |
-| Scanner (cashier later) | Canteen staff using the dedicated canteen phone | Scan QR codes and confirm that a meal was collected; on paid days, see and mark payment status. Like every role, also reserves their own meals and gets the employee notifications (decided 2026-10-26: everyone may eat at the canteen) |
-| Management | Direction / operations | Finalize the daily plate count after the cutoff, decide whether meals are paid and at what price, consult production, waste and payment reports |
+| Scanner (cashier) | Canteen staff using the dedicated canteen phone | Scan QR codes and confirm that a meal was collected (the screen says which menu to serve); **[2026-11-03] record cash top-ups on employees' balances; see each day's reservation list**. Like every role, also reserves their own meals and gets the employee notifications (decided 2026-10-26: everyone may eat at the canteen) |
+| Management | Direction / operations | Finalize the daily plate count per menu after the cutoff, set each day's price, **[2026-11-03] top up and correct balances, see each day's reservation list**, consult production, waste and payment reports |
 | Admin | IT or app owner | Manage roles in the app's "Comptes" screen (FR-41), settings (cutoff time, service window, buffer default, payment defaults, retention), audit log |
 
 In scope for v1:
@@ -76,7 +82,8 @@ In scope for v1:
 - Reservation per day with a midnight cutoff, without capacity limit.
 - Post-cutoff finalization: management sets the final plate count (reserved + buffer).
 - One QR code per employee per reserved day, scanned at the entrance on the dedicated canteen phone.
-- **Payment tracking (feature switched off while meals are free):** paid/unpaid status per meal, marked by the scanner.
+- ~~**Payment tracking (feature switched off while meals are free):** paid/unpaid status per meal, marked by the scanner.~~ **[2026-11-03] Prepaid balance: meals paid when reserved, balances topped up by canteen staff.**
+- **[2026-11-03] Up to two menus per day; reservation lists for the scanner and management.**
 - Reports: reserved vs. finalized vs. served, no-shows, and (when enabled) paid vs. unpaid.
 
 Out of scope for v1 (candidates for later):
@@ -84,7 +91,7 @@ Out of scope for v1 (candidates for later):
 - Online payment or salary deduction (payment is collected outside the app).
 - Native mobile app (v1 is a responsive website, usable on a phone).
 - Several canteen sites or several meal slots per day.
-- A choice between several dishes per day (decided: one menu per day, same plate for everyone).
+- ~~A choice between several dishes per day (decided: one menu per day, same plate for everyone).~~ **[2026-11-03] A day can offer two menus (FR-42); more than two stays out of scope.**
 - Walk-ins and release of leftover plates.
 - Meal ratings and feedback.
 - Arabic interface (planned after launch).
@@ -125,9 +132,9 @@ The requirements below cover the full flow from registration to reporting; M = m
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| FR-11 | An employee sees the published days with their menu and reserves one plate per day. A day is reservable once its menu is Published, either by the chef or as a placeholder "Menu to be announced" (FR-38); the reservation window for day D runs from publish time until 23:59:59 on D-1. **On paid days, the price is shown before reserving.** | M |
+| FR-11 | An employee sees the published days with their menu and reserves one plate per day. **[2026-11-03] When the day offers two menus, the employee picks menu 1 or menu 2, and can switch until the cutoff (no extra cost).** A day is reservable once its menu is Published, either by the chef or as a placeholder "Menu to be announced" (FR-38); the reservation window for day D runs from publish time until 23:59:59 on D-1. **On paid days, the price is shown before reserving.** | M |
 | FR-12 | A reservation for day D is possible until 23:59:59 on day D-1; after that the button is disabled and the server rejects the request. | M |
-| FR-13 | The employee can cancel a reservation until the same cutoff. | M |
+| FR-13 | The employee can cancel a reservation until the same cutoff. **[2026-11-03] A meal paid from the balance is paid back at once; after the cutoff there is no cancellation and no refund.** | M |
 | ~~FR-14~~ | Removed in v2 — there is no capacity limit; the day never shows "Full". The only limit is the cutoff time. | – |
 | FR-15 | The employee gets an on-screen confirmation and a "My reservations" page (with payment status on paid days); an email confirmation is optional. | S |
 
@@ -135,11 +142,11 @@ The requirements below cover the full flow from registration to reporting; M = m
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| FR-24 | After the cutoff, management sees the reserved count for day D and sets the final plate count (>= reserved count). **If `kitchen_max_plates` is set in Settings, the final count cannot exceed it; today it is empty, so there is no ceiling.** | M |
+| FR-24 | After the cutoff, management sees the reserved count for day D and sets the final plate count (>= reserved count). **[2026-11-03] On a two-menu day, one count per menu, each >= that menu's reservations (default buffer applied per menu; also for auto-finalization).** **If `kitchen_max_plates` is set in Settings, the final count cannot exceed it; today it is empty, so there is no ceiling.** | M |
 | FR-25 | The system pre-fills the proposal with reserved count + buffer default from Settings (fixed number or percentage). Management can override it per day. | M |
 | FR-26 | If management has not finalized by the **finalization deadline (10:00 by default, decided 2026-10-26; never later than the service start)**, the system auto-finalizes with reserved count + default buffer, and logs the auto-finalization. | M |
 | FR-27 | The final count is locked at the finalization deadline (10:00 by default); it can no longer be edited. | M |
-| FR-28 | The chef receives a notification (in the app and as a phone push notification, see §8) with the final plate count once the day is finalized. | S |
+| FR-28 | The chef receives a notification (in the app and as a phone push notification, see §8) with the final plate count once the day is finalized, **split per menu when there are two**. | S |
 
 ### 3.5 QR code and check-in
 
@@ -148,19 +155,27 @@ The requirements below cover the full flow from registration to reporting; M = m
 | FR-16 | Each confirmed reservation generates one QR code, unique to that employee and that date. | M |
 | FR-17 | The QR code carries a signed random token, never personal data, and is shown in "My reservations". The employee shows it on his own phone. | M |
 | FR-18 | A scanner page on the **dedicated canteen phone** (camera) validates the code: account active, correct date, reservation not cancelled, not already used. It then records the meal as Served with a timestamp. The status transition to Served is an atomic claim: one database update conditioned on status = 'Reserved'; exactly one concurrent scan can succeed. | M |
-| FR-19 | An invalid, expired or already-used code shows a clear red message to the scanner. A valid code shows the employee's name and employee number for a visual check. | M |
+| FR-19 | An invalid, expired or already-used code shows a clear red message to the scanner. A valid code shows the employee's name and employee number for a visual check, **and in large type the menu to serve (menu 1 or 2) with its dishes**. | M |
 | FR-20 | Manual fallback: the scanner can search by name or employee number and mark presence; every manual check-in is logged. | S |
 
-### 3.6 Payment tracking (switched off while meals are free)
+### 3.6 Payment: prepaid balance (decided 2026-11-03)
 
-Payment is never handled by the app: the money is collected outside it (cash at the counter today). The app only records whether each meal was paid. The whole section is controlled by the `payment_enabled` setting, which is **off** at launch.
+Each employee has a balance in TND. Cash is handed to the canteen staff, who record it on the employee's balance; meals are paid from the balance when reserved. There is **no payment at the counter** any more. The `payment_enabled` setting still turns paying off altogether (every meal free); a day with no price is free.
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| **FR-32** | **Management decides whether meals are paid: a default (free or paid, with a default price) in Settings, overridable per day. The paid flag and price of day D can be changed until the cutoff on D-1; at the cutoff they are frozen.** | S |
-| **FR-33** | **Every reservation on a paid day carries a payment status: Unpaid at reservation, Paid when marked. On free days the status is Not required. If management changes a day from free to paid (or changes the price) before the cutoff, the employees who already reserved are notified and can cancel.** | S |
-| **FR-34** | **On a paid day, the scan result shows a clear badge "Paid" or "To pay: X TND". The scanner (cashier) can mark the meal Paid in the same screen, in one tap, right after collecting the money. Marking Paid records who did it and when.** | S |
-| **FR-35** | **An unpaid meal can still be served; it then stays Unpaid and appears in the unpaid report (decided). Marking Paid can also happen after service, for example when an employee settles later.** | S |
+| **FR-42** | **Two menus per day: the chef can give a day a second menu (menu 2, optional) next to menu 1. Menu 2 cannot be removed once someone reserved it. The day card, "My reservations", the scanner and the lists show which menu each person chose.** | M |
+| **FR-43** | **Prepaid balance: the scanner or management records a top-up (> 0, at most 1000 TND, active accounts only, with a confirmation); the employee gets an in-app + push notification with the new balance. A reservation takes the day's price from the balance and is refused when the balance is too low; switching menus costs nothing; cancelling before the cutoff pays it back; a no-show keeps it paid; a closed day (FR-10) pays everyone back. The balance never goes below zero (conditional update). Management alone corrects mistakes, with a signed amount and a reason. Every movement (top-up, meal, refund, correction) is kept in an append-only history with the balance after it and who recorded it; employees see theirs in "My balance". Top-ups and corrections are audited.** | M |
+| **FR-44** | **Reservation lists: the scanner and management see, for any day (past, today, future), the day's menus, the totals per status and per menu, and every reservation (name, employee number, department, menu, status, time served, amount paid), with filters, search and CSV export (export audited).** | M |
+
+The requirements below are kept for history; FR-43 replaces FR-33 to FR-35.
+
+| ID | Requirement | Priority |
+| --- | --- | --- |
+| **FR-32** | **Management decides whether meals are paid: a default (free or paid, with a default price) in Settings, overridable per day. The paid flag and price of day D can be changed until the cutoff on D-1; at the cutoff they are frozen.** **[2026-11-03] One price per day for both menus, set on the Finalization screen; a new price only applies to reservations made after it (nobody is notified).** | S |
+| ~~FR-33~~ | ~~Payment status Unpaid at reservation, Paid when marked; employees notified of a price change.~~ **Replaced by FR-43: Paid when reserved, Refunded when cancelled in time.** | — |
+| ~~FR-34~~ | ~~"To pay" badge at scan and "Mark paid" button for the cashier.~~ **Removed 2026-11-03: no payment at the counter.** | — |
+| ~~FR-35~~ | ~~An unpaid meal can still be served and paid later.~~ **Removed 2026-11-03: a meal is always paid before it is reserved.** | — |
 | **FR-36** | **Reports show, per day, per employee and per month: meals paid, meals unpaid and amounts collected, with CSV or Excel export. No-shows on paid days are reported separately (nothing was collected).** | S |
 
 ### 3.7 Reporting
@@ -183,7 +198,7 @@ The rules below are enforced by the server, never only by the screen, and the on
 | Uncapped reservations | There is no capacity limit on reservations. Any approved employee can reserve until the cutoff. | Decided (v2) |
 | **Kitchen maximum** | **No maximum today. The optional `kitchen_max_plates` setting is empty; if the admin fills it later, the final plate count cannot exceed it.** | Decided (v3) |
 | Booking horizon | **No limit:** an employee can reserve any day whose menu is Published, however far ahead. In practice the limit is how far ahead the chef publishes (the placeholder menu of FR-38 opens each day at the latest on D-2). An optional setting allows a limit to be added later. | Decided (v3) |
-| **One menu per day** | **Each day has one menu, built by the chef from the dish library. Every employee who reserves gets the same plate; there is never a choice between dishes.** | Decided (v3) |
+| ~~One menu per day~~ **Up to two menus per day** | ~~Each day has one menu; every employee gets the same plate.~~ **[2026-11-03] Each day has menu 1 and optionally menu 2, built from the dish library. Each employee picks one and can switch until the cutoff; the plate count is finalized per menu.** | Decided (2026-11-03) |
 | Menu finalization | After the cutoff on D-1, **management** sets the final plate count for D (>= reserved count). Editable until the service window opens, then locked. If not set, auto-finalization applies (reserved + default buffer). | Decided (v3: management confirmed as owner) |
 | Buffer default | **10% of the reserved count, rounded up** (e.g. 47 reserved → 5 extra → 52 plates; 0 reserved → 0 extra). Stored in Settings (fixed number or percentage) and changeable by the admin; management may override it for a given day. | Decided (v3: 10%) |
 | Menu locked at cutoff | The chef can edit a menu until the cutoff; edits after reservations exist notify the employees concerned. After the cutoff the menu is locked. | Decided |
@@ -196,8 +211,8 @@ The rules below are enforced by the server, never only by the screen, and the on
 | No-show | A reservation not scanned by the end of the service window becomes No-show and counts in the reports. | Decided |
 | **No-show consequences** | **First month after go-live: reporting only. After that: an automatic, friendly warning email after 3 no-shows in a calendar month. No blocking in v1.** | Decided (v3) |
 | **Walk-ins** | **No walk-ins in v1: only employees with a reservation are served. A strategy for leftover plates (for example releasing unclaimed plates at mid-service) is not decided yet.** | Decided for v1; leftover strategy open |
-| **Payment** | **Meals are free today (`payment_enabled` = off). When enabled, management sets paid/free and the price per day (default in Settings); paid flag and price are frozen at the cutoff. Money is collected outside the app; the scanner marks the meal Paid.** | Decided (v3) |
-| **Serving an unpaid meal** | **Allowed: the meal is served, stays Unpaid and appears in the unpaid report until marked Paid.** | Decided (v3) |
+| **Payment** | ~~Money is collected outside the app; the scanner marks the meal Paid.~~ **[2026-11-03] Prepaid balance only (FR-43): cash is handed to the canteen staff, who top up the balance; the day's price (one for both menus, frozen at the cutoff) is taken from the balance when reserving; not enough money = no reservation; refund if cancelled before the cutoff or if the day is closed; a no-show keeps the meal paid; the balance never goes below zero; corrections by management only, with a reason.** | Decided (2026-11-03) |
+| ~~Serving an unpaid meal~~ | ~~Allowed: the meal is served, stays Unpaid.~~ **Obsolete since 2026-11-03: every meal is paid before it is reserved.** | — |
 | **Data retention** | **All data (accounts, reservations, attendance, payments, audit log) is kept indefinitely; nothing is deleted or anonymized automatically. Deactivated accounts stay in the database with their history.** | Decided (v3) |
 
 ## 5. Non-functional requirements
@@ -208,7 +223,7 @@ The app must be secure, fast at the two daily peaks (just before the cutoff and 
 - **Concurrency and idempotency:** every mutating API (reserve, cancel, finalize, scan, **mark paid**) must be idempotent or transactionally safe — a double-tap or a retried request must never create a duplicate reservation, serve a meal twice, finalize twice or mark a payment twice. The unique (user, date) constraint and the atomic claim pattern of FR-18 are the baseline.
 - **Clock for tests:** all time-dependent logic (publishing deadline, cutoff, service window, no-show marking, payment freeze) must use an injectable clock.
 - **QR security:** each code holds a long random token, signed by the server, bound to one reservation; it cannot be guessed, is valid on one date and is marked used at the first successful scan.
-- **Privacy:** collect only name, work email, employee number, department, meal records and (when enabled) payment status; limit each role to what it needs (the chef sees counts, not individual histories; the scanner sees only the person being scanned); data is kept indefinitely (company decision), so access to individual histories is restricted by role and every export is logged; comply with Tunisian personal-data law (Loi organique n° 2004-63), including the employee's right to see his own data — a short check with HR/legal is still recommended.
+- **Privacy:** collect only name, work email, employee number, department, meal records, balance movements and payment status; limit each role to what it needs (the chef sees counts, not individual histories; ~~the scanner sees only the person being scanned~~ **[2026-11-03] the scanner and management see each day's reservation list and, to top up, an employee's balance and its history — company decision**); data is kept indefinitely (company decision), so access to individual histories is restricted by role and every export is logged; comply with Tunisian personal-data law (Loi organique n° 2004-63), including the employee's right to see his own data — a short check with HR/legal is still recommended.
 - **Performance:** pages load in under 2 seconds on a mobile connection and a scan returns a result in under 1 second. Sized for **about 200 users**, all able to connect in the last minutes before the evening cutoff, and up to 200 scans over the service window. This is a light load: one server with a few CPU cores and a few GB of RAM is enough.
 - **Availability:** 99% during service hours (12:00 to 15:00) and in the evening until midnight; automatic daily backups; restoration tested before go-live.
 - **Network access (company server):** the app runs on the company server that is already reachable from the internet for the ERP desktop app and the salesmen's mobile app, so employees can reserve from home. **Isolation from the ERP:** the canteen app runs in its own Docker containers, with its own database (or at least its own database and login with no rights on ERP data), its own subdomain and HTTPS certificate (e.g. `cantine.company.tn`), behind the reverse proxy, so a problem in the canteen app can never reach ERP data or slow the ERP down.
@@ -241,6 +256,7 @@ Ten tables hold everything; the reservation record is the center, because it car
 | email_verified_at | timestamp, NULL | NULL until the OTP of FR-02 is confirmed **[v3]** |
 | preferred_language | enum: fr, en (ar later), NULL **[v3]** | Falls back to `default_language`; also the language of push notifications |
 | evening_reminder | boolean, default true **[2026-10-24]** | The 20:00 "not reserved for tomorrow" notification (§8); each employee can turn it off |
+| balance | decimal(10,3), default 0 **[2026-11-03]** | Prepaid balance in TND; changed only with a Balance transaction; never below zero |
 | approved_by | FK → User, NULL | HR approver |
 | approved_at | timestamp, NULL |  |
 | rejection_reason | text, NULL | Required by FR-04 |
@@ -316,6 +332,7 @@ Constraint: at most one active code (not consumed, not invalidated, not expired)
 | finalized_by | FK → User, NULL **[v2]** | Management |
 | finalized_at | timestamp, NULL **[v2]** |  |
 | auto_finalized | boolean, default false **[v2]** | True when set by FR-26 |
+| final_plates_by_choice / reserved_by_choice_at_finalization | JSON **[2026-11-03]** | Per menu, e.g. {"1": 25, "2": 12} |
 | is_paid | boolean, default from Settings **[v3]** | Set by management (FR-32); frozen at cutoff |
 | price | decimal(8,3), NULL **[v3]** | In TND; required when is_paid; frozen at cutoff |
 | created_by | FK → User (chef) |  |
@@ -327,6 +344,7 @@ Constraint: at most one active code (not consumed, not invalidated, not expired)
 | --- | --- | --- |
 | id | PK |  |
 | menu_id | FK → Menu |  |
+| choice | 1 or 2 **[2026-11-03]** | Menu 1 or menu 2 of the day |
 | dish_id | FK → Dish **[v3]** | Source dish in the library |
 | name | text | **Snapshot** copied from the dish when added **[v3]** |
 | description | text | Snapshot **[v3]** |
@@ -342,6 +360,7 @@ Constraint: at most one active code (not consumed, not invalidated, not expired)
 | id | PK |  |
 | user_id | FK → User |  |
 | menu_id / date | FK → Menu (or date) | Part of the unique rule |
+| choice | 1 or 2 **[2026-11-03]** | Menu chosen; can switch until the cutoff |
 | status | enum: Reserved, Cancelled, Served, No-show | Transitions in 6.4; every transition → audit log **[v2]** |
 | qr_token | text, unique | Long random token, server-signed; regenerated if a reservation is re-made after cancellation |
 | qr_signed_payload | text | Signed payload actually encoded in the QR |
@@ -351,10 +370,24 @@ Constraint: at most one active code (not consumed, not invalidated, not expired)
 | scanned_by | FK → User, NULL | Scanner who validated |
 | scan_method | enum: QR, Manual **[v2]** |  |
 | no_show_marked_at | timestamp, NULL **[v2]** | Set by the scheduler |
-| payment_status | enum: NotRequired, Unpaid, Paid **[v3]** | NotRequired on free days |
-| amount_due | decimal(8,3), NULL **[v3]** | Copied from Menu.price at cutoff |
-| paid_at | timestamp, NULL **[v3]** |  |
-| paid_marked_by | FK → User, NULL **[v3]** | Scanner / cashier |
+| payment_status | enum: NotRequired, Paid, Refunded **[2026-11-03]** (Unpaid: old rows only) | Paid from the balance when reserved; Refunded when cancelled in time |
+| amount_due | decimal(8,3), NULL **[v3]** | Price paid, copied from Menu.price when reserving |
+| paid_at | timestamp, NULL **[v3]** | When it was paid (= reserved) |
+| paid_marked_by | FK → User, NULL **[v3]** | Old rows only (counter payment removed 2026-11-03) |
+
+**Balance transaction [2026-11-03]** — every movement of a balance, append-only (FR-43)
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| id | PK |  |
+| user_id | FK → User |  |
+| kind | enum: topup, meal, refund, correction |  |
+| amount | decimal(10,3) | Signed: negative when money leaves |
+| balance_after | decimal(10,3) | Balance right after this movement |
+| reservation_id | FK → Reservation, NULL | For meals and refunds |
+| by_id | FK → User, NULL | Who recorded it (cashier, manager, the employee for meals) |
+| note | text | Reason of a correction |
+| created_at | timestamp |  |
 
 Constraints: `UNIQUE (user_id, date)` for active reservations — a SQL Server filtered unique index `WHERE status <> 'Cancelled'` (declared in Django as a `UniqueConstraint` with a condition) **[v2]**. Marking Paid is a conditional update `WHERE payment_status = 'Unpaid'`, so a double tap cannot record two payments **[v3]**.
 
@@ -419,7 +452,7 @@ Push uses VAPID keys stored only in `.env`.
 | --- | --- | --- |
 | id | PK |  |
 | actor_id | FK → User | Who (system user for scheduled jobs) |
-| action | enum: register, otp_send **[v3]**, otp_fail **[v3]**, verify_email, password_reset_request **[v3]**, password_reset **[v3]**, password_reset_by_staff **[v3]**, approve, reject, suspend, reactivate, deactivate, status_change **[2026-10-24]**, roster_import **[v3]** (no longer recorded), employee_number_change **[2026-10-26]**, dish_create **[v3]**, dish_edit **[v3]**, dish_archive **[v3]**, menu_create, menu_edit, menu_publish, placeholder_publish **[v3]**, menu_announce **[v3]**, menu_lock, finalize **[v2]**, auto_finalize **[v2]**, payment_config_change **[v3]**, reserve, cancel, serve, manual_checkin, mark_paid **[v3]**, no_show **[v2]**, no_show_warning **[v3]**, data_export **[v3]**, role_change, setting_change **[v3]** | Changes made in the Django admin are recorded too (`meta.source = django_admin`): `role_change` for role and admin rights, the matching status action (approve, suspend…) for a status change, `status_change` for any other status move. Accounts cannot be deleted from the admin. |
+| action | enum: register, otp_send **[v3]**, otp_fail **[v3]**, verify_email, password_reset_request **[v3]**, password_reset **[v3]**, password_reset_by_staff **[v3]**, approve, reject, suspend, reactivate, deactivate, status_change **[2026-10-24]**, roster_import **[v3]** (no longer recorded), employee_number_change **[2026-10-26]**, dish_create **[v3]**, dish_edit **[v3]**, dish_archive **[v3]**, menu_create, menu_edit, menu_publish, placeholder_publish **[v3]**, menu_announce **[v3]**, menu_lock, finalize **[v2]**, auto_finalize **[v2]**, payment_config_change **[v3]**, reserve, cancel, serve, manual_checkin, mark_paid **[v3]** (old rows only), balance_topup **[2026-11-03]**, balance_correction **[2026-11-03]**, no_show **[v2]**, no_show_warning **[v3]**, data_export **[v3]**, role_change, setting_change **[v3]** | Changes made in the Django admin are recorded too (`meta.source = django_admin`): `role_change` for role and admin rights, the matching status action (approve, suspend…) for a status change, `status_change` for any other status move. Accounts cannot be deleted from the admin. |
 | target_type / target_id | text / id | What |
 | old_value / new_value | text, NULL **[v2]** | For status and setting changes |
 | meta | JSON (NVARCHAR(MAX) in SQL Server) | Free details (e.g., scan timestamp for offline syncs) |
@@ -560,7 +593,7 @@ A single responsive web application with one database, hosted on a company serve
 | Back end | **Django + Django REST Framework (Python)**, exposing a JSON API consumed by the React app | **Decided (v3).** Very mature and extremely well documented; built-in authentication, password hashing (Argon2), roles and permissions, time-zone handling, database migrations and a ready-made admin interface (used for Settings and support screens; roles are given in the app since 2026-10-25, FR-41); officially supported SQL Server driver from Microsoft (`mssql-django`) |
 | Database | **Microsoft SQL Server** (2019 or later), its own database separate from the ERP, accessed with a dedicated login | **Decided (v3).** IT can manage and inspect it with SSMS. Filtered unique index for the one-reservation rule; JSON stored as NVARCHAR(MAX); Django connects through `mssql-django` + ODBC Driver 18. SQL Server Developer Edition is free for development; production uses the company's existing licence (or Express if the database stays under 10 GB) |
 | QR code | Server-signed random token, QR image generated with a standard library | Nothing personal inside the code; scan = one API call |
-| Scanner | Web page on **one dedicated canteen phone** using its camera (browser QR library), logged in with a Scanner account | No special hardware; the same screen will show payment status and the "mark paid" button |
+| Scanner | Web page on **one dedicated canteen phone** using its camera (browser QR library), logged in with a Scanner account | No special hardware; the scan result shows the menu to serve; the same phone records cash top-ups (FR-43) |
 | Email | Company SMTP server or a transactional email provider | **OTP code (email verification at registration only)**, approval, rejection, warnings. OTP emails are sent immediately (not batched) and must arrive within a few seconds; configure SPF/DKIM so they do not land in spam |
 | **OTP codes [v3]** | Generated by the back end with a cryptographically secure random generator (Python `secrets` module) | 6 digits, stored hashed, valid 10 minutes, 5 attempts, one active code per user (FR-02). Used only at registration; login is email + password, with no OTP |
 | Scheduled jobs | Django management commands run by a scheduler (cron in a small container, or Celery Beat if a task queue is added later) | Lock the menu at the cutoff, auto-finalize at 10:00, mark no-shows at 15:00, send reminders, daily chef reminder for days without a published menu, **publish placeholder menus at the D-2 deadline and alert management at the cutoff if a placeholder is still empty**, **monthly no-show warnings** |
@@ -592,7 +625,9 @@ notification**, never an email:
 | Account rejected | Employee | Email | Reason given by HR and who to contact | M |
 | New account verified | HR | In-app + push | Accounts are waiting for approval (name and email; HR enters the employee number) | M |
 | Menu changed after reservations exist | Employees who reserved | In-app + push | The change and the option to cancel before the cutoff | S |
-| **Day switched to paid / price changed** | **Employees who reserved** | In-app + push | **The new price and the option to cancel before the cutoff** | S |
+| ~~Day switched to paid / price changed~~ | ~~Employees who reserved~~ | — | **Removed 2026-11-03: those who reserved already paid; a new price only applies to new reservations** | — |
+| **Balance topped up [2026-11-03]** | **Employee** | In-app + push | **Amount added and new balance** | **M** |
+| **Balance corrected [2026-11-03]** | **Employee** | In-app + push | **Correction amount, reason and new balance** | **M** |
 | **Day closed (FR-10)** | **Employees who reserved** | In-app + push | **The canteen is closed that day (reason); the reservation was cancelled** | **M** |
 | Reservation confirmed | Employee | — | Not sent: the app confirms on screen and shows the QR code at once | C |
 | **Evening reminder (20:00, editable)** | **Employees without a reservation for tomorrow** (only when tomorrow is open; each employee can turn it off) | In-app + push | **Tomorrow's menu and the time left before midnight** | **S** (raised 2026-10-24) |
@@ -603,7 +638,7 @@ notification**, never an email:
 | **Menu announced** | **Employees who reserved day D** | In-app + push | **The dishes are now known; option to cancel before the cutoff** | **M** |
 | **Placeholder still empty at cutoff** | **Management and chef** | In-app + push | **Day D has reservations but no dishes; the chef can still add them until the service window opens** | **M** |
 | **Repeated no-shows** | **Employee** | In-app + push | **Friendly warning after 3 no-shows in a calendar month (only after the first month)** | **S** |
-| **Unpaid meals (when payment is enabled)** | **Employee** | In-app + push | **Monthly reminder of unpaid meals and the amount due** | C |
+| ~~Unpaid meals~~ | ~~Employee~~ | — | **Removed 2026-11-03: meals are paid before they are reserved** | — |
 
 ## 9. Risks and open questions
 
@@ -621,7 +656,8 @@ The biggest risks are human rather than technical: people forgetting to reserve,
 | The chef does not publish the menu in time | Employees reserve without knowing the dishes | Daily reminder listing missing days, weekly planning, dish library and menu duplication; placeholder menu keeps the day reservable (FR-38); management alert if still empty at cutoff; lateness tracked monthly |
 | Management forgets to finalize the day | Chef has no number to cook | Finalization reminder at 08:00, auto-finalization at 10:00 (FR-26) |
 | Buffer systematically too high | Leftovers persist despite reservations | Monthly report of buffer vs. leftovers; adjust the Settings default |
-| **Unpaid meals accumulate (when paid)** | **Lost revenue, disputes** | **Paid badge at scan, monthly unpaid report and reminder; unpaid meals are served but tracked until paid** |
+| **Cash recorded wrongly at top-up [2026-11-03]** | **Wrong balance, disputes** | **Confirmation dialog with amount and name; 1000 TND cap per top-up; employee notified at once; full history with who recorded it; management corrections with a reason; audit log** |
+| **Employees run out of balance** | **Cannot reserve, eat without reservation or skip** | **Balance shown on the home screen; "not enough balance" before reserving; top-up at the canteen in seconds** |
 | Staff dislike being tracked on no-shows | Resistance to the app | Explain the purpose (less waste), one month of reporting only, limit who sees individual data |
 
 Decided on 23 oct. 2026:
@@ -629,9 +665,9 @@ Decided on 23 oct. 2026:
 - [x] Headcount and kitchen maximum → no limit for now (optional setting kept empty).
 - [x] Service hours and time zone → 12:00–15:00, Africa/Tunis.
 - [x] Menus → vary daily, built from the chef's dish library.
-- [x] Price → free today; paid later outside the app, tracked in the app, decided by management.
+- [x] Price → ~~free today; paid later outside the app~~ **[2026-11-03] prepaid balance topped up in cash at the canteen; one price per day decided by management.**
 - [x] Who finalizes → management.
-- [x] One menu per day → same plate for everyone, no choice.
+- [x] ~~One menu per day → same plate for everyone, no choice.~~ **[2026-11-03] Up to two menus per day, the employee chooses.**
 - [x] Chef misses the D-2 deadline → placeholder "Menu to be announced" (FR-38).
 - [x] OTP → registration only.
 - [x] Forgotten password → both: self-service reset link (FR-39) and reset by HR/admin (FR-40).
@@ -643,7 +679,8 @@ Decided on 23 oct. 2026:
 - [x] Hosting → company server, already exposed to the internet (ERP desktop and mobile apps); canteen app isolated from the ERP.
 - [x] Users → about 200 maximum.
 - [x] Booking horizon → no limit (any published day).
-- [x] Serving an unpaid meal → allowed.
+- [x] ~~Serving an unpaid meal → allowed.~~ **[2026-11-03] No unpaid meals: paid from the balance when reserved; refund until the cutoff; no-show keeps it paid.**
+- [x] **[2026-11-03] Reservation lists → scanner and management, every day.**
 - [x] Data retention → keep everything, no deletion or anonymization.
 - [x] Arabic → later, no date.
 - [x] Stack → React + Django REST Framework + SQL Server.

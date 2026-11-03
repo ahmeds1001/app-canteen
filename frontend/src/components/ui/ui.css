@@ -17,7 +17,7 @@
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn--primary { background: var(--color-primary); color: var(--color-on-primary); }
 .btn--primary:hover:not(:disabled) { background: var(--color-primary-hover); }
-.btn--accent { background: var(--brand-orange-500); color: #1f1300; }
+.btn--accent { background: var(--brand-orange-500); color: var(--color-on-accent); }
 .btn--accent:hover:not(:disabled) { background: var(--brand-orange-300); }
 .btn--ghost { background: transparent; color: var(--color-primary); border-color: var(--color-border); }
 .btn--danger { background: transparent; color: var(--color-danger); border-color: var(--color-danger); }
@@ -109,6 +109,18 @@
 .dialog__close:hover { background: var(--color-surface); }
 
 /* Shared by staff screens */
+.tabs { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.tab {
+  min-block-size: 40px;
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  font: 600 var(--text-sm) var(--font-body);
+  cursor: pointer;
+}
+.tab--active { background: var(--color-success-bg); border-color: var(--color-primary); color: var(--color-primary); }
 .toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); }
 .toolbar > .field { flex: 1 1 180px; }
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }

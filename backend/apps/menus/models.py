@@ -58,6 +58,9 @@ class Menu(TimeStampedModel):
     )
     finalized_at = models.DateTimeField(null=True, blank=True)
     auto_finalized = models.BooleanField(default=False)
+    # Two menus per day (decided 2026-11-03): plates and reservations per menu, {"1": n, "2": m}.
+    final_plates_by_choice = models.JSONField(default=dict, blank=True)
+    reserved_by_choice_at_finalization = models.JSONField(default=dict, blank=True)
 
     # Payment (FR-32), frozen at cutoff
     is_paid = models.BooleanField(default=False)
@@ -77,11 +80,20 @@ class Menu(TimeStampedModel):
     def is_reservable_status(self) -> bool:
         return self.status == self.Status.PUBLISHED
 
+    def choices(self) -> list[int]:
+        """Menus offered that day: [1], or [1, 2]. A placeholder with no dishes yet offers menu 1."""
+        offered = sorted({item.choice for item in self.items.all()})
+        return offered or [1]
+
+
+MENU_CHOICES = (1, 2)  # a day offers menu 1, and optionally menu 2 (decided 2026-11-03)
+
 
 class MenuItem(models.Model):
     """A dish on a given menu. Dish details are SNAPSHOTTED (business rule "Dish snapshot")."""
 
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="items")
+    choice = models.PositiveSmallIntegerField(default=1, help_text="Menu 1 or menu 2 of the day.")
     dish = models.ForeignKey(Dish, null=True, on_delete=models.SET_NULL, related_name="menu_items")
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True)
@@ -91,7 +103,7 @@ class MenuItem(models.Model):
     position = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
-        ordering = ["position", "id"]
+        ordering = ["choice", "position", "id"]
 
     def __str__(self) -> str:
         return self.name

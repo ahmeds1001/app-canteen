@@ -10,3 +10,9 @@
 .final__value--main { color: var(--color-primary); }
 .final__label { font-size: var(--text-sm); color: var(--color-text-muted); }
 .final__hint { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted); }
+.final__split { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); font-size: var(--text-sm); }
+.final__split li { display: flex; justify-content: space-between; gap: var(--space-2); }
+.final__price { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.final__price > .field { flex: 1 1 140px; }
+.final__price > .alert, .final__price > .final__hint { flex-basis: 100%; }
+.final__ok { color: var(--color-success); font-weight: 700; align-self: center; }

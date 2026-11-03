@@ -99,7 +99,8 @@ class MenuViewSet(GenericViewSet):
     def items(self, request, date=None):
         data = SetItemsSerializer(data=request.data)
         data.is_valid(raise_exception=True)
-        menu = services.set_items(self._menu(date), data.validated_data["dish_ids"], by=request.user)
+        menu = services.set_items(self._menu(date), data.validated_data["dish_ids"], by=request.user,
+                                  dish_ids_2=data.validated_data["dish_ids_2"])
         return Response(self._serialize(menu))
 
     @action(detail=True, methods=["post"])
@@ -121,9 +122,7 @@ class MenuViewSet(GenericViewSet):
     def finalize(self, request, date=None):
         data = FinalizeSerializer(data=request.data)
         data.is_valid(raise_exception=True)
-        menu = services.finalize(
-            self._menu(date), final_plate_count=data.validated_data["final_plate_count"], by=request.user
-        )
+        menu = services.finalize(self._menu(date), plates=data.validated_data["plates"], by=request.user)
         return Response(self._serialize(menu))
 
     @action(detail=True, methods=["post"])

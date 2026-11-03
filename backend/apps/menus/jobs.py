@@ -55,7 +55,8 @@ def auto_finalize() -> int:
     for menu in Menu.objects.filter(status=Menu.Status.LOCKED, date__lte=clock.today()):
         if clock.now() >= rules.finalization_deadline(menu.date):
             proposal = services.proposed_plate_count(menu)
-            services.finalize(menu, final_plate_count=proposal["proposed"], auto=True)
+            plates = {c["choice"]: c["proposed"] for c in proposal["choices"]}
+            services.finalize(menu, plates=plates, auto=True)
             count += 1
     return count
 

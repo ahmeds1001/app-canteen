@@ -67,9 +67,17 @@ TEXTS: dict[str, dict[str, tuple[str, str]]] = {
     },
     K.DAY_FINALIZED: {
         "fr": ("Nombre d'assiettes",
-               "{date} : {plates} assiettes à préparer ({reserved} réservations + {buffer} de marge)."),
+               "{date} : {plates} assiettes à préparer{split} ({reserved} réservations + {buffer} de marge)."),
         "en": ("Plate count",
-               "{date}: {plates} plates to prepare ({reserved} reservations + {buffer} extra)."),
+               "{date}: {plates} plates to prepare{split} ({reserved} reservations + {buffer} extra)."),
+    },
+    K.BALANCE_TOPUP: {
+        "fr": ("Solde rechargé", "+{amount} TND sur votre solde. Nouveau solde : {balance} TND."),
+        "en": ("Balance topped up", "+{amount} TND added to your balance. New balance: {balance} TND."),
+    },
+    K.BALANCE_CORRECTED: {
+        "fr": ("Solde corrigé", "Correction de {amount} TND ({reason}). Nouveau solde : {balance} TND."),
+        "en": ("Balance corrected", "Correction of {amount} TND ({reason}). New balance: {balance} TND."),
     },
     K.MENU_MISSING: {
         "fr": ("Menus à publier", "Pas encore de menu publié pour : {dates}."),
@@ -84,8 +92,8 @@ TEXTS: dict[str, dict[str, tuple[str, str]]] = {
 }
 
 _WORDS = {
-    "fr": {"free": "gratuit", "paid": "payant ({price} TND)", "tba": "menu à venir"},
-    "en": {"free": "free", "paid": "paid ({price} TND)", "tba": "menu to be announced"},
+    "fr": {"free": "gratuit", "paid": "payant ({price} TND)", "tba": "menu à venir", "menu": "menu"},
+    "en": {"free": "free", "paid": "paid ({price} TND)", "tba": "menu to be announced", "menu": "menu"},
 }
 
 
@@ -109,6 +117,13 @@ def render(kind: str, params: dict, lang: str) -> tuple[str, str]:
         p["dates"] = ", ".join(format_day(d, lang) for d in p["dates"])
     if "dishes" in p:
         p["dishes"] = " · ".join(p["dishes"]) or words["tba"]
+    if kind == K.DAY_FINALIZED:
+        by_choice = p.get("by_choice") or {}
+        p["split"] = (
+            " (" + ", ".join(f"{words['menu']} {c} : {n}" if lang == "fr" else f"{words['menu']} {c}: {n}"
+                             for c, n in sorted(by_choice.items())) + ")"
+            if len(by_choice) > 1 else ""
+        )
     if kind == K.ACCOUNTS_PENDING and "email" not in p:
         p["email"] = p.get("number", "")  # notifications stored before 2026-10-26 carried the matricule
     if "is_paid" in p:
