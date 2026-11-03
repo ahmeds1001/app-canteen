@@ -183,7 +183,7 @@ The requirements below are kept for history; FR-43 replaces FR-33 to FR-35.
 | ID | Requirement | Priority |
 | --- | --- | --- |
 | FR-21 | The chef sees the expected headcount per day (reserved, then final after finalization) and, on the day, a live count of served meals. | M |
-| FR-22 | HR sees, per employee and per period, reserved versus served meals and the no-show rate, with CSV or Excel export. | M |
+| FR-22 | HR sees, per employee and per period, reserved versus served meals and the no-show rate, with CSV or Excel export. **[2026-11-03] Built as the "Rapports" screen for management and HR: for a chosen month, one row per employee (reserved, served, no-shows, still to come, cancelled, no-show rate, menu 1 / 2, amount spent), month totals, filters by department and name, sortable columns, employees at the no-show warning threshold highlighted, a click opens the employee's days, CSV export (audited). The no-show rate counts finished days only: a reservation still to be served is not an absence.** | M |
 | FR-23 | A management dashboard shows daily and monthly trends of reserved, finalized, served and no-shows, including the buffer actually added (final − reserved) so the effect of the buffer policy on leftovers is measurable. **When payment is enabled, it also shows paid vs. unpaid meals and amounts.** | S |
 
 ## 4. Business rules

@@ -3,7 +3,6 @@ import { Navigate, createBrowserRouter } from "react-router-dom";
 import type { Role } from "@/api/types";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
-import ComingSoonPage from "@/pages/ComingSoonPage";
 import NotificationsPage from "@/pages/NotificationsPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
@@ -20,6 +19,7 @@ import BalancePage from "@/pages/employee/BalancePage";
 import HomePage from "@/pages/employee/HomePage";
 import ReservationsPage from "@/pages/employee/ReservationsPage";
 import AccountsPage from "@/pages/hr/AccountsPage";
+import AttendancePage from "@/pages/management/AttendancePage";
 import FinalizePage from "@/pages/management/FinalizePage";
 import CashierPage from "@/pages/scanner/CashierPage";
 import DayListPage from "@/pages/staff/DayListPage";
@@ -82,7 +82,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "management/reports",
-        element: <Protected roles={["management"]}><ComingSoonPage title="nav.reports" refs="FR-21, FR-23, FR-36" /></Protected>,
+        element: <Protected roles={["management"]}><AttendancePage /></Protected>,
       },
       {
         path: "hr/accounts",
@@ -90,7 +90,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "hr/reports",
-        element: <Protected roles={["hr"]}><ComingSoonPage title="nav.reports" refs="FR-22" /></Protected>,
+        element: <Protected roles={["hr"]}><AttendancePage /></Protected>,
       },
     ],
   },

@@ -71,6 +71,20 @@
     "correctAmount": "Montant de la correction (TND, ex. -45)", "reason": "Motif",
     "corrected": "Correction enregistrée. Nouveau solde : {{balance}} TND."
   },
+  "attendance": {
+    "title": "Présence par employé",
+    "help": "Pour chaque employé et pour le mois : repas réservés, servis, absences, annulations. Une réservation ne compte comme absence qu'une fois la journée terminée ; avant, elle est « à venir ». Cliquez sur un employé pour voir ses jours.",
+    "month": "Mois", "prevMonth": "Mois précédent", "nextMonth": "Mois suivant", "thisMonth": "Ce mois-ci",
+    "employee": "Employé", "reserved": "Réservés", "served": "Servis", "noShow": "Absences", "pending": "À venir",
+    "cancelled": "Annulés", "rate": "Taux d'absence", "spent": "Dépensé (TND)", "menus": "Menu 1 / 2",
+    "eating": "employés ont réservé (sur {{total}})",
+    "menuSplit": "Menus choisis : {{m1}} menu 1, {{m2}} menu 2.",
+    "overThreshold": "{{count}} employé(s) à {{n}} absences ou plus ce mois-ci",
+    "department": "Service", "allDepartments": "Tous les services",
+    "onlyEating": "Seulement ceux qui ont réservé", "empty": "Aucun employé pour ces filtres.",
+    "summary": "{{reserved}} réservé(s), {{served}} servi(s), {{noShow}} absence(s), {{spent}} TND dépensés.",
+    "noDays": "Aucune réservation ce mois-ci."
+  },
   "dayList": {
     "title": "Réservations du jour", "export": "Exporter (CSV)", "prev": "Jour précédent", "next": "Jour suivant",
     "today": "Aujourd'hui", "date": "Date", "noMenu": "Pas de menu ce jour-là.",

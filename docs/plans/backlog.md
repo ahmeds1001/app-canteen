@@ -44,7 +44,10 @@ item into a plan file in this folder, then the **executor** to build it.
 ## Sprint 2 — reliability and reports
 
 - [ ] Scanner offline queue: store scans with their timestamp when the network fails, resend later (rule "Offline scan sync").
-- [ ] Management and HR report screens with charts and CSV export (FR-21–23, FR-36).
+- [x] **Attendance per employee per month** (FR-22, 2026-11-03): "Rapports" screen for management and HR —
+  reserved vs served, no-shows, still to come, cancelled, rate, menus, spent; drill-down per employee; CSV.
+- [ ] Remaining report screens: daily/monthly trends with charts, buffer vs leftovers per menu (FR-21, FR-23),
+  cash reconciliation of top-ups per cashier, chef's live served count.
 - [ ] No-show warning email after 3 per calendar month, only after the grace month (business rule "No-show consequences").
 - [ ] Admin: settings screen is the Django admin for now; check every setting is editable and audited (`setting_change`).
 

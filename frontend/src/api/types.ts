@@ -208,6 +208,46 @@ export interface DayList {
   rows: DayReservation[];
 }
 
+/** Management dashboard: one employee's month. `pending` = reserved, day not over yet (not an absence). */
+export interface AttendanceRow {
+  user_id: number;
+  name: string;
+  employee_number: string | null;
+  department: string;
+  status: AccountStatus;
+  reserved: number;
+  served: number;
+  no_show: number;
+  pending: number;
+  cancelled: number;
+  menu_1: number;
+  menu_2: number;
+  /** Absences / (served + absences), 0 to 1. */
+  no_show_rate: number;
+  /** TND paid from the balance for that month's meals. */
+  spent: string;
+  /** Reached the monthly no-show warning threshold (3 by default). */
+  over_threshold: boolean;
+}
+
+export interface MonthlyAttendance {
+  month: string;
+  threshold: number;
+  departments: string[];
+  totals: Omit<AttendanceRow, "user_id" | "name" | "employee_number" | "department" | "status" | "over_threshold"> & {
+    employees: number;
+    eating: number;
+    over_threshold: number;
+  };
+  rows: AttendanceRow[];
+}
+
+export interface EmployeeMonth {
+  name: string;
+  employee_number: string | null;
+  rows: DayReservation[];
+}
+
 /** Prepaid balance (decided 2026-11-03). Amounts are TND strings with 3 decimals. */
 export type TransactionKind = "topup" | "meal" | "refund" | "correction";
 

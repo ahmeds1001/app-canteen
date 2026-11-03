@@ -16,3 +16,18 @@
 .final__price > .field { flex: 1 1 140px; }
 .final__price > .alert, .final__price > .final__hint { flex-basis: 100%; }
 .final__ok { color: var(--color-success); font-weight: 700; align-self: center; }
+
+/* Attendance dashboard */
+.attendance__month { margin: 0; text-transform: capitalize; }
+.attendance__toggle { display: flex; align-items: center; gap: var(--space-2); min-block-size: var(--tap-target); font-size: var(--text-sm); }
+/* The table may be wider than a phone: it scrolls inside its box, never the page. */
+.attendance__scroll { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-raised); }
+.attendance { inline-size: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.attendance th, .attendance td { padding: var(--space-2) var(--space-3); border-block-end: 1px solid var(--color-border); text-align: start; white-space: nowrap; }
+.attendance th { position: sticky; inset-block-start: 0; background: var(--color-surface); }
+.attendance th button { all: unset; cursor: pointer; font-weight: 700; }
+.attendance .num { text-align: end; font-variant-numeric: tabular-nums; }
+.attendance tbody tr { cursor: pointer; }
+.attendance tbody tr:hover { background: var(--color-surface); }
+.attendance__alert td:first-child { box-shadow: inset 4px 0 0 var(--color-danger); }
+.attendance__who { all: unset; display: grid; gap: 2px; cursor: pointer; }

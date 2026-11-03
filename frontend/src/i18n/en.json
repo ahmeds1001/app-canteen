@@ -71,6 +71,20 @@
     "correctAmount": "Correction amount (TND, e.g. -45)", "reason": "Reason",
     "corrected": "Correction recorded. New balance: {{balance}} TND."
   },
+  "attendance": {
+    "title": "Attendance per employee",
+    "help": "For each employee and for the month: meals reserved, served, no-shows, cancellations. A reservation only counts as a no-show once the day is over; before that it is \"to come\". Click an employee to see their days.",
+    "month": "Month", "prevMonth": "Previous month", "nextMonth": "Next month", "thisMonth": "This month",
+    "employee": "Employee", "reserved": "Reserved", "served": "Served", "noShow": "No-shows", "pending": "To come",
+    "cancelled": "Cancelled", "rate": "No-show rate", "spent": "Spent (TND)", "menus": "Menu 1 / 2",
+    "eating": "employees reserved (out of {{total}})",
+    "menuSplit": "Menus chosen: {{m1}} menu 1, {{m2}} menu 2.",
+    "overThreshold": "{{count}} employee(s) with {{n}} no-shows or more this month",
+    "department": "Department", "allDepartments": "All departments",
+    "onlyEating": "Only those who reserved", "empty": "No employee for these filters.",
+    "summary": "{{reserved}} reserved, {{served}} served, {{noShow}} no-show(s), {{spent}} TND spent.",
+    "noDays": "No reservation this month."
+  },
   "dayList": {
     "title": "Reservations of the day", "export": "Export (CSV)", "prev": "Previous day", "next": "Next day",
     "today": "Today", "date": "Date", "noMenu": "No menu that day.",

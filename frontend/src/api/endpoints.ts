@@ -5,11 +5,13 @@ import type {
   BalanceTransaction,
   DayList,
   Dish,
+  EmployeeMonth,
   FinalizationProposal,
   Health,
   ManagedUser,
   Menu,
   MenuChoice,
+  MonthlyAttendance,
   MyBalance,
   NotificationList,
   PerMenu,
@@ -173,6 +175,20 @@ export const scanApi = {
     api<ScanResult>("/scan/", { method: "POST", json: { payload, scanned_at } }),
   search: (q: string) => api<ScanResult[]>(`/checkin/?q=${encodeURIComponent(q)}`),
   manual: (id: number) => api<ScanResult>(`/checkin/${id}/manual/`, { method: "POST" }),
+};
+
+/** Management dashboard (management and HR): attendance per employee for a month ("2026-11"). */
+export const reportApi = {
+  monthly: (month: string, filters: { department?: string; q?: string } = {}) => {
+    const q = new URLSearchParams({ month });
+    if (filters.department) q.set("department", filters.department);
+    if (filters.q) q.set("q", filters.q);
+    return api<MonthlyAttendance>(`/reports/attendance/monthly/?${q}`);
+  },
+  employee: (userId: number, month: string) =>
+    api<EmployeeMonth>(`/reports/attendance/monthly/${userId}/?month=${month}`),
+  exportCsv: (month: string) =>
+    download(`/reports/attendance/monthly/?month=${month}&export=csv`, `presence-${month}.csv`),
 };
 
 /** Prepaid balance (decided 2026-11-03): the only way meals are paid. */
