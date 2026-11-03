@@ -58,6 +58,10 @@ class MonthlyAttendanceTests(TestCase):
         self.assertEqual(rows["Test Zied"]["reserved"], 0)  # listed even without reservations
         self.assertEqual(body["totals"]["eating"], 2)
 
+    def test_each_department_listed_once(self):
+        f.user(department="Production")  # three people in Production now
+        self.assertEqual(self._get().json()["departments"], ["Production", "Qualité"])
+
     def test_filters_other_month_and_access(self):
         self.assertEqual([r["name"] for r in self._get(query="month=2026-11&department=Qualité").json()["rows"]],
                          ["Test Amel"])

@@ -76,8 +76,10 @@ def monthly_attendance(year: int, month: int, *, department: str = "", q: str = 
         no_show_rate=_rate(totals["no_show"], totals["served"] + totals["no_show"]),
         over_threshold=sum(1 for r in rows if r["over_threshold"]),
     )
+    # order_by() first: User's default ordering (last name) would make DISTINCT keep one row per employee.
     departments = sorted(
-        User.objects.filter(pk__in=ids).exclude(department="").values_list("department", flat=True).distinct()
+        User.objects.filter(pk__in=ids).exclude(department="").order_by()
+        .values_list("department", flat=True).distinct()
     )
     return {"month": f"{year:04d}-{month:02d}", "threshold": threshold, "departments": departments,
             "totals": totals, "rows": rows}
