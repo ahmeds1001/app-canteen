@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { dayListApi } from "@/api/endpoints";
+import { dayListApi, settingsApi } from "@/api/endpoints";
 import type { ReservationStatus } from "@/api/types";
 import { Alert, Badge, Button, Card, Field } from "@/components/ui";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
@@ -33,6 +33,13 @@ export default function DayListPage() {
   });
   const data = list.data;
   const twoMenus = (data?.menu?.choices.length ?? 0) > 1;
+  const settings = useQuery({ queryKey: ["settings"], queryFn: settingsApi.public, staleTime: Infinity });
+  const serviceEnd = settings.data?.service_window_end.slice(0, 5) ?? "15:00";
+  // "Absent" is set only once the day's service is over (the scheduler, at 15:00 by default): until then an
+  // unscanned reservation on today (or a past day not yet closed) is "not served yet", not absent.
+  const started = day <= today;
+  const statusLabel = (status: ReservationStatus) =>
+    status === "reserved" && started ? t("dayList.notServedYet") : t(`reservations.status.${status}`);
 
   const exportCsv = () => dayListApi.exportCsv(day).catch((e) => setError(toMessage(e)));
 
@@ -53,6 +60,9 @@ export default function DayListPage() {
       </div>
       <h2 className="day-nav__label">{formatDay(day, i18n.language)}</h2>
       {error && <Alert>{error}</Alert>}
+      {data?.menu && started && data.counts.reserved > 0 && (
+        <Alert kind="info">{t("dayList.absentAfter", { time: serviceEnd })}</Alert>
+      )}
 
       {data && !data.menu && <p className="muted">{t("dayList.noMenu")}</p>}
       {data?.menu && (
@@ -60,7 +70,7 @@ export default function DayListPage() {
           <div className="day-summary__counts">
             <Count value={data.counts.total} label={t("dayList.total")} />
             <Count value={data.counts.served} label={t("reservations.status.served")} />
-            <Count value={data.counts.reserved} label={t("dayList.waiting")} />
+            <Count value={data.counts.reserved} label={started ? t("dayList.waiting") : t("reservations.status.reserved")} />
             <Count value={data.counts.no_show} label={t("reservations.status.no_show")} />
             <Count value={data.counts.cancelled} label={t("reservations.status.cancelled")} />
             {data.menu.final_plate_count !== null && <Count value={data.menu.final_plate_count} label={t("finalize.plates")} />}
@@ -80,7 +90,7 @@ export default function DayListPage() {
         {FILTERS.map((f) => (
           <button key={f || "all"} type="button" role="tab" aria-selected={status === f}
             className={`tab ${status === f ? "tab--active" : ""}`} onClick={() => setStatus(f)}>
-            {f ? t(`reservations.status.${f}`) : t("dayList.all")}
+            {f ? statusLabel(f) : t("dayList.all")}
           </button>
         ))}
       </div>
@@ -96,7 +106,7 @@ export default function DayListPage() {
                 <span className="muted">{r.employee_number ?? "—"}{r.department && ` · ${r.department}`}</span>
               </span>
               {twoMenus && <span role="cell"><Badge tone="orange">{t("menus.menuN", { n: r.choice })}</Badge></span>}
-              <span role="cell"><Badge tone={TONE[r.status]}>{t(`reservations.status.${r.status}`)}</Badge></span>
+              <span role="cell"><Badge tone={TONE[r.status]}>{statusLabel(r.status)}</Badge></span>
               <span className="day-row__when muted" role="cell">
                 {r.served_at
                   ? `${formatCompanyDateTime(r.served_at, i18n.language).split(", ")[1]}${r.scan_method === "manual" ? ` · ${t("dayList.manual")}` : ""}`

@@ -93,6 +93,16 @@ class ScanTests(TestCase):
         self.reservation.refresh_from_db()
         self.assertEqual(self.reservation.status, Reservation.Status.NO_SHOW)
 
+    def test_nobody_is_absent_while_the_day_is_not_over(self):
+        """Reports count a no-show only once the service has ended: until then the person can still come."""
+        for moment in (f.at(2026, 11, 1, 23), f.at(2026, 11, 2, 9), f.at(2026, 11, 2, 14, 59, 59)):
+            with clock.frozen(moment):
+                jobs.mark_no_shows()
+        self.reservation.refresh_from_db()
+        self.assertEqual(self.reservation.status, Reservation.Status.RESERVED)
+        with clock.frozen(f.at(2026, 11, 2, 14, 59, 59)):  # and can still be served
+            self.assertEqual(services.scan(self.reservation.qr_signed_payload, by=self.scanner).status, "served")
+
 
 class ChoiceTests(TestCase):
     """Two menus a day (decided 2026-11-03): the employee picks one and can switch until the cutoff."""

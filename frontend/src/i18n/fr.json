@@ -76,7 +76,9 @@
     "today": "Aujourd'hui", "date": "Date", "noMenu": "Pas de menu ce jour-là.",
     "total": "réservations", "waiting": "à servir", "menu": "Menu", "reservedN": "{{count}} réservation(s)",
     "all": "Toutes", "search": "Rechercher (nom, matricule ou service)", "empty": "Aucune réservation.",
-    "manual": "manuel"
+    "manual": "manuel",
+    "notServedYet": "Pas encore servi",
+    "absentAfter": "Les réservations pas encore servies ne deviennent « Absent » qu'à la fin du service ({{time}}), quand la journée est terminée."
   },
   "common": {
     "save": "Enregistrer", "cancel": "Annuler", "close": "Fermer", "edit": "Modifier", "search": "Rechercher",

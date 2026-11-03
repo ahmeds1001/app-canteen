@@ -76,7 +76,9 @@
     "today": "Today", "date": "Date", "noMenu": "No menu that day.",
     "total": "reservations", "waiting": "to serve", "menu": "Menu", "reservedN": "{{count}} reservation(s)",
     "all": "All", "search": "Search (name, employee number or department)", "empty": "No reservations.",
-    "manual": "manual"
+    "manual": "manual",
+    "notServedYet": "Not served yet",
+    "absentAfter": "Reservations not served yet only become \"No-show\" at the end of service ({{time}}), once the day is over."
   },
   "common": {
     "save": "Save", "cancel": "Cancel", "close": "Close", "edit": "Edit", "search": "Search", "done": "Done", "confirm": "Confirm", "confirmTitle": "Please confirm"
