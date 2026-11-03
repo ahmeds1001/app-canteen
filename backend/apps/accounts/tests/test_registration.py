@@ -1,6 +1,7 @@
 import re
 
 from django.core import mail
+from django.db import transaction
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -33,7 +34,8 @@ class RegistrationFlowTests(TestCase):
 
     def test_full_flow(self):
         with clock.frozen(f.at(2026, 11, 2, 9)):
-            self.assertEqual(_register(self.client).status_code, 201)
+            with self.captureOnCommitCallbacks(execute=True):  # emails leave after the commit
+                self.assertEqual(_register(self.client).status_code, 201)
             code = _code_from_last_email()
 
             # Login refused before verification (sent back to the code screen).
@@ -55,7 +57,8 @@ class RegistrationFlowTests(TestCase):
 
     def test_otp_expires_after_10_minutes(self):
         with clock.frozen(f.at(2026, 11, 2, 9)):
-            _register(self.client)
+            with self.captureOnCommitCallbacks(execute=True):
+                _register(self.client)
             code = _code_from_last_email()
         user = User.objects.get(work_email="amel@example.com")
         with clock.frozen(f.at(2026, 11, 2, 9, 10, 1)):
@@ -64,7 +67,8 @@ class RegistrationFlowTests(TestCase):
 
     def test_otp_invalidated_after_5_wrong_attempts(self):
         with clock.frozen(f.at(2026, 11, 2, 9)):
-            _register(self.client)
+            with self.captureOnCommitCallbacks(execute=True):
+                _register(self.client)
             code = _code_from_last_email()
             user = User.objects.get(work_email="amel@example.com")
             for _ in range(5):
@@ -117,7 +121,10 @@ class ApprovalTests(TestCase):
         return f.user(status=User.Status.PENDING_HR, employee_number=None, **extra)
 
     def _approve(self, user, number):
-        return self.client.post(f"/api/v1/auth/users/{user.pk}/approve/", {"employee_number": number}, format="json")
+        with self.captureOnCommitCallbacks(execute=True):
+            return self.client.post(
+                f"/api/v1/auth/users/{user.pk}/approve/", {"employee_number": number}, format="json"
+            )
 
     def test_approve_sets_matricule_and_is_audited(self):
         pending = self._pending()
@@ -128,6 +135,23 @@ class ApprovalTests(TestCase):
         log = AuditLog.objects.get(action="approve", target_id=str(pending.pk))
         self.assertEqual(log.meta["employee_number"], "M-0042")
         self.assertEqual(len(mail.outbox), 1)
+
+    def test_email_leaves_only_after_the_commit(self):
+        pending = self._pending()
+        with self.captureOnCommitCallbacks() as callbacks:
+            services.approve(pending, by=self.hr, employee_number="M-0042")
+            self.assertEqual(len(mail.outbox), 0)  # nothing sent while the transaction is open
+        self.assertEqual(len(callbacks), 1)
+        callbacks[0]()
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_rolled_back_approval_sends_no_email(self):
+        pending = self._pending()
+        with self.captureOnCommitCallbacks(execute=True):
+            with self.assertRaises(RuntimeError), transaction.atomic():
+                services.approve(pending, by=self.hr, employee_number="M-0042")
+                raise RuntimeError
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_matricule_is_required(self):
         pending = self._pending()

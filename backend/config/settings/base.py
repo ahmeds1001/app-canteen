@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # Third party
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",  # logout of other devices, no refresh after suspension
     "corsheaders",
     # Domain apps
     "apps.core",
@@ -88,6 +89,9 @@ if env("DB_ENGINE", "mssql") == "sqlite":
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
+            # Wait up to 20 s for another process (API, scheduler) to release a write lock instead of
+            # failing at once with "database is locked".
+            "OPTIONS": {"timeout": 20},
         }
     }
 else:
@@ -154,6 +158,9 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
     "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,  # a refresh token works once
+    # Checked at login and at every refresh: a suspended / deactivated account gets no new access token.
+    "USER_AUTHENTICATION_RULE": "apps.accounts.authentication.active_account_rule",
 }
 
 CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS", "http://localhost:5173")

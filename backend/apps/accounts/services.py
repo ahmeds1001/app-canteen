@@ -14,6 +14,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.db import IntegrityError, transaction
 from django.db.models import F
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 
 from apps.core import audit, clock, notifications
 from apps.core.exceptions import Conflict, DomainError, NotAllowed
@@ -317,12 +318,14 @@ def staff_reset_password(user: User, *, by: User) -> str:
     user.must_change_password = True
     user.temp_password_expires_at = clock.now() + TEMP_PASSWORD_TTL
     user.save(update_fields=["password", "must_change_password", "temp_password_expires_at", "updated_at"])
+    end_sessions(user)
     audit.record(audit.AuditLog.Action.PASSWORD_RESET_BY_STAFF, actor=by, target=user)
     notifications.password_changed(user)
     return temp
 
 
 def change_password(user: User, new_password: str) -> User:
+    """Other devices are logged out; the view hands this device a fresh pair of tokens."""
     _set_password(user, new_password)
     return user
 
@@ -335,4 +338,16 @@ def _set_password(user: User, new_password: str) -> None:
     user.must_change_password = False
     user.temp_password_expires_at = None
     user.save(update_fields=["password", "must_change_password", "temp_password_expires_at", "updated_at"])
-    # Ending other sessions: refresh tokens are invalidated by the blacklist app (see backlog).
+    end_sessions(user)
+
+
+def end_sessions(user: User) -> int:
+    """Blacklist every refresh token still valid for `user` (FR-39): other devices must log in again
+    once their access token (30 min at most) runs out. Idempotent; tokens are kept, never deleted."""
+    # No expiry filter: token expiry follows the real clock, not apps.core.clock (the test clock may be ahead),
+    # and rotation already blacklists used tokens, so only a few per device are left here.
+    live = OutstandingToken.objects.filter(user=user, blacklistedtoken__isnull=True)
+    ended = 0
+    for token in live:
+        ended += BlacklistedToken.objects.get_or_create(token=token)[1]
+    return ended

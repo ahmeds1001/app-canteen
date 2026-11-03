@@ -38,3 +38,6 @@ class UserAdmin(BaseUserAdmin):
 class EmployeeRosterAdmin(admin.ModelAdmin):
     list_display = ("employee_number", "full_name", "department", "imported_at")
     search_fields = ("employee_number", "full_name")
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # data is never deleted (rule 4)

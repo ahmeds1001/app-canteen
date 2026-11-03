@@ -9,3 +9,6 @@ class ReservationAdmin(admin.ModelAdmin):
     list_filter = ("status", "payment_status", "date")
     search_fields = ("user__last_name", "user__employee_number")
     readonly_fields = ("qr_token", "qr_signed_payload")
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # data is never deleted (rule 4): cancel it in the app instead

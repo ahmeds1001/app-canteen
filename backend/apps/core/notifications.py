@@ -7,13 +7,20 @@ import logging
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db import transaction
 from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
 
 
 def send(template: str, to: list[str], subject: str, context: dict) -> None:
+    """The body is rendered now; the email leaves only once the database transaction has committed,
+    so a slow mail server never holds a lock, and a rolled-back change sends nothing."""
     body = render_to_string(f"emails/{template}.txt", context)
+    transaction.on_commit(lambda: _deliver(template, to, subject, body))
+
+
+def _deliver(template: str, to: list[str], subject: str, body: str) -> None:
     try:
         send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, to, fail_silently=False)
     except Exception:  # never break the request because SMTP is down; log it

@@ -110,10 +110,10 @@ notifications in-app + push with **"handled for everyone"** (`Notification.resol
 French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-semaine.md` (+ PDF).
 
 ### Next steps (agreed order — confirm with the user before starting)
-1. Quick fixes before real use: send account emails **after** the DB transaction commits (`transaction.on_commit`;
-   today `approve` sends inside `@transaction.atomic`, which locked SQLite on another PC) and give SQLite a busy
-   timeout; **block deletes in the Django admin** for reservations, menus, dishes, roster, balance (rule 4);
-   refresh-token blacklist (suspended accounts must not renew tokens; password change logs out other devices).
+1. ~~Quick fixes before real use~~ — done 3 Nov 2026 (127 tests): account emails leave via `transaction.on_commit`
+   (tests use `captureOnCommitCallbacks(execute=True)` to see `mail.outbox`); SQLite `timeout: 20`; no delete in
+   the Django admin for app data; refresh-token blacklist (`accounts.services.end_sessions`, rule
+   `active_account_rule`), and the frontend shares one refresh call (`api/client.ts`) since a refresh token works once.
 2. Run the test suite and a manual pass on **SQL Server** (filtered unique constraints, JSON fields, decimals).
 3. Decide with management: balance of an employee who leaves; who may collect cash; daily cash check
    (→ cash reconciliation report: top-ups per cashier per day); backup person for finalization; leftover plates.
@@ -126,7 +126,7 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
   Commit only when asked; push to `origin main`. Repo: `github.com/ahmeds1001/app-canteen`, local git identity
   `ahmeds1001` — **never use or touch the user's other GitHub account (sigma.garay1)**.
 - Ask before changing a business rule (spec first); several short questions at once are welcome.
-- Not decided / declined so far: deleting data from the admin ("not now" on 2026-10-26 — still to do, see step 1).
+- Deletes in the Django admin: blocked for all app data on 3 Nov 2026 (was "not now" on 2026-10-26).
 
 ### Windows environment (this PC)
 - Shells: PowerShell 5.1 (no `&&`; use `;` / `if ($?)`), and Git Bash. Use **`npm.cmd`** in PowerShell (the

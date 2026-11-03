@@ -29,7 +29,7 @@ Decisions taken with management on 23 oct. 2026:
 - **Users:** about 200 at most; performance targets sized on 200 simultaneous users at the evening cutoff.
 - **Booking horizon:** no limit. Employees can reserve any day whose menu is published, however far ahead; in practice the limit is how far ahead the chef publishes.
 - **Languages:** French and English at launch; Arabic later, so the interface is built right-to-left ready.
-- **Data retention:** all data is kept, never deleted or anonymized (company decision).
+- **Data retention:** all data is kept, never deleted or anonymized (company decision). **[2026-11-03]** Not even from the Django admin: accounts, reservations, menus, dishes, the old roster, balance movements, notifications and the audit log have no delete action there.
 - **Paid meals:** an unpaid meal can still be served; it stays Unpaid in the reports.
 - **Arabic:** later, no date set.
 - **Default buffer:** 10% of the reserved count, rounded up.
@@ -219,7 +219,7 @@ The rules below are enforced by the server, never only by the screen, and the on
 
 The app must be secure, fast at the two daily peaks (just before the cutoff and at lunch) and usable on any phone without installation. The figures are proposed targets to validate.
 
-- **Security:** HTTPS everywhere; passwords hashed with a modern algorithm (Argon2 or bcrypt); role-based access control (employee, HR, chef, scanner, management, admin); rate limiting on login, registration and **OTP requests and attempts (60 s resend delay, 5 codes per hour, 5 attempts per code)**; OTP codes generated with a secure random generator, stored hashed, never logged in clear; an audit log of approvals, menu and dish changes, reservation status transitions (reserve, cancel, serve, no-show), **payment marking and payment settings**, manual check-ins and role changes.
+- **Security:** HTTPS everywhere; passwords hashed with a modern algorithm (Argon2 or bcrypt); role-based access control (employee, HR, chef, scanner, management, admin); rate limiting on login, registration and **OTP requests and attempts (60 s resend delay, 5 codes per hour, 5 attempts per code)**; OTP codes generated with a secure random generator, stored hashed, never logged in clear; an audit log of approvals, menu and dish changes, reservation status transitions (reserve, cancel, serve, no-show), **payment marking and payment settings**, manual check-ins and role changes. **[2026-11-03] Sessions:** a login lasts 30 minutes and renews itself for 14 days; each renewal token works once; a suspended or deactivated account gets no renewal; a password change or reset (FR-39, FR-40) ends the sessions on the other devices. Emails are sent only after the change is saved, so a slow mail server never holds the database.
 - **Concurrency and idempotency:** every mutating API (reserve, cancel, finalize, scan, **mark paid**) must be idempotent or transactionally safe — a double-tap or a retried request must never create a duplicate reservation, serve a meal twice, finalize twice or mark a payment twice. The unique (user, date) constraint and the atomic claim pattern of FR-18 are the baseline.
 - **Clock for tests:** all time-dependent logic (publishing deadline, cutoff, service window, no-show marking, payment freeze) must use an injectable clock.
 - **QR security:** each code holds a long random token, signed by the server, bound to one reservation; it cannot be guessed, is valid on one date and is marked used at the first successful scan.

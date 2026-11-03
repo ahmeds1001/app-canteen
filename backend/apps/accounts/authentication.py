@@ -10,3 +10,8 @@ class ActiveAccountJWTAuthentication(JWTAuthentication):
         if not user.is_active_account:
             raise AuthenticationFailed("Account is not active.", code="account_not_active")
         return user
+
+
+def active_account_rule(user) -> bool:
+    """SIMPLE_JWT USER_AUTHENTICATION_RULE: only Active accounts may obtain or refresh tokens."""
+    return user is not None and user.is_active_account

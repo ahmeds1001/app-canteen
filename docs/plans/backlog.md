@@ -39,7 +39,11 @@ item into a plan file in this folder, then the **executor** to build it.
   kept on no-show; counter payment ("mark paid") removed; day price set on the Finalization screen; "My balance".
 - [x] **Reservation lists** (FR-44, decided 2026-11-03): any day, for the scanner and management, filters and CSV.
 - [x] Close day → cancel its reservations (`menus/services.close_day`). Notifying the employees is part of Notifications.
-- [ ] Refresh-token blacklist so a password change ends other sessions (FR-39) — `rest_framework_simplejwt.token_blacklist`.
+- [x] **Refresh-token blacklist** (FR-39, FR-40, 2026-11-03): `rest_framework_simplejwt.token_blacklist`; a refresh
+  token works once; suspended / deactivated accounts get no new access token; a password change or reset
+  blacklists the user's other refresh tokens (the current device gets a fresh pair). The app shares one refresh call.
+- [x] **Quick fixes before real use** (2026-11-03): account emails sent after the commit (`transaction.on_commit`);
+  SQLite waits 20 s on a lock; no delete action in the Django admin for any app data (rule 4).
 
 ## Sprint 2 — reliability and reports
 

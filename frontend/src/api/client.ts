@@ -45,7 +45,18 @@ export const tokens = {
   },
 };
 
-async function refreshAccess(): Promise<boolean> {
+// A refresh token works once (the server blacklists it after rotation), so requests that hit 401
+// at the same time share one refresh call instead of each spending the same token.
+let refreshing: Promise<boolean> | null = null;
+
+function refreshAccess(): Promise<boolean> {
+  refreshing ??= doRefresh().finally(() => {
+    refreshing = null;
+  });
+  return refreshing;
+}
+
+async function doRefresh(): Promise<boolean> {
   const refresh = read(REFRESH);
   if (!refresh) return false;
   const res = await fetch(`${BASE}/auth/token/refresh/`, {
