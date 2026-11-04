@@ -4,7 +4,8 @@
   "nav": {
     "home": "Menus", "reservations": "Mes réservations", "dishes": "Plats", "planner": "Planning",
     "finalize": "Finalisation", "reports": "Rapports", "accounts": "Comptes", "scan": "Scanner",
-    "balance": "Mon solde", "dayList": "Liste du jour", "cashier": "Caisse", "cash": "Encaissements"
+    "balance": "Mon solde", "dayList": "Liste du jour", "cashier": "Caisse", "cash": "Encaissements",
+    "settings": "Paramètres"
   },
   "auth": {
     "login": "Se connecter", "register": "Créer un compte", "email": "Email professionnel",
@@ -29,7 +30,7 @@
   "menus": {
     "title": "Menus de la semaine", "reserve": "Réserver", "cancel": "Annuler", "reserved": "Réservé",
     "closed": "Réservations closes", "toBeAnnounced": "Menu à venir",
-    "deadline": "Réservez avant {{time}} la veille", "price": "Prix : {{price}} TND", "free": "Gratuit",
+    "deadline": "Réservations jusqu'au {{date}}", "price": "Prix : {{price}} TND", "free": "Gratuit",
     "empty": "Aucun menu publié pour le moment.",
     "dayClosed": "Fermé", "dayClosedHelp": "La cantine est fermée ce jour-là.",
     "menuN": "Menu {{n}}", "yourChoice": "Votre choix", "reserveN": "Réserver le menu {{n}}",
@@ -41,7 +42,7 @@
   "balance": {
     "title": "Mon solde", "current": "Solde disponible", "short": "Solde : {{amount}} TND",
     "how": "Comment recharger ?",
-    "howHelp": "Pour recharger votre solde, donnez l'argent au personnel de la cantine : il l'enregistre aussitôt. Chaque repas est payé avec votre solde au moment de la réservation, et remboursé si vous annulez avant minuit la veille.",
+    "howHelp": "Pour recharger votre solde, donnez l'argent au personnel de la cantine : il l'enregistre aussitôt. Chaque repas est payé avec votre solde au moment de la réservation, et remboursé si vous annulez avant {{cutoff}}.",
     "history": "Historique", "empty": "Aucun mouvement pour le moment.", "after": "solde : {{amount}} TND",
     "kind": { "topup": "Recharge", "meal": "Repas", "refund": "Remboursement", "correction": "Correction" }
   },
@@ -130,6 +131,44 @@
     "notServedYet": "Pas encore servi",
     "absentAfter": "Les réservations pas encore servies ne deviennent « Absent » qu'à la fin du service ({{time}}), quand la journée est terminée."
   },
+  "deadline": {
+    "midnight": "minuit", "sameDay": "{{time}} le jour même", "dayBefore": "{{time}} la veille",
+    "daysBefore": "{{time}}, {{days}} jours avant"
+  },
+  "settings": {
+    "title": "Paramètres de la cantine",
+    "help": "Les changements s'appliquent tout de suite (dans la minute), pour aujourd'hui et les jours suivants. Une étape déjà passée (jour clôturé ou finalisé) n'est pas annulée. Chaque changement est enregistré dans le journal.",
+    "deadlines": "Horaires et délais",
+    "cutoff": "Réservations des employés", "cutoffHint": "Fermeture des réservations d'un jour J. 0 jour = le matin même.",
+    "publish": "Publication du menu (chef)", "publishHint": "Sinon, le jour s'ouvre en « Menu à venir ». Doit précéder la fermeture des réservations.",
+    "finalization": "Finalisation (direction)", "finalizationHint": "Nombre d'assiettes verrouillé ; sans confirmation, finalisation automatique avec la marge.",
+    "service": "Service",
+    "daysBefore": "Jours avant", "time": "Heure", "sameDay": "Le jour même à", "from": "De", "to": "À",
+    "example": {
+      "title": "Exemple : repas du {{day}}", "at": "{{day}} à {{time}}", "service": "de {{start}} à {{end}}",
+      "publish": "Menu publié avant", "cutoff": "Réservations jusqu'à", "finalize": "Finalisation à",
+      "serviceLabel": "Service"
+    },
+    "days": "Jours de service",
+    "weekday": { "0": "Lundi", "1": "Mardi", "2": "Mercredi", "3": "Jeudi", "4": "Vendredi", "5": "Samedi", "6": "Dimanche" },
+    "reminders": "Rappels",
+    "reminderChef": "Chef : menus à publier", "reminderManagement": "Direction : finaliser",
+    "reminderEmployees": "Employés : pensez à réserver",
+    "remindersHint": "Le rappel direction doit précéder la finalisation ; le rappel employés part le soir avant la fermeture des réservations.",
+    "plates": "Assiettes",
+    "bufferMode": "Marge", "bufferPercentage": "En pourcentage", "bufferFixed": "En assiettes",
+    "bufferPercent": "Marge (%)", "bufferPlates": "Marge (assiettes)", "kitchenMax": "Maximum de la cuisine",
+    "noLimit": "Sans limite",
+    "bufferHint": "La même marge sert à la proposition faite à la direction et à la finalisation automatique (arrondie au-dessus).",
+    "payment": "Paiement",
+    "paymentEnabled": "Repas payants activés", "paidDefault": "Nouveaux jours payants par défaut",
+    "priceDefault": "Prix par défaut ({{currency}})",
+    "other": "Autres",
+    "horizon": "Réservation possible jusqu'à (jours)", "noShowThreshold": "Avertissement après (absences / mois)",
+    "noShowGrace": "Pas d'avertissement avant le",
+    "save_one": "Enregistrer (1 modification)", "save_other": "Enregistrer ({{count}} modifications)",
+    "saved": "Paramètres enregistrés. Ils s'appliquent dès maintenant."
+  },
   "common": {
     "save": "Enregistrer", "cancel": "Annuler", "close": "Fermer", "edit": "Modifier", "search": "Rechercher",
     "done": "Terminé", "confirm": "Confirmer", "confirmTitle": "Confirmation"
@@ -147,14 +186,14 @@
   },
   "planner": {
     "title": "Planning des menus", "prevWeek": "Précédente", "nextWeek": "Suivante", "weekOf": "Semaine du {{date}}",
-    "help": "Le menu d'un jour doit être publié au plus tard {{days}} jours avant. Sinon, le jour s'ouvre en « Menu à venir ».",
+    "help": "Le menu d'un jour doit être publié au plus tard {{days}} jours avant, à {{time}}. Sinon, le jour s'ouvre en « Menu à venir ».",
     "weekPublished": "Menus publiés : {{count}}.", "publishWeek": "Publier la semaine ({{count}})",
     "status": {
       "none": "Pas de menu", "draft": "Brouillon", "published": "Publié", "locked": "Réservations closes",
       "finalized": "Finalisé", "closed": "Fermé"
     },
     "placeholder": "Menu à venir (publié automatiquement)", "noDishes": "Aucun plat choisi.",
-    "closedReason": "Motif : {{reason}}", "publishBefore": "À publier avant le {{date}} à minuit",
+    "closedReason": "Motif : {{reason}}", "publishBefore": "À publier avant le {{date}} à {{time}}",
     "reservedCount": "Réservations : {{count}}", "editDishes": "Modifier les plats", "compose": "Composer le menu",
     "duplicate": "Dupliquer", "publish": "Publier", "closeDay": "Fermer le jour",
     "duplicateSkipped": "Menu dupliqué. {{count}} plat(s) archivé(s) ignoré(s).",
@@ -169,7 +208,7 @@
   },
   "finalize": {
     "title": "Finalisation des repas",
-    "help": "Après la clôture des réservations (minuit la veille), confirmez le nombre d'assiettes à préparer. Sans confirmation, le système finalise automatiquement à {{time}}.",
+    "help": "Après la clôture des réservations ({{cutoff}}), confirmez le nombre d'assiettes à préparer. Sans confirmation, le système finalise automatiquement à {{time}}.",
     "empty": "Aucun jour publié pour les 7 prochains jours.",
     "status": { "draft": "Brouillon", "published": "Réservations ouvertes", "locked": "À finaliser", "finalized": "Finalisé", "closed": "Fermé" },
     "reserved": "réservations", "plates": "assiettes à préparer",
@@ -181,7 +220,7 @@
     "splitReserved": "{{count}} réservation(s)", "splitPlates": "{{count}} assiette(s)",
     "paymentOff": "Le paiement est désactivé dans les paramètres : tous les repas sont gratuits.",
     "price": "Prix du jour (TND, les deux menus)", "priceFreePlaceholder": "Vide = gratuit",
-    "priceHelp": "Modifiable jusqu'à minuit la veille. Un nouveau prix ne s'applique qu'aux réservations faites après.",
+    "priceHelp": "Modifiable jusqu'à {{cutoff}}. Un nouveau prix ne s'applique qu'aux réservations faites après.",
     "priceIs": "Prix du jour : {{price}} TND.", "priceFree": "Repas gratuit ce jour-là."
   },
   "accounts": {
@@ -245,6 +284,15 @@
   "soon": { "title": "Écran à construire", "help": "Cet écran est prévu dans le cahier des charges ({{refs}}). Il sera développé dans un prochain sprint." },
   "errors": {
     "generic": "Une erreur est survenue. Réessayez.",
+    "settings_no_service_day": "Gardez au moins un jour de service.",
+    "settings_publish_after_cutoff": "Le menu doit être publié avant la fermeture des réservations.",
+    "settings_cutoff_after_finalization": "Les réservations doivent fermer avant l'heure de finalisation.",
+    "settings_finalization_after_service": "La finalisation doit avoir lieu au plus tard au début du service.",
+    "settings_service_end_before_start": "La fin du service doit être après son début.",
+    "settings_reminder_after_finalization": "Le rappel de la direction doit précéder l'heure de finalisation.",
+    "settings_reminder_after_cutoff": "Le rappel des employés doit précéder la fermeture des réservations.",
+    "settings_buffer_too_high": "La marge ne peut pas dépasser 100 %.",
+    "settings_unknown_field": "Ce paramètre ne peut pas être modifié ici.",
     "invalid_credentials": "Email ou mot de passe incorrect.",
     "email_not_verified": "Votre email n'est pas encore vérifié.",
     "pending_hr": "Votre compte attend la validation du service RH.",

@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { menuApi, settingsApi } from "@/api/endpoints";
+import { menuApi } from "@/api/endpoints";
 import type { MenuChoice, PerMenu, StaffMenu } from "@/api/types";
 import { Alert, Badge, Button, Card, Field } from "@/components/ui";
+import { useCanteenSettings } from "@/hooks/useCanteenSettings";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { useServerTime } from "@/hooks/useServerTime";
 import { addDays, formatCompanyDateTime, formatDay, isoToday } from "@/utils/dates";
@@ -19,17 +20,17 @@ export default function FinalizePage() {
     queryKey: ["menus", "staff", "finalize", today],
     queryFn: () => menuApi.staffList(today, addDays(today, 7)),
   });
-  const settings = useQuery({ queryKey: ["settings"], queryFn: settingsApi.public, staleTime: Infinity });
+  const { settings, cutoff } = useCanteenSettings();
   const days = menus.data ?? [];
   // FR-26/27: the count locks at the finalization deadline (10:00 by default), never after service start.
-  const start = settings.data?.service_window_start ?? "12:00:00";
-  const deadline = [settings.data?.finalization_deadline ?? "10:00:00", start].sort()[0];
+  const start = settings?.service_window_start ?? "12:00:00";
+  const deadline = [settings?.finalization_deadline ?? "10:00:00", start].sort()[0];
 
   return (
     <div className="container stack">
       <h1>{t("finalize.title")}</h1>
-      <p className="muted">{t("finalize.help", { time: deadline.slice(0, 5) })}</p>
-      {settings.data && !settings.data.payment_enabled && <Alert kind="info">{t("finalize.paymentOff")}</Alert>}
+      <p className="muted">{t("finalize.help", { time: deadline.slice(0, 5), cutoff })}</p>
+      {settings && !settings.payment_enabled && <Alert kind="info">{t("finalize.paymentOff")}</Alert>}
       {menus.data && days.length === 0 && <p className="muted">{t("finalize.empty")}</p>}
       <div className="final-grid">
         {days.map((menu) => (
@@ -38,7 +39,7 @@ export default function FinalizePage() {
             menu={menu}
             deadline={deadline}
             serverTime={serverTime}
-            paymentEnabled={settings.data?.payment_enabled ?? false}
+            paymentEnabled={settings?.payment_enabled ?? false}
           />
         ))}
       </div>
@@ -190,6 +191,7 @@ function PriceEditor({ menu, editable }: { menu: StaffMenu; editable: boolean })
   const { t } = useTranslation();
   const toMessage = useErrorMessage();
   const queryClient = useQueryClient();
+  const { cutoff } = useCanteenSettings();
   const current = menu.is_paid && menu.price ? menu.price : "";
   const [price, setPrice] = useState(current);
   const [error, setError] = useState("");
@@ -228,7 +230,7 @@ function PriceEditor({ menu, editable }: { menu: StaffMenu; editable: boolean })
       </Button>
       {saved && <span className="final__ok">✓</span>}
       {error && <Alert>{error}</Alert>}
-      <span className="final__hint">{t("finalize.priceHelp")}</span>
+      <span className="final__hint">{t("finalize.priceHelp", { cutoff })}</span>
     </form>
   );
 }

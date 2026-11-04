@@ -118,8 +118,10 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
 2. ~~SQL Server check~~ — done 4 Nov 2026 (135 tests pass on SQL Server 2022 Express). Rules learnt: no `NOT` /
    `~Q` in a filtered unique constraint (test `test_sql_server_compat`), no `bulk_create(ignore_conflicts=True)`;
    token_blacklist uses `config/token_blacklist_migrations` (check it on SimpleJWT upgrades).
-3. Decide with management: balance of an employee who leaves; who may collect cash; backup person for
-   finalization; leftover plates. (Daily cash report done 4 Nov 2026: "Encaissements", FR-45, `reports/cash/`.)
+3. ~~Decisions~~ — answered 4 Nov 2026: employee who leaves → management pays the balance back in cash and
+   corrects it to zero; cash collected by scanner + management only; no finalization backup → the admin's
+   **Settings screen** (FR-46, `/admin/settings`, `apps/core/services.update_settings`) sets every deadline as
+   days + time, the buffer, reminders…; leftover plates still open. (Cash report: "Encaissements", FR-45.)
 4. Deploy on the company server (Docker, SQL Server, HTTPS, backups + restore test), load test (200 users), pilot.
 5. Then: no-show warning after 3 per month, management trend charts (FR-23), chef live count (FR-21), offline scans.
 

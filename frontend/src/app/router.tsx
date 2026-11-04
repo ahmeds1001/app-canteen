@@ -12,6 +12,7 @@ import {
   PendingPage,
   ResetPasswordPage,
 } from "@/pages/auth/SimpleAuthPages";
+import SettingsPage from "@/pages/admin/SettingsPage";
 import VerifyOtpPage from "@/pages/auth/VerifyOtpPage";
 import DishesPage from "@/pages/chef/DishesPage";
 import PlannerPage from "@/pages/chef/PlannerPage";
@@ -96,6 +97,10 @@ export const router = createBrowserRouter([
       {
         path: "hr/reports",
         element: <Protected roles={["hr"]}><AttendancePage /></Protected>,
+      },
+      {
+        path: "admin/settings",
+        element: <Protected roles={["admin"]}><SettingsPage /></Protected>,
       },
     ],
   },

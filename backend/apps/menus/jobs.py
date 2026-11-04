@@ -15,8 +15,9 @@ def publish_placeholders() -> int:
     cfg = CanteenSettings.load()
     now = clock.now()
     count = 0
-    # Every day whose deadline has passed (today and tomorrow with D-2; covers a missed run).
-    for delta in range(cfg.publish_deadline_days):
+    # Every day whose deadline may have passed: up to D-N itself, since the deadline time can be before
+    # midnight (covers a missed run too).
+    for delta in range(cfg.publish_deadline_days + 1):
         day = clock.today() + timedelta(days=delta)
         if not cfg.is_service_day(day) or now <= rules.publish_deadline(day, cfg):
             continue
@@ -37,9 +38,10 @@ def publish_placeholders() -> int:
 
 
 def lock_menus() -> int:
-    """At the cutoff on D-1, Published menus become Locked (menu, price frozen)."""
+    """At the reservation cutoff (D-1 by default), Published menus become Locked (menu, price frozen)."""
     count = 0
-    for menu in Menu.objects.filter(status=Menu.Status.PUBLISHED, date__lte=clock.today() + timedelta(days=1)):
+    horizon = clock.today() + timedelta(days=CanteenSettings.load().cutoff_days)
+    for menu in Menu.objects.filter(status=Menu.Status.PUBLISHED, date__lte=horizon):
         if clock.now() > rules.reservation_cutoff(menu.date):
             menu.status = Menu.Status.LOCKED
             menu.save(update_fields=["status", "updated_at"])

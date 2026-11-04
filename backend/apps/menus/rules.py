@@ -1,7 +1,7 @@
 """Time rules for a service day D, all in the company time zone.
 
-    publish deadline  = end of D-2   (FR-07, FR-38)
-    reservation cutoff = end of D-1  (FR-12)
+    publish deadline  = end of D-2 by default (FR-07, FR-38; days and time in Settings, FR-46)
+    reservation cutoff = end of D-1 by default (FR-12; days and time in Settings, FR-46)
     finalization       = until 10:00 on D by default, then automatic (Settings)
     service window     = 12:00-15:00 on D by default (Settings)
 """
@@ -23,12 +23,12 @@ def _at(day: date, t: time) -> datetime:
 
 def publish_deadline(day: date, cfg: CanteenSettings | None = None) -> datetime:
     cfg = cfg or CanteenSettings.load()
-    return _at(day - timedelta(days=cfg.publish_deadline_days), cfg.cutoff_time)
+    return _at(day - timedelta(days=cfg.publish_deadline_days), cfg.publish_deadline_time)
 
 
 def reservation_cutoff(day: date, cfg: CanteenSettings | None = None) -> datetime:
     cfg = cfg or CanteenSettings.load()
-    return _at(day - timedelta(days=1), cfg.cutoff_time)
+    return _at(day - timedelta(days=cfg.cutoff_days), cfg.cutoff_time)
 
 
 def service_start(day: date, cfg: CanteenSettings | None = None) -> datetime:

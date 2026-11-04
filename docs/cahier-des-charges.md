@@ -111,6 +111,7 @@ The requirements below cover the full flow from registration to reporting; M = m
 | **FR-40** | **Forgotten password, reset by HR or admin: for an employee who has no access to his email or prefers to ask, HR or admin clicks "Reset password" on the user's account. The system generates a temporary password, shown once on HR's screen to be given to the employee in person (never sent by email). At the next login the employee must choose a new password before doing anything else; the temporary password expires after 72 hours if unused. Every reset records who did it.** | M |
 | FR-03 | A new account is in status Pending: login is refused with the message "Your account is waiting for HR approval". | M |
 | **FR-41** | **Role assignment in the app [2026-10-25]: on the "Comptes" screen, the admin (and only the admin) changes a person's role with a dropdown (employee, HR, chef, scanner, management, admin). The admin cannot change their own role, and the last active admin cannot lose the role. Giving the admin role also opens the technical administration site (/admin); removing it closes it. Every change is recorded in the audit log (`role_change`).** | S |
+| **FR-46** | **Settings screen (decided 2026-11-04): the admin, and only the admin, changes the canteen parameters in the app ("Paramètres"), without the technical administration site: service days; **every deadline, each as a number of days before D and a time**: employees' reservation cutoff (default D-1 at 23:59:59; 0 days = the same morning), chef's publishing deadline (default D-2 at 23:59:59); finalization time on D (count locked and, if management did not confirm, automatic finalization); service start and end; reminder times (chef, management, employees); buffer (percentage or fixed number of plates — the same value is used for the suggestion and for automatic finalization); kitchen maximum; booking horizon; no-show warning threshold and grace date; payment on/off, default paid and default price. A change takes effect at once (next scheduler minute), for today and every later day; a step already passed (a day locked or finalized) is not undone. The screen refuses incoherent values; the order must stay publishing deadline < reservation cutoff < finalization ≤ service start < service end, the management reminder must come before finalization, the evening reminder before a cutoff that falls in the evening, and at least one service day must remain. The evening reminder targets the day whose reservations close next. Each changed value is recorded in the audit log with old and new value (`setting_change`, or `payment_config_change` for payment).** | M |
 | FR-04 | HR has a dashboard of pending accounts with approve and reject actions (reject requires a reason). **[2026-10-26] To approve, HR types the employee's number (matricule): required, unique across accounts. HR can correct it later on an approved account; each change is audited (`employee_number_change`). No bulk approval, since each account needs its own number.** | M |
 | FR-05 | On approval the employee receives an email saying the account is now active; on rejection, an email with the reason. | M |
 | FR-06 | HR can suspend, reactivate or deactivate an account (for example when someone leaves the company). | M |
@@ -393,12 +394,13 @@ Constraint: at most one active code (not consumed, not invalidated, not expired)
 
 Constraints: `UNIQUE (user_id, date)` for active reservations — a SQL Server filtered unique index `WHERE status <> 'Cancelled'` (declared in Django as a `UniqueConstraint` with a condition) **[v2]**. Marking Paid is a conditional update `WHERE payment_status = 'Unpaid'`, so a double tap cannot record two payments **[v3]**.
 
-**Setting** — edited by the admin, never hard-coded
+**Setting** — edited by the admin on the "Paramètres" screen (FR-46), never hard-coded
 
 | Key | Example | Notes |
 | --- | --- | --- |
 | service_weekdays | **0,1,2,3,4,5** | Days the canteen serves meals, 0 = Monday … 6 = Sunday. Decided (2026-10-24): **Monday to Saturday** (the company works Saturdays) |
-| cutoff_time | 23:59:59 |  |
+| cutoff_days / cutoff_time | **1 / 23:59:59** **[2026-11-04]** | Reservations for day D close at this time on D-N (0 = the same day) |
+| publish_deadline_days / publish_deadline_time | **2 / 23:59:59** **[2026-11-04]** | Chef publishes the menu of D before this time on D-N (FR-07, FR-38); must be before the reservation cutoff |
 | timezone | Africa/Tunis | Company time zone |
 | service_window_start / end | **12:00 / 15:00 [v3]** | Decided default |
 | finalization_deadline | **10:00** **[2026-10-26]** | Plate count locked, and auto-finalized if management did not confirm (FR-26/27); capped at the service start |
@@ -698,10 +700,13 @@ Decided on 23 oct. 2026:
 - [x] Stack → React + Django REST Framework + SQL Server.
 - [x] Default buffer → 10% of reservations, rounded up.
 
+- [x] **[2026-11-04] Employee who leaves → management hands back the remaining balance in cash and enters a correction (with the reason) that brings the balance to zero.**
+- [x] **[2026-11-04] Who may collect cash → only management and the scanner (top-ups).**
+
 Still to settle:
 
-- [ ] Who backs up management for finalization when the usual person is absent?
-- [ ] Leftover plates: release unclaimed plates at mid-service, or another strategy?
+- [x] **[2026-11-04] Backup for finalization → no named backup: if management does not confirm, the day is finalized automatically with the buffer. The admin sets the finalization time, the buffer and every other time on the Settings screen (FR-46).**
+- [ ] Leftover plates: release unclaimed plates at mid-service, or another strategy? **[2026-11-04] Not decided; revisit after the pilot.**
 - [ ] Optional: short check with HR/legal that keeping all data indefinitely fits Tunisian data-protection law.
 
 ## 10. Delivery strategy and rollout

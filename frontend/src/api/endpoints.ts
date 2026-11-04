@@ -1,6 +1,7 @@
 /** One function per backend endpoint, grouped by domain. Pages never call `api()` directly. */
 import { api, download } from "./client";
 import type {
+  AdminSettings,
   AuthTokens,
   BalanceTransaction,
   CashReport,
@@ -28,6 +29,9 @@ import type {
 export const settingsApi = {
   public: () => api<PublicSettings>("/settings/public/"),
   health: () => api<Health>("/health/"),
+  /** FR-46, admin only. */
+  get: () => api<AdminSettings>("/settings/"),
+  update: (changes: Partial<AdminSettings>) => api<AdminSettings>("/settings/", { method: "PATCH", json: changes }),
 };
 
 export const authApi = {

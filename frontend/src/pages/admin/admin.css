@@ -1,0 +1,32 @@
+/* Admin: Settings screen (FR-46). `.check` comes from chef.css. */
+.settings h2 { margin-block: 0 var(--space-3); }
+.settings__deadline {
+  display: grid; gap: var(--space-3); padding-block: var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+}
+.settings__deadline:last-of-type { border-block-end: 0; }
+/* Grid columns that shrink: a long <select> option never pushes its field over the next one. */
+.settings__row {
+  display: grid; align-items: end; gap: var(--space-3) var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+}
+.settings__row .field { grid-template-columns: minmax(0, 1fr); }
+.settings__row .field input, .settings__row .field select { inline-size: 100%; min-inline-size: 0; }
+.settings__hint { margin: var(--space-1) 0 0; font-size: var(--text-sm); }
+.settings__days { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
+.settings__example {
+  margin-block-start: var(--space-3); padding: var(--space-3) var(--space-4);
+  background: var(--color-surface); border-radius: var(--radius-sm); font-size: var(--text-sm);
+}
+.settings__example ul { margin: var(--space-2) 0 0; padding-inline-start: var(--space-4); }
+.settings__bar {
+  position: sticky; inset-block-end: 0; display: grid; gap: var(--space-2);
+  padding-block: var(--space-3); background: var(--color-bg); border-block-start: 1px solid var(--color-border);
+}
+.settings__bar .actions { display: flex; justify-content: end; gap: var(--space-2); }
+@media (max-width: 720px) {
+  .settings__bar { inset-block-end: 60px; } /* above the bottom tab bar */
+}
+@media (min-width: 720px) {
+  .settings__deadline { grid-template-columns: 220px 1fr; align-items: center; }
+}

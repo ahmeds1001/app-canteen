@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { dishApi, menuApi, settingsApi } from "@/api/endpoints";
+import { dishApi, menuApi } from "@/api/endpoints";
 import { DISH_CATEGORIES, type Dish, type MenuChoice, type StaffMenu } from "@/api/types";
 import { Alert, Badge, Button, Card, Dialog, Field, SelectField } from "@/components/ui";
+import { useCanteenSettings } from "@/hooks/useCanteenSettings";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { useServerTime } from "@/hooks/useServerTime";
 import { addDays, formatDay, formatShortDate, isoToday, startOfWeek, weekdayIndex } from "@/utils/dates";
@@ -45,14 +46,15 @@ export default function PlannerPage() {
   const [message, setMessage] = useState<{ kind: "error" | "success"; text: string } | null>(null);
 
   const weekEnd = addDays(weekStart, 6);
-  const settings = useQuery({ queryKey: ["settings"], queryFn: settingsApi.public, staleTime: Infinity });
+  const { settings, clock } = useCanteenSettings();
+  const deadlineTime = clock(settings?.publish_deadline_time ?? "23:59:59");
   const menus = useQuery({
     queryKey: ["menus", "staff", weekStart],
     queryFn: () => menuApi.staffList(weekStart, weekEnd),
   });
 
-  const serviceDays = settings.data?.service_weekdays.split(",").map((d) => Number(d.trim())) ?? [0, 1, 2, 3, 4, 5];
-  const deadlineDays = settings.data?.publish_deadline_days ?? 2;
+  const serviceDays = settings?.service_weekdays.split(",").map((d) => Number(d.trim())) ?? [0, 1, 2, 3, 4, 5];
+  const deadlineDays = settings?.publish_deadline_days ?? 2;
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).filter((d) =>
     serviceDays.includes(weekdayIndex(d)),
   );
@@ -96,7 +98,7 @@ export default function PlannerPage() {
           </Button>
         </div>
       </div>
-      <p className="muted">{t("planner.help", { days: deadlineDays })}</p>
+      <p className="muted">{t("planner.help", { days: deadlineDays, time: deadlineTime })}</p>
       {message && <Alert kind={message.kind}>{message.text}</Alert>}
       {publishable.length > 0 && (
         <div>
@@ -147,7 +149,7 @@ export default function PlannerPage() {
               )}
               {!past && (!status || status === "draft") && (
                 <p className="plan-day__hint">
-                  {t("planner.publishBefore", { date: formatShortDate(deadline, i18n.language) })}
+                  {t("planner.publishBefore", { date: formatShortDate(deadline, i18n.language), time: deadlineTime })}
                 </p>
               )}
               {menu && status !== "draft" && status !== "closed" && (

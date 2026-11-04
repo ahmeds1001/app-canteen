@@ -4,7 +4,8 @@
   "nav": {
     "home": "Menus", "reservations": "My reservations", "dishes": "Dishes", "planner": "Planner",
     "finalize": "Finalization", "reports": "Reports", "accounts": "Accounts", "scan": "Scan",
-    "balance": "My balance", "dayList": "Day list", "cashier": "Cashier", "cash": "Cash received"
+    "balance": "My balance", "dayList": "Day list", "cashier": "Cashier", "cash": "Cash received",
+    "settings": "Settings"
   },
   "auth": {
     "login": "Log in", "register": "Create an account", "email": "Work email",
@@ -29,7 +30,7 @@
   "menus": {
     "title": "This week's menus", "reserve": "Reserve", "cancel": "Cancel", "reserved": "Reserved",
     "closed": "Reservations closed", "toBeAnnounced": "Menu to be announced",
-    "deadline": "Reserve before {{time}} the day before", "price": "Price: {{price}} TND", "free": "Free",
+    "deadline": "Reservations until {{date}}", "price": "Price: {{price}} TND", "free": "Free",
     "empty": "No menu published yet.",
     "dayClosed": "Closed", "dayClosedHelp": "The canteen is closed that day.",
     "menuN": "Menu {{n}}", "yourChoice": "Your choice", "reserveN": "Reserve menu {{n}}",
@@ -41,7 +42,7 @@
   "balance": {
     "title": "My balance", "current": "Available balance", "short": "Balance: {{amount}} TND",
     "how": "How to top up?",
-    "howHelp": "To top up your balance, give the money to the canteen staff: they record it straight away. Each meal is paid from your balance when you reserve it, and paid back if you cancel before midnight the day before.",
+    "howHelp": "To top up your balance, give the money to the canteen staff: they record it straight away. Each meal is paid from your balance when you reserve it, and paid back if you cancel before {{cutoff}}.",
     "history": "History", "empty": "No movement yet.", "after": "balance: {{amount}} TND",
     "kind": { "topup": "Top-up", "meal": "Meal", "refund": "Refund", "correction": "Correction" }
   },
@@ -130,6 +131,44 @@
     "notServedYet": "Not served yet",
     "absentAfter": "Reservations not served yet only become \"No-show\" at the end of service ({{time}}), once the day is over."
   },
+  "deadline": {
+    "midnight": "midnight", "sameDay": "{{time}} the same day", "dayBefore": "{{time}} the day before",
+    "daysBefore": "{{time}}, {{days}} days before"
+  },
+  "settings": {
+    "title": "Canteen settings",
+    "help": "Changes apply at once (within a minute), for today and the following days. A step already passed (a day closed or finalized) is not undone. Every change is recorded in the audit log.",
+    "deadlines": "Times and deadlines",
+    "cutoff": "Employee reservations", "cutoffHint": "When reservations for day D close. 0 days = the same morning.",
+    "publish": "Menu publishing (chef)", "publishHint": "Otherwise the day opens as \"Menu to be announced\". Must come before reservations close.",
+    "finalization": "Finalization (management)", "finalizationHint": "Plate count locked; without confirmation, automatic finalization with the buffer.",
+    "service": "Service",
+    "daysBefore": "Days before", "time": "Time", "sameDay": "Same day at", "from": "From", "to": "To",
+    "example": {
+      "title": "Example: meal of {{day}}", "at": "{{day}} at {{time}}", "service": "from {{start}} to {{end}}",
+      "publish": "Menu published before", "cutoff": "Reservations until", "finalize": "Finalization at",
+      "serviceLabel": "Service"
+    },
+    "days": "Service days",
+    "weekday": { "0": "Monday", "1": "Tuesday", "2": "Wednesday", "3": "Thursday", "4": "Friday", "5": "Saturday", "6": "Sunday" },
+    "reminders": "Reminders",
+    "reminderChef": "Chef: menus to publish", "reminderManagement": "Management: finalize",
+    "reminderEmployees": "Employees: remember to reserve",
+    "remindersHint": "The management reminder must come before finalization; the employee reminder goes out the evening before reservations close.",
+    "plates": "Plates",
+    "bufferMode": "Buffer", "bufferPercentage": "Percentage", "bufferFixed": "Number of plates",
+    "bufferPercent": "Buffer (%)", "bufferPlates": "Buffer (plates)", "kitchenMax": "Kitchen maximum",
+    "noLimit": "No limit",
+    "bufferHint": "The same buffer is used for the proposal shown to management and for automatic finalization (rounded up).",
+    "payment": "Payment",
+    "paymentEnabled": "Paid meals enabled", "paidDefault": "New days paid by default",
+    "priceDefault": "Default price ({{currency}})",
+    "other": "Other",
+    "horizon": "Reservations open up to (days ahead)", "noShowThreshold": "Warning after (no-shows / month)",
+    "noShowGrace": "No warnings before",
+    "save_one": "Save (1 change)", "save_other": "Save ({{count}} changes)",
+    "saved": "Settings saved. They apply from now on."
+  },
   "common": {
     "save": "Save", "cancel": "Cancel", "close": "Close", "edit": "Edit", "search": "Search", "done": "Done", "confirm": "Confirm", "confirmTitle": "Please confirm"
   },
@@ -146,14 +185,14 @@
   },
   "planner": {
     "title": "Menu planner", "prevWeek": "Previous", "nextWeek": "Next", "weekOf": "Week of {{date}}",
-    "help": "A day's menu must be published at least {{days}} days ahead. Otherwise the day opens as \"Menu to be announced\".",
+    "help": "A day's menu must be published at least {{days}} days ahead, by {{time}}. Otherwise the day opens as \"Menu to be announced\".",
     "weekPublished": "Menus published: {{count}}.", "publishWeek": "Publish the week ({{count}})",
     "status": {
       "none": "No menu", "draft": "Draft", "published": "Published", "locked": "Reservations closed",
       "finalized": "Finalized", "closed": "Closed"
     },
     "placeholder": "Menu to be announced (published automatically)", "noDishes": "No dishes chosen.",
-    "closedReason": "Reason: {{reason}}", "publishBefore": "Publish before midnight on {{date}}",
+    "closedReason": "Reason: {{reason}}", "publishBefore": "Publish before {{time}} on {{date}}",
     "reservedCount": "Reservations: {{count}}", "editDishes": "Edit dishes", "compose": "Compose menu",
     "duplicate": "Duplicate", "publish": "Publish", "closeDay": "Close day",
     "duplicateSkipped": "Menu duplicated. {{count}} archived dish(es) skipped.",
@@ -168,7 +207,7 @@
   },
   "finalize": {
     "title": "Meal finalization",
-    "help": "After reservations close (midnight the day before), confirm how many plates to prepare. Without confirmation, the system finalizes automatically at {{time}}.",
+    "help": "After reservations close ({{cutoff}}), confirm how many plates to prepare. Without confirmation, the system finalizes automatically at {{time}}.",
     "empty": "No published day in the next 7 days.",
     "status": { "draft": "Draft", "published": "Reservations open", "locked": "To finalize", "finalized": "Finalized", "closed": "Closed" },
     "reserved": "reservations", "plates": "plates to prepare",
@@ -180,7 +219,7 @@
     "splitReserved": "{{count}} reservation(s)", "splitPlates": "{{count}} plate(s)",
     "paymentOff": "Payment is turned off in the settings: every meal is free.",
     "price": "Day price (TND, both menus)", "priceFreePlaceholder": "Empty = free",
-    "priceHelp": "Can change until midnight the day before. A new price only applies to reservations made after it.",
+    "priceHelp": "Can change until {{cutoff}}. A new price only applies to reservations made after it.",
     "priceIs": "Day price: {{price}} TND.", "priceFree": "Free meal that day."
   },
   "accounts": {
@@ -244,6 +283,15 @@
   "soon": { "title": "Screen to build", "help": "This screen is planned in the specification ({{refs}}). It will be built in an upcoming sprint." },
   "errors": {
     "generic": "Something went wrong. Please try again.",
+    "settings_no_service_day": "Keep at least one service day.",
+    "settings_publish_after_cutoff": "The menu must be published before reservations close.",
+    "settings_cutoff_after_finalization": "Reservations must close before the finalization time.",
+    "settings_finalization_after_service": "Finalization must happen at the latest when service starts.",
+    "settings_service_end_before_start": "Service must end after it starts.",
+    "settings_reminder_after_finalization": "The management reminder must come before the finalization time.",
+    "settings_reminder_after_cutoff": "The employee reminder must come before reservations close.",
+    "settings_buffer_too_high": "The buffer cannot exceed 100%.",
+    "settings_unknown_field": "This setting cannot be changed here.",
     "invalid_credentials": "Incorrect email or password.",
     "email_not_verified": "Your email is not verified yet.",
     "pending_hr": "Your account is waiting for HR approval.",

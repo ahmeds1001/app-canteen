@@ -16,6 +16,11 @@
 /* Planner */
 .week-nav { display: flex; align-items: center; gap: var(--space-2); }
 .week-nav__label { font-family: var(--font-heading); font-weight: 600; min-inline-size: 12ch; text-align: center; }
+@media (max-width: 480px) {
+  .week-nav { inline-size: 100%; justify-content: space-between; }
+  .week-nav__label { min-inline-size: 0; font-size: var(--text-sm); }
+  .week-nav .btn { padding-inline: var(--space-2); }
+}
 .plan-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .plan-day { display: flex; flex-direction: column; gap: var(--space-3); }
 .plan-day--closed { opacity: 0.75; }

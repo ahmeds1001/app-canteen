@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { walletApi } from "@/api/endpoints";
 import type { BalanceTransaction } from "@/api/types";
 import { Alert, Card } from "@/components/ui";
+import { useCanteenSettings } from "@/hooks/useCanteenSettings";
 import { formatCompanyDateTime, formatShortDate } from "@/utils/dates";
 import "./employee.css";
 
@@ -10,6 +11,7 @@ import "./employee.css";
 export default function BalancePage() {
   const { t } = useTranslation();
   const { data } = useQuery({ queryKey: ["wallet", "me"], queryFn: walletApi.me });
+  const { cutoff } = useCanteenSettings();
 
   return (
     <div className="container stack">
@@ -18,7 +20,7 @@ export default function BalancePage() {
         <span className="muted">{t("balance.current")}</span>
         <span className="balance-card__amount">{data ? `${data.balance} TND` : "…"}</span>
       </Card>
-      <Alert kind="info">{t("balance.howHelp")}</Alert>
+      <Alert kind="info">{t("balance.howHelp", { cutoff })}</Alert>
       <h2>{t("balance.history")}</h2>
       {data && <Ledger transactions={data.transactions} />}
     </div>

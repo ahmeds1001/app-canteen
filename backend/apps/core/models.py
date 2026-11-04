@@ -29,6 +29,9 @@ class CanteenSettings(models.Model):
         max_length=20, default="0,1,2,3,4,5",
         help_text="Days the canteen opens (0=Monday … 6=Sunday). Decided: Monday to Saturday.",
     )
+    cutoff_days = models.PositiveSmallIntegerField(
+        default=1, help_text="Reservations for day D close at cutoff_time on D-N (0 = the same day)."
+    )
     cutoff_time = models.TimeField(default=time(23, 59, 59))
     service_window_start = models.TimeField(default=time(12, 0))
     finalization_deadline = models.TimeField(
@@ -39,10 +42,13 @@ class CanteenSettings(models.Model):
     # Notification times (spec §8), company time zone.
     menu_missing_reminder_time = models.TimeField(default=time(8, 0), help_text="Chef: menus still to publish.")
     finalization_reminder_time = models.TimeField(default=time(8, 0), help_text="Management: confirm today's plates.")
-    evening_reminder_time = models.TimeField(default=time(20, 0), help_text="Employees not reserved for tomorrow.")
-    publish_deadline_days = models.PositiveSmallIntegerField(
-        default=2, help_text="Menu for day D must be published before the end of D-N."
+    evening_reminder_time = models.TimeField(
+        default=time(20, 0), help_text="Employees not reserved yet, the evening before reservations close."
     )
+    publish_deadline_days = models.PositiveSmallIntegerField(
+        default=2, help_text="Menu for day D must be published before publish_deadline_time on D-N."
+    )
+    publish_deadline_time = models.TimeField(default=time(23, 59, 59))
     booking_horizon_days = models.PositiveSmallIntegerField(
         null=True, blank=True, help_text="Empty = no limit (decided)."
     )

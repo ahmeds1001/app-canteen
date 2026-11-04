@@ -31,7 +31,9 @@
   padding: var(--space-6);
 }
 
-.field { display: grid; gap: var(--space-1); }
+/* minmax(0, 1fr): a control (file picker, long <select>) can never be wider than its field. */
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+.field input[type="file"] { inline-size: 100%; }
 .field label { font-weight: 600; font-size: var(--text-sm); }
 .field input,
 .field select {
@@ -60,7 +62,7 @@
 .password-rules ul { margin: var(--space-1) 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
 .password-rules li > span { display: inline-block; inline-size: 1.2em; }
 .password-rules__met { color: var(--color-success); }
-.field input.otp { letter-spacing: 0.5em; font-size: var(--text-xl); text-align: center; font-family: var(--font-heading); }
+.field input.otp { letter-spacing: 0.5em; font-size: var(--text-xl); text-align: center; font-family: var(--font-heading); inline-size: 100%; min-inline-size: 0; }
 
 .alert { border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); }
 .alert--error { background: var(--color-danger-bg); color: var(--color-danger); }

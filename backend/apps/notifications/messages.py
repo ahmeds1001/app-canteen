@@ -84,16 +84,18 @@ TEXTS: dict[str, dict[str, tuple[str, str]]] = {
         "en": ("Menus to publish", "No menu published yet for: {dates}."),
     },
     K.RESERVATION_REMINDER: {
-        "fr": ("Réservez pour demain",
-               "Vous n'avez pas réservé pour demain ({date}) : {dishes}. Réservez avant minuit."),
-        "en": ("Reserve for tomorrow",
-               "You have not reserved for tomorrow ({date}): {dishes}. Reserve before midnight."),
+        "fr": ("Pensez à réserver",
+               "Vous n'avez pas encore réservé pour {date} : {dishes}. Réservez avant {until}."),
+        "en": ("Remember to reserve",
+               "You have not reserved yet for {date}: {dishes}. Reserve before {until}."),
     },
 }
 
 _WORDS = {
-    "fr": {"free": "gratuit", "paid": "payant ({price} TND)", "tba": "menu à venir", "menu": "menu"},
-    "en": {"free": "free", "paid": "paid ({price} TND)", "tba": "menu to be announced", "menu": "menu"},
+    "fr": {"free": "gratuit", "paid": "payant ({price} TND)", "tba": "menu à venir", "menu": "menu",
+           "midnight": "minuit la veille", "at": "{day} à {time}"},
+    "en": {"free": "free", "paid": "paid ({price} TND)", "tba": "menu to be announced", "menu": "menu",
+           "midnight": "midnight the day before", "at": "{day} at {time}"},
 }
 
 
@@ -117,6 +119,11 @@ def render(kind: str, params: dict, lang: str) -> tuple[str, str]:
         p["dates"] = ", ".join(format_day(d, lang) for d in p["dates"])
     if "dishes" in p:
         p["dishes"] = " · ".join(p["dishes"]) or words["tba"]
+    if kind == K.RESERVATION_REMINDER:
+        # "until" = cutoff as "YYYY-MM-DDTHH:MM" (company time); reminders stored before 2026-11-04 have none.
+        until = p.get("until")
+        p["until"] = (words["at"].format(day=format_day(until[:10], lang), time=until[11:16])
+                      if until else words["midnight"])
     if kind == K.DAY_FINALIZED:
         by_choice = p.get("by_choice") or {}
         p["split"] = (

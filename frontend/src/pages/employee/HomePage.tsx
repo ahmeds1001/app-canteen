@@ -7,7 +7,7 @@ import type { Menu, MenuChoice, MenuItem, Reservation } from "@/api/types";
 import { Alert, Badge, Button, Card } from "@/components/ui";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { useServerTime } from "@/hooks/useServerTime";
-import { formatDay, isoToday } from "@/utils/dates";
+import { formatCompanyDateTime, formatDay, isoToday } from "@/utils/dates";
 import "./employee.css";
 
 /** FR-11 to FR-13: published days, pick menu 1 or 2, reserve or cancel in one tap.
@@ -151,6 +151,11 @@ function DayCard({ menu, reservation, balance, locale, busy, onReserve, onCancel
       {/* A placeholder day ("menu to be announced") can still be reserved: it is menu 1. */}
       {menu.items.length === 0 && open && !reservation && (
         <Button block disabled={busy || cannotPay} onClick={() => onReserve(1)}>{t("menus.reserve")}</Button>
+      )}
+      {open && (
+        <p className="day__hint">
+          {t("menus.deadline", { date: formatCompanyDateTime(menu.reservation_cutoff, locale) })}
+        </p>
       )}
       {open && cannotPay && (
         <p className="day__hint">

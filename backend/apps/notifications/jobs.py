@@ -56,22 +56,26 @@ def menu_missing_reminder() -> int:
 
 
 def evening_reservation_reminder() -> int:
-    """Employees with no reservation for tomorrow, at `evening_reminder_time`, while tomorrow is still open."""
+    """Employees with no reservation yet, at `evening_reminder_time`, for the day whose reservations close
+    next: with the cutoff on D-N (N >= 1) that is today + N (it closes tonight), with a same-day cutoff it is
+    tomorrow (it closes tomorrow morning)."""
     from apps.reservations.models import Reservation
 
     cfg = CanteenSettings.load()
     if not _due(cfg.evening_reminder_time):
         return 0
-    tomorrow = clock.today() + timedelta(days=1)
-    menu = Menu.objects.filter(date=tomorrow, status=Menu.Status.PUBLISHED).first()
-    if menu is None or clock.now() > rules.reservation_cutoff(tomorrow, cfg):
+    day = clock.today() + timedelta(days=max(cfg.cutoff_days, 1))
+    menu = Menu.objects.filter(date=day, status=Menu.Status.PUBLISHED).first()
+    cutoff = rules.reservation_cutoff(day, cfg)
+    if menu is None or clock.now() > cutoff:
         return 0
-    reserved = Reservation.objects.active().filter(date=tomorrow).values("user_id")
+    reserved = Reservation.objects.active().filter(date=day).values("user_id")
     users = active_users(*EATING_ROLES).filter(evening_reminder=True).exclude(pk__in=reserved)
     return services.notify(
         users, Kind.RESERVATION_REMINDER,
-        params={"date": tomorrow.isoformat(), "dishes": list(menu.items.values_list("name", flat=True))},
-        link="/", dedupe_key=tomorrow.isoformat(),
+        params={"date": day.isoformat(), "dishes": list(menu.items.values_list("name", flat=True)),
+                "until": cutoff.strftime("%Y-%m-%dT%H:%M")},  # already in the company time zone
+        link="/", dedupe_key=day.isoformat(),
     )
 
 

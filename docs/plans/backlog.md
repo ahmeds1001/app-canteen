@@ -58,7 +58,11 @@ item into a plan file in this folder, then the **executor** to build it.
 - [ ] Remaining report screens: daily/monthly trends with charts, buffer vs leftovers per menu (FR-21, FR-23),
   chef's live served count.
 - [ ] No-show warning email after 3 per calendar month, only after the grace month (business rule "No-show consequences").
-- [ ] Admin: settings screen is the Django admin for now; check every setting is editable and audited (`setting_change`).
+- [x] **Settings screen** (FR-46, 2026-11-04): "Paramètres" for the admin only — every deadline as days + time
+  (reservation cutoff, chef publishing), finalization, service hours, reminders, service days, buffer (same value
+  for the proposal and auto-finalization), kitchen max, payment, horizon, no-shows. Applies at once; incoherent
+  orders refused; each changed value audited. Django admin page is now read-only. Screens no longer say "midnight"
+  but follow the settings; the evening reminder targets the day that closes next.
 
 ## Before the pilot
 
@@ -75,5 +79,6 @@ item into a plan file in this folder, then the **executor** to build it.
 
 ## Open questions (see also open-questions.md)
 
-- Backup person for finalization; strategy for leftover plates (after the pilot).
+- Strategy for leftover plates (after the pilot). Decided 2026-11-04: no backup person for finalization
+  (auto-finalization), employee who leaves = cash back + correction to zero, cash collected by scanner/management only.
 - SVG logo and square app icon from the communication team.

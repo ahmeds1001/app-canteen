@@ -6,7 +6,10 @@ from .models import AuditLog, CanteenSettings
 @admin.register(CanteenSettings)
 class CanteenSettingsAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
-        return not CanteenSettings.objects.exists()
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False  # read-only here: changes go through the app's Settings screen (checked, audited — FR-46)
 
     def has_delete_permission(self, request, obj=None):
         return False

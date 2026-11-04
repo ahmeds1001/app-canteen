@@ -65,6 +65,8 @@ export interface Health {
 }
 
 export interface PublicSettings {
+  /** Reservations for day D close at `cutoff_time` on D - cutoff_days (0 = the same day). */
+  cutoff_days: number;
   cutoff_time: string;
   service_window_start: string;
   service_window_end: string;
@@ -72,10 +74,37 @@ export interface PublicSettings {
   finalization_deadline: string;
   service_weekdays: string;
   publish_deadline_days: number;
+  publish_deadline_time: string;
   payment_enabled: boolean;
   currency: string;
   default_language: string;
   enabled_languages: string;
+}
+
+/** Every parameter the admin edits on the Settings screen (FR-46). Times are "HH:MM:SS". */
+export interface AdminSettings {
+  service_weekdays: string;
+  cutoff_days: number;
+  cutoff_time: string;
+  publish_deadline_days: number;
+  publish_deadline_time: string;
+  finalization_deadline: string;
+  service_window_start: string;
+  service_window_end: string;
+  menu_missing_reminder_time: string;
+  finalization_reminder_time: string;
+  evening_reminder_time: string;
+  buffer_mode: "percentage" | "fixed";
+  buffer_value: number;
+  kitchen_max_plates: number | null;
+  booking_horizon_days: number | null;
+  no_show_warning_threshold: number;
+  no_show_grace_until: string | null;
+  payment_enabled: boolean;
+  meal_paid_default: boolean;
+  meal_price_default: string;
+  currency: string;
+  updated_at: string;
 }
 
 export type MenuStatus = "draft" | "published" | "locked" | "finalized" | "closed";
