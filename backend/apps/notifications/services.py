@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 
 from apps.core import clock
@@ -35,9 +36,23 @@ def notify(users: Iterable, kind: str, *, params: dict, link: str = "", dedupe_k
         for u in users
         if u.pk not in already
     ]
-    # ignore_conflicts: a concurrent call that created the same row first wins (unique constraint).
-    Notification.objects.bulk_create(rows, ignore_conflicts=True)
-    return len(rows)
+    # A concurrent call may create the same row first (unique constraint): it wins. Not
+    # bulk_create(ignore_conflicts=True), which SQL Server does not support: one insert in a savepoint,
+    # then row by row only if that collides.
+    try:
+        with transaction.atomic():
+            Notification.objects.bulk_create(rows)
+        return len(rows)
+    except IntegrityError:
+        created = 0
+        for row in rows:
+            try:
+                with transaction.atomic():
+                    row.save(force_insert=True)
+                created += 1
+            except IntegrityError:
+                pass
+        return created
 
 
 def resolve(kind: str, *, dedupe_key: str, users: Iterable | None = None) -> int:

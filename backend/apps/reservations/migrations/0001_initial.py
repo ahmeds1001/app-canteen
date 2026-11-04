@@ -125,7 +125,9 @@ class Migration(migrations.Migration):
                 "ordering": ["-date"],
                 "constraints": [
                     models.UniqueConstraint(
-                        condition=models.Q(("status", "cancelled"), _negated=True),
+                        # Was ~Q(status="cancelled"), which SQL Server refuses in a filtered index (2026-11-04);
+                        # same rows, so databases that ran the old version need no change.
+                        condition=models.Q(("status__in", ["reserved", "served", "no_show"])),
                         fields=("user", "date"),
                         name="one_active_reservation_per_user_per_day",
                     )

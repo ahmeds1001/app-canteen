@@ -106,6 +106,19 @@ class TriggerTests(TestCase):
         self.assertIn(K.PLACEHOLDER_EMPTY_AT_CUTOFF, kinds_for(self.manager))
 
 
+class NotifyOnceTests(TestCase):
+    def test_a_concurrent_duplicate_is_skipped_and_the_others_are_created(self):
+        from apps.notifications import services as notification_services
+
+        amel, bilel = f.user(), f.user()
+        notification_services.notify([amel], K.BALANCE_TOPUP, params={}, dedupe_key="topup:1")
+        # Another request created Amel's row between our check and our insert: the check sees nothing.
+        with mock.patch.object(Notification.objects, "filter", return_value=Notification.objects.none()):
+            created = notification_services.notify([amel, bilel], K.BALANCE_TOPUP, params={}, dedupe_key="topup:1")
+        self.assertEqual(created, 1)
+        self.assertEqual(Notification.objects.filter(dedupe_key="topup:1").count(), 2)
+
+
 class DailyJobTests(TestCase):
     def setUp(self):
         self.chef = f.user(role="chef")

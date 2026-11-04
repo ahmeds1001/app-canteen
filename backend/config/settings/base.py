@@ -112,6 +112,12 @@ else:
 
 AUTH_USER_MODEL = "accounts.User"
 
+# SimpleJWT's token_blacklist migrations widen `token_id` while it is unique, which SQL Server refuses (mssql-django
+# cannot drop the constraint first). One migration creating the final tables replaces them; its name matches the
+# library's first one, so databases that ran the library's migrations already count it as applied. When upgrading
+# djangorestframework-simplejwt, check its token_blacklist models did not change (makemigrations --check).
+MIGRATION_MODULES = {"token_blacklist": "config.token_blacklist_migrations"}
+
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.Argon2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",

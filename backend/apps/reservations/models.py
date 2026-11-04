@@ -62,10 +62,12 @@ class Reservation(TimeStampedModel):
     class Meta:
         ordering = ["-date"]
         constraints = [
-            # One active plate per employee per day (filtered unique index on SQL Server).
+            # One active plate per employee per day (filtered unique index on SQL Server). Written as "status IN
+            # (every status but cancelled)": SQL Server refuses NOT (...) in a filtered index. A new status
+            # must be added here when it counts as an active plate.
             models.UniqueConstraint(
                 fields=["user", "date"],
-                condition=~Q(status="cancelled"),
+                condition=Q(status__in=["reserved", "served", "no_show"]),
                 name="one_active_reservation_per_user_per_day",
             )
         ]

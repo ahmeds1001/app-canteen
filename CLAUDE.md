@@ -66,6 +66,7 @@ python manage.py createsuperuser
 python manage.py runserver                            # http://localhost:8000/admin, API under /api/v1/
 python manage.py run_scheduler                        # scheduled jobs (separate terminal)
 python manage.py test --settings=config.settings.test # fast tests on SQLite in memory
+DB_ENGINE=mssql python manage.py test --settings=config.settings.test_mssql  # same tests on SQL Server (slower)
 ruff check .
 
 # Frontend (from frontend/)
@@ -114,7 +115,9 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
    (tests use `captureOnCommitCallbacks(execute=True)` to see `mail.outbox`); SQLite `timeout: 20`; no delete in
    the Django admin for app data; refresh-token blacklist (`accounts.services.end_sessions`, rule
    `active_account_rule`), and the frontend shares one refresh call (`api/client.ts`) since a refresh token works once.
-2. Run the test suite and a manual pass on **SQL Server** (filtered unique constraints, JSON fields, decimals).
+2. ~~SQL Server check~~ — done 4 Nov 2026 (135 tests pass on SQL Server 2022 Express). Rules learnt: no `NOT` /
+   `~Q` in a filtered unique constraint (test `test_sql_server_compat`), no `bulk_create(ignore_conflicts=True)`;
+   token_blacklist uses `config/token_blacklist_migrations` (check it on SimpleJWT upgrades).
 3. Decide with management: balance of an employee who leaves; who may collect cash; backup person for
    finalization; leftover plates. (Daily cash report done 4 Nov 2026: "Encaissements", FR-45, `reports/cash/`.)
 4. Deploy on the company server (Docker, SQL Server, HTTPS, backups + restore test), load test (200 users), pilot.
@@ -135,6 +138,10 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
   `git push` writes to stderr, so PowerShell may report exit 255 even when the push succeeded.
 - PowerShell piping into `manage.py shell` adds a BOM: use `manage.py shell -c "..."` from Git Bash instead.
 - Local DB is SQLite (`DB_ENGINE=sqlite` in `.env`, file `backend/db.sqlite3`). Data is never deleted, even here.
+- SQL Server 2022 Express is installed here too: instance `localhost\SQLEXPRESS`, Windows sign-in only (no SQL
+  password), database `canteen` with the demo week of 9 Nov. From Git Bash: `export DB_ENGINE=mssql DB_USER=
+  DB_PASSWORD= DB_PORT= 'DB_HOST=localhost\SQLEXPRESS'` before `manage.py` (empty DB_USER = Windows sign-in);
+  launch config `backend-sqlserver` runs the API on it. `.env` stays on SQLite. ODBC Driver 18 installed 4 Nov.
 - The user's own servers usually run in cmd windows; if they freeze, clicking in a cmd window pauses it (Windows
   QuickEdit) — press Esc.
 
