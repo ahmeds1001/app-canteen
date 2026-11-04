@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { notificationApi } from "@/api/endpoints";
 import type { AppNotification } from "@/api/types";
 import { Alert, Badge, Button, Card } from "@/components/ui";
+import { useCanteenSettings } from "@/hooks/useCanteenSettings";
 import { usePush } from "@/hooks/usePush";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { formatCompanyDateTime } from "@/utils/dates";
@@ -18,6 +19,7 @@ export default function NotificationsPage() {
   const queryClient = useQueryClient();
   const [error, setError] = useState("");
   const { data } = useQuery({ queryKey: ["notifications"], queryFn: notificationApi.list, refetchInterval: 60_000 });
+  const { settings, clock, cutoff } = useCanteenSettings();
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["notifications"] });
   const readOne = useMutation({ mutationFn: notificationApi.read, onSuccess: refresh });
@@ -57,7 +59,10 @@ export default function NotificationsPage() {
             />
             <span>
               <strong>{t("notifications.eveningTitle")}</strong>
-              <span className="muted">{t("notifications.eveningHelp")}</span>
+              <span className="muted">{t("notifications.eveningHelp", {
+                time: clock(settings?.evening_reminder_time ?? "20:00:00"),
+                cutoff,
+              })}</span>
             </span>
           </label>
         )}

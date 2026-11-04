@@ -279,7 +279,7 @@
       "disabled_on_server": "Pas encore configurées sur le serveur. Les notifications restent visibles dans l'application."
     },
     "eveningTitle": "Rappel du soir",
-    "eveningHelp": "À 20 h, si vous n'avez pas réservé pour le lendemain."
+    "eveningHelp": "À {{time}}, si vous n'avez pas encore réservé (réservations jusqu'à {{cutoff}})."
   },
   "soon": { "title": "Écran à construire", "help": "Cet écran est prévu dans le cahier des charges ({{refs}}). Il sera développé dans un prochain sprint." },
   "errors": {

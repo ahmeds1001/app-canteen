@@ -278,7 +278,7 @@
       "disabled_on_server": "Not set up on the server yet. Notifications are still shown in the app."
     },
     "eveningTitle": "Evening reminder",
-    "eveningHelp": "At 8 pm, if you have not reserved for the next day."
+    "eveningHelp": "At {{time}}, if you have not reserved yet (reservations close at {{cutoff}})."
   },
   "soon": { "title": "Screen to build", "help": "This screen is planned in the specification ({{refs}}). It will be built in an upcoming sprint." },
   "errors": {

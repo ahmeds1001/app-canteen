@@ -18,6 +18,7 @@ class PublicSettingsSerializer(serializers.ModelSerializer):
             "service_weekdays",
             "publish_deadline_days",
             "publish_deadline_time",
+            "evening_reminder_time",
             "payment_enabled",
             "currency",
             "default_language",

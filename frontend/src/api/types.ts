@@ -75,6 +75,8 @@ export interface PublicSettings {
   service_weekdays: string;
   publish_deadline_days: number;
   publish_deadline_time: string;
+  /** "Remember to reserve" reminder (spec §8), the evening before reservations close. */
+  evening_reminder_time: string;
   payment_enabled: boolean;
   currency: string;
   default_language: string;
