@@ -110,7 +110,7 @@
   },
   "attendance": {
     "title": "Présence par employé",
-    "help": "Pour chaque employé et pour le mois : repas réservés, servis, absences, annulations. « Pas encore servis » = réservations des jours à venir, ou d'aujourd'hui avant la fin du service : elles ne deviennent une absence que si la journée se termine sans scan. Cliquez sur un employé pour voir ses jours.",
+    "help": "Pour chaque employé et pour le mois : Réservés = Servis + Absences + Pas encore servis ; les annulations sont comptées à part. « Pas encore servis » = réservations des jours à venir, ou d'aujourd'hui avant la fin du service : elles ne deviennent une absence que si la journée se termine sans scan. Le taux d'absence ne compte que les journées terminées. Cliquez sur un employé pour voir ses jours.",
     "month": "Mois", "prevMonth": "Mois précédent", "nextMonth": "Mois suivant", "thisMonth": "Ce mois-ci",
     "employee": "Employé", "reserved": "Réservés", "served": "Servis", "noShow": "Absences", "pending": "Pas encore servis",
     "cancelled": "Annulés", "rate": "Taux d'absence", "spent": "Dépensé (TND)", "menus": "Menu 1 / 2",

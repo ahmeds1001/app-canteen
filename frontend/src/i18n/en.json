@@ -110,7 +110,7 @@
   },
   "attendance": {
     "title": "Attendance per employee",
-    "help": "For each employee and for the month: meals reserved, served, no-shows, cancellations. \"Not served yet\" = reservations for coming days, or for today before service ends: they only become a no-show if the day ends without a scan. Click an employee to see their days.",
+    "help": "For each employee and for the month: Reserved = Served + No-shows + Not served yet; cancellations are counted apart. \"Not served yet\" = reservations for coming days, or for today before service ends: they only become a no-show if the day ends without a scan. The no-show rate only counts finished days. Click an employee to see their days.",
     "month": "Month", "prevMonth": "Previous month", "nextMonth": "Next month", "thisMonth": "This month",
     "employee": "Employee", "reserved": "Reserved", "served": "Served", "noShow": "No-shows", "pending": "Not served yet",
     "cancelled": "Cancelled", "rate": "No-show rate", "spent": "Spent (TND)", "menus": "Menu 1 / 2",
