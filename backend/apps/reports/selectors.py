@@ -1,14 +1,17 @@
-"""Reporting queries (FR-21 to FR-23, FR-36). No models of its own: it reads the others."""
+"""Reporting queries (FR-21 to FR-23, FR-36, FR-45). No models of its own: it reads the others."""
 import calendar
 from datetime import date
 from decimal import Decimal
 
 from django.db.models import Count, Q, Sum
+from django.utils import timezone
 
 from apps.accounts.models import User
+from apps.core import clock
 from apps.core.models import CanteenSettings
 from apps.menus.models import Menu
 from apps.reservations.models import Reservation
+from apps.wallet.models import BalanceTransaction
 
 R = Reservation.Status
 P = Reservation.PaymentStatus
@@ -160,3 +163,50 @@ def employee_attendance(start: date, end: date) -> list[dict]:
         }
         for r in rows
     ]
+
+
+# --- Cash received (FR-45, decided 2026-11-04) ------------------------------------------
+def cash_report(viewer: User, day: date | None = None) -> dict:
+    """Money received at the canteen on one day (company time zone).
+
+    The scanner sees only her own top-ups of today: the amount she hands over at the end of the day.
+    Management (and admin) see any day, split per cashier, plus that day's corrections, which count in the
+    total: a wrong top-up fixed the same day changes the cash expected. Meals paid from balances are not cash
+    and are left out.
+    """
+    K = BalanceTransaction.Kind
+    mine = viewer.role == User.Role.SCANNER
+    day = clock.today() if mine or day is None else day
+    entries = BalanceTransaction.objects.filter(created_at__date=day).select_related("user", "by")
+    entries = entries.filter(kind=K.TOPUP, by=viewer) if mine else entries.filter(kind__in=[K.TOPUP, K.CORRECTION])
+    entries = list(entries.order_by("created_at", "id"))
+
+    topups = [e for e in entries if e.kind == K.TOPUP]
+    corrections = [e for e in entries if e.kind == K.CORRECTION]
+    cashiers: dict[int | None, dict] = {}
+    for e in topups:
+        row = cashiers.setdefault(e.by_id, {"id": e.by_id, "name": e.by.full_name if e.by else "—",
+                                            "count": 0, "total": Decimal("0")})
+        row["count"] += 1
+        row["total"] += e.amount
+    total_topups = sum((e.amount for e in topups), Decimal("0"))
+    total_corrections = sum((e.amount for e in corrections), Decimal("0"))
+    return {
+        "date": day.isoformat(),
+        "scope": "mine" if mine else "all",
+        "topups": {"count": len(topups), "total": _tnd(total_topups)},
+        "corrections": {"count": len(corrections), "total": _tnd(total_corrections)},
+        "total": _tnd(total_topups + total_corrections),
+        "cashiers": [{**c, "total": _tnd(c["total"])}
+                     for c in sorted(cashiers.values(), key=lambda c: (-c["total"], c["name"]))],
+        "rows": [
+            {
+                # Company offset, like the serializers: the app shows the wall-clock part as it is.
+                "id": e.pk, "at": timezone.localtime(e.created_at).isoformat(), "kind": e.kind,
+                "amount": _tnd(e.amount),
+                "employee": e.user.full_name, "employee_number": e.user.employee_number,
+                "by": e.by.full_name if e.by else "", "note": e.note,
+            }
+            for e in entries
+        ],
+    }

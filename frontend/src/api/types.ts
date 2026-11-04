@@ -196,6 +196,26 @@ export interface DayReservation extends ScanResult {
   scan_method: "qr" | "manual" | "";
 }
 
+/** Cash received on one day (FR-45): the scanner's own top-ups today, or every cashier for management. */
+export interface CashReport {
+  date: string;
+  scope: "mine" | "all";
+  topups: { count: number; total: string };
+  corrections: { count: number; total: string };
+  total: string;
+  cashiers: { id: number | null; name: string; count: number; total: string }[];
+  rows: {
+    id: number;
+    at: string;
+    kind: "topup" | "correction";
+    amount: string;
+    employee: string;
+    employee_number: string | null;
+    by: string;
+    note: string;
+  }[];
+}
+
 export interface DayList {
   date: string;
   menu: null | {

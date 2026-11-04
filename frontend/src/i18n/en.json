@@ -4,7 +4,7 @@
   "nav": {
     "home": "Menus", "reservations": "My reservations", "dishes": "Dishes", "planner": "Planner",
     "finalize": "Finalization", "reports": "Reports", "accounts": "Accounts", "scan": "Scan",
-    "balance": "My balance", "dayList": "Day list", "cashier": "Cashier"
+    "balance": "My balance", "dayList": "Day list", "cashier": "Cashier", "cash": "Cash received"
   },
   "auth": {
     "login": "Log in", "register": "Create an account", "email": "Work email",
@@ -57,6 +57,27 @@
     "hint": "Start the camera and point it at the QR code on the employee's phone.",
     "ok": "Meal validated", "manualSearch": "Manual search (name or employee number)",
     "checkIn": "Check in", "paidBalance": "Paid from balance ({{amount}} TND)"
+  },
+  "cash": {
+    "title": "Cash received",
+    "titleMine": "My cash today",
+    "help": "Money received at the canteen that day: top-ups recorded by each person, and management corrections, which count in the total.",
+    "helpMine": "All the money you recorded today. This is the amount to hand over to management at the end of the day.",
+    "toHandOver": "Cash to hand over",
+    "total": "Total received",
+    "topups": "top-ups",
+    "received": "received",
+    "corrections_one": "{{count}} correction",
+    "corrections_other": "{{count}} corrections",
+    "correction": "Correction",
+    "perCashier": "Per person",
+    "topupsN_one": "{{count}} top-up",
+    "topupsN_other": "{{count}} top-ups",
+    "by": "by {{name}}",
+    "empty": "No money recorded that day.",
+    "todayMine": "Received today:",
+    "todayAll": "Received today (everyone):",
+    "details": "Details"
   },
   "cashier": {
     "title": "Cashier — top up a balance",

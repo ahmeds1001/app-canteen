@@ -38,6 +38,8 @@ item into a plan file in this folder, then the **executor** to build it.
   scanner or management, corrections by management; meals paid when reserved, refunded on cancel or closed day,
   kept on no-show; counter payment ("mark paid") removed; day price set on the Finalization screen; "My balance".
 - [x] **Reservation lists** (FR-44, decided 2026-11-03): any day, for the scanner and management, filters and CSV.
+- [x] **Cash received per day** (FR-45, decided 2026-11-04): "Encaissements" screen + today's total on "Caisse";
+  scanner = her own top-ups today; management = any day, per person, corrections in the total; CSV.
 - [x] Close day → cancel its reservations (`menus/services.close_day`). Notifying the employees is part of Notifications.
 - [x] **Refresh-token blacklist** (FR-39, FR-40, 2026-11-03): `rest_framework_simplejwt.token_blacklist`; a refresh
   token works once; suspended / deactivated accounts get no new access token; a password change or reset
@@ -54,7 +56,7 @@ item into a plan file in this folder, then the **executor** to build it.
 - [x] **Attendance per employee per month** (FR-22, 2026-11-03): "Rapports" screen for management and HR —
   reserved vs served, no-shows, still to come, cancelled, rate, menus, spent; drill-down per employee; CSV.
 - [ ] Remaining report screens: daily/monthly trends with charts, buffer vs leftovers per menu (FR-21, FR-23),
-  cash reconciliation of top-ups per cashier, chef's live served count.
+  chef's live served count.
 - [ ] No-show warning email after 3 per calendar month, only after the grace month (business rule "No-show consequences").
 - [ ] Admin: settings screen is the Django admin for now; check every setting is editable and audited (`setting_change`).
 

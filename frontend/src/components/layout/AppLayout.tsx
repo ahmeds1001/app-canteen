@@ -26,6 +26,7 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
     { to: "/management/finalize", key: "nav.finalize" },
     { to: "/day-list", key: "nav.dayList" },
     { to: "/cashier", key: "nav.cashier" },
+    { to: "/cash", key: "nav.cash" },
     { to: "/management/reports", key: "nav.reports" },
   ],
   hr: [
@@ -38,6 +39,7 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
     { to: "/scan", key: "nav.scan" },
     { to: "/day-list", key: "nav.dayList" },
     { to: "/cashier", key: "nav.cashier" },
+    { to: "/cash", key: "nav.cash" },
     { to: "/", key: "nav.home" },
     { to: "/reservations", key: "nav.reservations" },
   ],
@@ -47,6 +49,7 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
     { to: "/management/finalize", key: "nav.finalize" },
     { to: "/day-list", key: "nav.dayList" },
     { to: "/cashier", key: "nav.cashier" },
+    { to: "/cash", key: "nav.cash" },
     { to: "/hr/accounts", key: "nav.accounts" },
     { to: "/management/reports", key: "nav.reports" },
   ],

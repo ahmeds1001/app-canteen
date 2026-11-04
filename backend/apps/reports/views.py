@@ -3,14 +3,15 @@ from datetime import timedelta
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.dateparse import parse_date
+from django.utils import timezone
+from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.models import User
 from apps.core import audit, clock
 from apps.core.models import AuditLog
-from apps.core.permissions import IsChefOrManagement, role_permission
+from apps.core.permissions import IsChefOrManagement, IsScannerOrManagement, role_permission
 from apps.reservations.serializers import DayReservationSerializer
 
 from . import selectors
@@ -111,3 +112,25 @@ class EmployeeMonthView(APIView):
         rows = selectors.employee_month(user, year, month)
         return Response({"name": user.full_name, "employee_number": user.employee_number,
                          "rows": DayReservationSerializer(rows, many=True).data})
+
+
+class CashView(APIView):
+    """Money received on a day (FR-45): the scanner's own top-ups today, or every cashier on any day for
+    management. `?date=YYYY-MM-DD` (management only), `?export=csv`."""
+
+    permission_classes = [IsScannerOrManagement]
+
+    def get(self, request):
+        report = selectors.cash_report(request.user, parse_date(request.query_params.get("date", "")))
+        if _wants_csv(request):
+            return _csv([_cash_csv_row(r) for r in report["rows"]], f"caisse_{report['date']}.csv", request)
+        return Response(report)
+
+
+def _cash_csv_row(r: dict) -> dict:
+    return {
+        "heure": timezone.localtime(parse_datetime(r["at"])).strftime("%H:%M"),
+        "type": "recharge" if r["kind"] == "topup" else "correction",
+        "employe": r["employee"], "matricule": r["employee_number"] or "",
+        "montant_tnd": r["amount"].replace(".", ","), "enregistre_par": r["by"], "motif": r["note"],
+    }

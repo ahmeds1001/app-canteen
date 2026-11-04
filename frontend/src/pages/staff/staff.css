@@ -26,3 +26,9 @@
   .day-row { grid-template-columns: minmax(0, 1fr) auto; }
   .day-row__when { grid-column: 1 / -1; text-align: start; }
 }
+
+/* Cash received per day (FR-45) */
+.cash-total { display: grid; gap: 2px; }
+.cash-total__value { font-family: var(--font-heading); font-weight: 700; font-size: var(--text-2xl); line-height: 1.1; color: var(--color-primary); }
+.cash-cashiers { gap: var(--space-1); padding-block-start: var(--space-2); border-block-start: 1px solid var(--color-border); }
+.cash-today { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }

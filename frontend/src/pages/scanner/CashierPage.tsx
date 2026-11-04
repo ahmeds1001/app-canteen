@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { walletApi } from "@/api/endpoints";
+import { Link } from "react-router-dom";
+import { reportApi, walletApi } from "@/api/endpoints";
 import type { WalletAccount } from "@/api/types";
 import { Alert, Button, Card, Field } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,6 +29,7 @@ export default function CashierPage() {
     <div className="container stack">
       <h1>{t("cashier.title")}</h1>
       <p className="muted">{t("cashier.help")}</p>
+      <CashToday />
       {!account ? (
         <Card className="stack">
           <Field label={t("cashier.search")} type="search" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
@@ -46,6 +48,24 @@ export default function CashierPage() {
         <AccountPanel account={account} onBack={() => setAccount(null)} />
       )}
     </div>
+  );
+}
+
+/** The cash this person recorded today (FR-45): the scanner knows at a glance what she holds. */
+function CashToday() {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const mine = user?.role === "scanner";
+  const cash = useQuery({ queryKey: ["wallet", "cash", "today"], queryFn: () => reportApi.cash() });
+  if (!cash.data) return null;
+  return (
+    <Card className="cash-today">
+      <span>
+        {t(mine ? "cash.todayMine" : "cash.todayAll")} <strong>{cash.data.total} TND</strong>
+        <span className="muted"> ({t("cash.topupsN", { count: cash.data.topups.count })})</span>
+      </span>
+      <Link to="/cash">{t("cash.details")} ›</Link>
+    </Card>
   );
 }
 

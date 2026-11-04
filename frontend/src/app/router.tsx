@@ -22,6 +22,7 @@ import AccountsPage from "@/pages/hr/AccountsPage";
 import AttendancePage from "@/pages/management/AttendancePage";
 import FinalizePage from "@/pages/management/FinalizePage";
 import CashierPage from "@/pages/scanner/CashierPage";
+import CashReportPage from "@/pages/staff/CashReportPage";
 import DayListPage from "@/pages/staff/DayListPage";
 
 // The camera library is heavy: load the scanner screen only on the canteen phone.
@@ -63,6 +64,10 @@ export const router = createBrowserRouter([
       {
         path: "cashier",
         element: <Protected roles={["scanner", "management"]}><CashierPage /></Protected>,
+      },
+      {
+        path: "cash",
+        element: <Protected roles={["scanner", "management"]}><CashReportPage /></Protected>,
       },
       {
         path: "scan",

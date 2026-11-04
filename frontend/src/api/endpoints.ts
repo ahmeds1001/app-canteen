@@ -3,6 +3,7 @@ import { api, download } from "./client";
 import type {
   AuthTokens,
   BalanceTransaction,
+  CashReport,
   DayList,
   Dish,
   EmployeeMonth,
@@ -189,6 +190,9 @@ export const reportApi = {
     api<EmployeeMonth>(`/reports/attendance/monthly/${userId}/?month=${month}`),
   exportCsv: (month: string) =>
     download(`/reports/attendance/monthly/?month=${month}&export=csv`, `presence-${month}.csv`),
+  /** Cash received (FR-45). The scanner always gets her own top-ups of today; `date` is for management. */
+  cash: (date?: string) => api<CashReport>(`/reports/cash/${date ? `?date=${date}` : ""}`),
+  cashCsv: (date: string) => download(`/reports/cash/?date=${date}&export=csv`, `caisse-${date}.csv`),
 };
 
 /** Prepaid balance (decided 2026-11-03): the only way meals are paid. */

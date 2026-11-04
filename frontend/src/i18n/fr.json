@@ -4,7 +4,7 @@
   "nav": {
     "home": "Menus", "reservations": "Mes réservations", "dishes": "Plats", "planner": "Planning",
     "finalize": "Finalisation", "reports": "Rapports", "accounts": "Comptes", "scan": "Scanner",
-    "balance": "Mon solde", "dayList": "Liste du jour", "cashier": "Caisse"
+    "balance": "Mon solde", "dayList": "Liste du jour", "cashier": "Caisse", "cash": "Encaissements"
   },
   "auth": {
     "login": "Se connecter", "register": "Créer un compte", "email": "Email professionnel",
@@ -57,6 +57,27 @@
     "hint": "Démarrez la caméra et visez le QR code affiché sur le téléphone de l'employé.",
     "ok": "Repas validé", "manualSearch": "Recherche manuelle (nom ou matricule)",
     "checkIn": "Valider la présence", "paidBalance": "Payé par le solde ({{amount}} TND)"
+  },
+  "cash": {
+    "title": "Encaissements",
+    "titleMine": "Mon encaissement du jour",
+    "help": "L'argent reçu à la cantine ce jour-là : les recharges enregistrées par chaque personne, et les corrections de la direction, qui comptent dans le total.",
+    "helpMine": "Tout l'argent que vous avez enregistré aujourd'hui. C'est le montant à remettre à la direction en fin de journée.",
+    "toHandOver": "Argent à remettre",
+    "total": "Total encaissé",
+    "topups": "recharges",
+    "received": "reçus",
+    "corrections_one": "{{count}} correction",
+    "corrections_other": "{{count}} corrections",
+    "correction": "Correction",
+    "perCashier": "Par personne",
+    "topupsN_one": "{{count}} recharge",
+    "topupsN_other": "{{count}} recharges",
+    "by": "par {{name}}",
+    "empty": "Aucun argent enregistré ce jour-là.",
+    "todayMine": "Encaissé aujourd'hui :",
+    "todayAll": "Encaissé aujourd'hui (tout le monde) :",
+    "details": "Détail"
   },
   "cashier": {
     "title": "Caisse — recharger un solde",

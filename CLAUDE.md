@@ -115,8 +115,8 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
    the Django admin for app data; refresh-token blacklist (`accounts.services.end_sessions`, rule
    `active_account_rule`), and the frontend shares one refresh call (`api/client.ts`) since a refresh token works once.
 2. Run the test suite and a manual pass on **SQL Server** (filtered unique constraints, JSON fields, decimals).
-3. Decide with management: balance of an employee who leaves; who may collect cash; daily cash check
-   (→ cash reconciliation report: top-ups per cashier per day); backup person for finalization; leftover plates.
+3. Decide with management: balance of an employee who leaves; who may collect cash; backup person for
+   finalization; leftover plates. (Daily cash report done 4 Nov 2026: "Encaissements", FR-45, `reports/cash/`.)
 4. Deploy on the company server (Docker, SQL Server, HTTPS, backups + restore test), load test (200 users), pilot.
 5. Then: no-show warning after 3 per month, management trend charts (FR-23), chef live count (FR-21), offline scans.
 
