@@ -39,7 +39,7 @@ item into a plan file in this folder, then the **executor** to build it.
   kept on no-show; counter payment ("mark paid") removed; day price set on the Finalization screen; "My balance".
 - [x] **Reservation lists** (FR-44, decided 2026-11-03): any day, for the scanner and management, filters and CSV.
 - [x] **Cash received per day** (FR-45, decided 2026-11-04): "Encaissements" screen + today's total on "Caisse";
-  scanner = her own top-ups today; management = any day, per person, corrections in the total; CSV.
+  scanner = her own top-ups today; management = any day, per person, corrections in the total; CSV; printable hand-over sheet with signatures.
 - [x] Close day → cancel its reservations (`menus/services.close_day`). Notifying the employees is part of Notifications.
 - [x] **Refresh-token blacklist** (FR-39, FR-40, 2026-11-03): `rest_framework_simplejwt.token_blacklist`; a refresh
   token works once; suspended / deactivated accounts get no new access token; a password change or reset

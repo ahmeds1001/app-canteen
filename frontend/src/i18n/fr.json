@@ -77,7 +77,22 @@
     "empty": "Aucun argent enregistré ce jour-là.",
     "todayMine": "Encaissé aujourd'hui :",
     "todayAll": "Encaissé aujourd'hui (tout le monde) :",
-    "details": "Détail"
+    "details": "Détail",
+    "print": "Imprimer",
+    "sheetTitle": "Cantine OVAGRI — Bordereau d'encaissement",
+    "sheetCashier": "Encaissé par : {{name}}",
+    "sheetEveryone": "Toutes les personnes ayant encaissé",
+    "sheetPrinted": "Imprimé le {{time}}",
+    "colTime": "Heure",
+    "colEmployee": "Employé",
+    "colNumber": "Matricule",
+    "colBy": "Encaissé par",
+    "colAmount": "Montant (TND)",
+    "sheetTotal_one": "Total — {{count}} recharge",
+    "sheetTotal_other": "Total — {{count}} recharges",
+    "sheetCounted": "Montant compté à la remise : ____________ TND",
+    "sheetGivenBy": "Remis par (nom et signature)",
+    "sheetReceivedBy": "Reçu par la direction (nom et signature)"
   },
   "cashier": {
     "title": "Caisse — recharger un solde",

@@ -48,3 +48,12 @@ a { color: var(--color-primary); }
 .visually-hidden {
   position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip: rect(0 0 0 0);
 }
+
+/* Printing: only what a page marks .print-only comes out; the app chrome never does. */
+.print-only { display: none; }
+@media print {
+  .shell__bar, .shell__devclock, .no-print { display: none !important; }
+  .print-only { display: block; }
+  .shell__main { padding: 0; margin: 0; }
+  body { background: var(--color-bg); }
+}

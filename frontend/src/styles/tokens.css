@@ -75,3 +75,16 @@
     --color-warning-bg: #3a2a10;
   }
 }
+
+/* Paper is white: printed sheets (cash hand-over, FR-45) always use the light palette. */
+@media print {
+  :root,
+  :root:not([data-theme="light"]) {
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-border: #b9c2b4;
+    --color-text: #000000;
+    --color-text-muted: #4a4a4a;
+    --color-primary: var(--brand-green-700);
+  }
+}

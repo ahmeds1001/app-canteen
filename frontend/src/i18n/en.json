@@ -77,7 +77,22 @@
     "empty": "No money recorded that day.",
     "todayMine": "Received today:",
     "todayAll": "Received today (everyone):",
-    "details": "Details"
+    "details": "Details",
+    "print": "Print",
+    "sheetTitle": "OVAGRI Canteen — Cash hand-over sheet",
+    "sheetCashier": "Received by: {{name}}",
+    "sheetEveryone": "Everyone who recorded cash",
+    "sheetPrinted": "Printed on {{time}}",
+    "colTime": "Time",
+    "colEmployee": "Employee",
+    "colNumber": "Employee no.",
+    "colBy": "Recorded by",
+    "colAmount": "Amount (TND)",
+    "sheetTotal_one": "Total — {{count}} top-up",
+    "sheetTotal_other": "Total — {{count}} top-ups",
+    "sheetCounted": "Amount counted at hand-over: ____________ TND",
+    "sheetGivenBy": "Handed over by (name and signature)",
+    "sheetReceivedBy": "Received by management (name and signature)"
   },
   "cashier": {
     "title": "Cashier — top up a balance",
