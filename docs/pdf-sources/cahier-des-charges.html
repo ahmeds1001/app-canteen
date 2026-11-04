@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Cahier des charges — Application Cantine OVAGRI</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm 16mm 14mm;
+    @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
+    @bottom-left { content: "Cahier des charges — Application Cantine OVAGRI · révision 3, 4 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --green: #0a6b28; --green-mid: #3f9a1e; --green-soft: #e8f3e3; --orange: #f89000; --orange-soft: #fff3e0;
+          --blue-soft: #e8eef8; --blue: #2f5597; --text: #1c2a1e; --muted: #5b675d; --line: #d9e2d6; }
+  * { box-sizing: border-box; }
+  body { font: 9.6pt/1.45 "Segoe UI", Arial, sans-serif; color: var(--text); margin: 0; }
+  h1 { color: var(--green); font-size: 17pt; margin: 0 0 8px; padding-bottom: 5px; border-bottom: 3px solid;
+       border-image: linear-gradient(90deg, #f89000, #a6c914, #0a6b28) 1; break-after: avoid; }
+  h1.chapter { break-before: page; }
+  h2 { color: var(--green); font-size: 12pt; margin: 14px 0 5px; break-after: avoid; }
+  h3 { font-size: 10.2pt; margin: 10px 0 4px; break-after: avoid; }
+  p { margin: 3px 0 7px; }
+  ul, ol { margin: 3px 0 8px; padding-inline-start: 18px; }
+  li { margin: 1.5px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 5px 0 10px; font-size: 8.7pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--green); color: #fff; text-align: start; padding: 4px 6px; font-weight: 600; }
+  td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: #f7faf6; }
+  td.id { white-space: nowrap; font-weight: 600; color: var(--green); }
+  td.prio { text-align: center; white-space: nowrap; }
+  code { font-family: Consolas, monospace; font-size: 8.4pt; background: #eef2ec; padding: 0 3px; border-radius: 3px; }
+  .chip { display: inline-block; white-space: nowrap; border-radius: 10px; padding: 1px 7px; font-size: 7.8pt; font-weight: 700; }
+  .ok { background: var(--green-soft); color: var(--green); }
+  .part { background: var(--orange-soft); color: #9a5300; }
+  .next { background: var(--blue-soft); color: var(--blue); }
+  .drop { background: #eceeec; color: #6b726c; }
+  tr.dropped td { color: #8a918b; }
+  tr.dropped .gone { text-decoration: line-through; }
+  .note { font-size: 8.2pt; color: var(--muted); display: block; margin-top: 2px; }
+  .box { border: 1px solid var(--line); border-inline-start: 5px solid var(--green); border-radius: 6px; padding: 8px 12px; margin: 8px 0; break-inside: avoid; }
+  .box.orange { border-inline-start-color: var(--orange); background: #fffaf2; }
+  .new { background: #fff6c9; padding: 0 2px; border-radius: 2px; }
+  .mermaid { text-align: center; margin: 6px 0 12px; break-inside: avoid; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Cover */
+  .cover { height: 262mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover .top { display: flex; align-items: center; gap: 16px; }
+  .cover .top img { width: 92px; height: 92px; }
+  .cover .band { height: 6px; background: linear-gradient(90deg, #f89000, #a6c914, #0a6b28); border-radius: 3px; margin: 26px 0 30px; }
+  .cover h1.title { border: 0; font-size: 30pt; line-height: 1.12; margin: 0; }
+  .cover .sub { font-size: 14pt; color: var(--muted); margin-top: 8px; }
+  .cover .meta { font-size: 10.5pt; line-height: 1.7; }
+  .cover .legend { border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; }
+  .cover .legend p { margin: 4px 0; }
+
+  /* Progress */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 8px 0 12px; }
+  .kpi { border-radius: 8px; padding: 10px 12px; }
+  .kpi b { display: block; font-size: 22pt; line-height: 1.1; }
+  .kpi span { font-size: 8.6pt; }
+  .kpi.ok b { color: var(--green); } .kpi.part b { color: #b86300; } .kpi.next b { color: var(--blue); } .kpi.drop b { color: #6b726c; }
+  .bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin: 2px 0 12px; }
+  .bar i { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COUVERTURE ============================== -->
+<section class="cover">
+  <div>
+    <div class="top">
+      <img src="logo.png" alt="OVAGRI Groupe">
+      <div style="color: var(--muted); font-size: 11pt;">OVAGRI Groupe<br>Direction des opérations · RH · Cuisine</div>
+    </div>
+    <div class="band"></div>
+    <h1 class="title">Cahier des charges<br>Application Cantine</h1>
+    <p class="sub">Réservation des repas, préparation au plus juste et contrôle à l'entrée par QR code</p>
+  </div>
+
+  <div class="meta">
+    <b>Révision 3</b> — rédigée le 23 octobre 2026, mise à jour le <b>4 novembre 2026</b><br>
+    Décisions intégrées jusqu'au 4 novembre 2026 · état d'avancement au 4 novembre 2026<br>
+    Application : React (PWA) · Django REST Framework · Microsoft SQL Server
+  </div>
+
+  <div class="legend">
+    <p><b>Comment lire ce document.</b> Chaque exigence porte son état dans l'application actuelle :</p>
+    <p><span class="chip ok">Livré</span>&nbsp; disponible et testé dans l'application ·
+       <span class="chip part">Partiel</span>&nbsp; règle et serveur prêts, un écran ou un point reste à faire ·
+       <span class="chip next">À venir</span>&nbsp; prévu au prochain sprint ·
+       <span class="chip drop">Abandonné</span>&nbsp; retiré par décision</p>
+    <p>Les passages <span class="new">surlignés</span> sont des décisions prises après la révision 3 (24 octobre – 4 novembre 2026).</p>
+  </div>
+</section>
+
+<!-- ============================== AVANCEMENT ============================== -->
+<h1 class="chapter">État d'avancement au 4 novembre 2026</h1>
+
+<div class="kpis">
+  <div class="kpi ok" style="background: var(--green-soft)"><b>39</b><span>exigences livrées sur 41</span></div>
+  <div class="kpi part" style="background: var(--orange-soft)"><b>1</b><span>partielle : compteur en direct du chef</span></div>
+  <div class="kpi next" style="background: var(--blue-soft)"><b>1</b><span>à venir (tendances Direction)</span></div>
+  <div class="kpi drop" style="background: #eceeec"><b>5</b><span>retirées ou remplacées (FR-14, FR-33 à 35, FR-37)</span></div>
+</div>
+<div class="bar"><i style="width:95.1%; background: var(--green-mid)"></i><i style="width:2.45%; background: var(--orange)"></i><i style="width:2.45%; background: var(--blue)"></i></div>
+
+<table>
+  <thead><tr><th>Domaine</th><th>Livré</th><th>Partiel</th><th>À venir</th><th>Ce qui reste</th></tr></thead>
+  <tr><td>3.1 Inscription, comptes et paramètres</td><td>10</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>3.2 Plats et menus (chef)</td><td>8</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>3.3 Réservation (employé)</td><td>4</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>3.4 Finalisation (Direction)</td><td>5</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>3.5 QR code et contrôle</td><td>5</td><td>—</td><td>—</td><td>File d'attente hors ligne sur le téléphone (règle §4)</td></tr>
+  <tr><td>3.6 Deux menus, solde prépayé, listes, caisse</td><td>6</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>3.7 Rapports</td><td>1</td><td>1</td><td>1</td><td>Compteur en direct pour le chef (FR-21) ; tendances et graphiques Direction (FR-23)</td></tr>
+</table>
+
+<div class="two">
+  <div class="box">
+    <h3 style="margin-top:0">Ce que fait l'application aujourd'hui</h3>
+    <ul>
+      <li>Inscription avec code par email ; validation RH avec saisie du matricule.</li>
+      <li>Bibliothèque de plats avec photos ; planning, duplication, fermeture d'un jour ; menu « à venir » si le chef est en retard.</li>
+      <li><span class="new">Jusqu'à deux menus par jour</span> ; l'employé choisit et peut changer jusqu'à la clôture (minuit la veille par défaut).</li>
+      <li><span class="new">Solde prépayé</span> : recharge en espèces à la caisse, repas payé à la réservation, remboursé si annulé à temps.</li>
+            <li>Finalisation par menu (réservations + 10 %), automatique à 10:00 par défaut.</li>
+      <li><span class="new">Encaissements du jour imprimables</span> ; <span class="new">écran « Paramètres »</span> de l'admin pour tous les délais.</li>
+      <li>QR code signé ; le scan indique le menu à servir ; recherche manuelle.</li>
+      <li><span class="new">Liste des réservations du jour</span> et <span class="new">présence par employé du mois</span>, export CSV.</li>
+      <li>Notifications dans l'application et sur le téléphone ; <span class="new">« Déjà traité » pour tous</span> dès que quelqu'un agit.</li>
+      <li>Rôles attribués par l'admin ; journal d'audit ; français et anglais.</li>
+    </ul>
+  </div>
+  <div class="box orange">
+    <h3 style="margin-top:0">Prochaines étapes (sprint 2 et mise en service)</h3>
+    <ul>
+      <li>Tendances et graphiques Direction : marge, restes par menu (FR-23).</li>
+      <li>Compteur des repas servis en direct pour le chef (FR-21).</li>
+      <li>Avertissement après 3 absences dans le mois (règle « Absences »).</li>
+      <li>File d'attente des scans hors ligne sur le téléphone de la cantine.</li>
+      <li>Installation sur le serveur de l'entreprise (conteneurs, base SQL Server, HTTPS), sauvegardes quotidiennes et test de restauration.</li>
+      <li>Test de charge : 200 utilisateurs dans les dernières minutes avant la clôture.</li>
+      <li>Guide employé d'une page et formations courtes (RH, chef, Direction, scanner).</li>
+    </ul>
+  </div>
+</div>
+
+<p><b>Qualité :</b> 144 tests automatiques (<span class="new">aussi sur SQL Server 2022</span>) : délais, QR code, finalisation, solde, caisse, paramètres, droits par rôle ; <span class="new">écrans vérifiés avec les 6 comptes</span>.</p>
+
+<!-- ============================== 1. CONTEXTE ============================== -->
+<h1 class="chapter">1. Contexte et objectifs</h1>
+<p>L'application permet aux employés validés de réserver leur repas à la cantine avant minuit la veille, pour que la cuisine
+prépare seulement ce qui sera mangé et que la Direction dispose de chiffres exacts : réservé, préparé, servi.</p>
+<p>Aujourd'hui, la cantine ne peut pas prévoir combien de personnes mangeront, ce qui entraîne une surproduction, et elle ne sait pas
+qui vient réellement.</p>
+<p><b>Objectifs</b></p>
+<ul>
+  <li>Réduire le gaspillage en alignant la production sur les réservations confirmées, avec une <b>marge maîtrisée et mesurée</b> décidée par la Direction.</li>
+  <li>Réserver le service aux employés validés (validation RH de chaque compte).</li>
+  <li>Donner au chef un moyen rapide de publier le menu de chaque jour, <b>à partir de sa propre bibliothèque de plats</b>.</li>
+  <li>Mesurer, par employé et par jour, les repas réservés, préparés et réellement servis (absences).</li>
+  <li><span class="new"><b>Repas payés par un solde prépayé :</b> l'employé remet l'argent à la cantine, qui recharge son solde ; chaque repas est payé à la réservation.</span></li>
+  <li>Produire des rapports utiles à la RH et à la Direction pour ajuster les quantités et les règles.</li>
+</ul>
+
+<h1>2. Périmètre et rôles</h1>
+<p>La version 1 sert six rôles et couvre l'inscription, la validation RH, la bibliothèque de plats, le menu du jour, la réservation,
+le contrôle par QR code, la finalisation, le solde prépayé, les listes et les rapports.</p>
+<table>
+  <thead><tr><th style="width:17%">Rôle</th><th style="width:20%">Qui</th><th>Actions principales</th></tr></thead>
+  <tr><td><b>Employé</b></td><td>Tout membre du personnel</td><td>S'inscrire, se connecter une fois validé, voir les menus, réserver (<span class="new">menu 1 ou 2</span>) ou annuler, <span class="new">voir son solde et son historique</span>, présenter le QR code du jour</td></tr>
+  <tr><td><b>RH</b></td><td>Équipe RH</td><td>Valider (<span class="new">en saisissant le matricule</span>) ou refuser les comptes, suspendre, réactiver, désactiver les départs, réinitialiser un mot de passe, consulter la présence</td></tr>
+  <tr><td><b>Chef</b></td><td>Chef de cuisine</td><td>Gérer la bibliothèque de plats, publier les menus, voir le nombre de réservations et d'assiettes</td></tr>
+  <tr><td><b>Scanner</b> (caissier)</td><td>Personnel de la cantine, téléphone dédié</td><td>Scanner les QR codes et valider le repas (l'écran indique le menu à servir) ; <span class="new">recharger le solde des employés qui remettent de l'argent ; voir la liste des réservations de chaque jour</span>. <span class="new">Comme tous les rôles, peut aussi réserver ses repas (décidé le 26/10 : tout le monde peut manger à la cantine).</span></td></tr>
+  <tr><td><b>Direction</b></td><td>Direction / opérations</td><td>Finaliser le nombre d'assiettes par menu, fixer le prix du jour, <span class="new">recharger et corriger les soldes, voir les listes du jour et la présence par employé</span>, consulter production et gaspillage</td></tr>
+  <tr><td><b>Admin</b></td><td>Informatique / responsable de l'application</td><td><span class="new">Attribuer les rôles dans l'écran « Comptes » (FR-41)</span>, <span class="new">écran « Paramètres » : délais, horaires, marge, paiement (FR-46)</span>, journal d'audit</td></tr>
+</table>
+<div class="two" style="font-size: 8.5pt; line-height: 1.3">
+  <div>
+    <p><b>Dans le périmètre de la v1</b></p>
+    <ul>
+      <li>Inscription avec validation RH et notification par email.</li>
+      <li><b>Bibliothèque de plats</b> et menus du jour gérés par le chef.</li>
+      <li>Réservation par jour avec clôture à minuit la veille (modifiable par l'admin), sans limite de places.</li>
+      <li>Finalisation après la clôture : la Direction fixe le nombre d'assiettes (réservé + marge).</li>
+      <li>Un QR code par employé et par jour réservé, scanné à l'entrée sur le téléphone de la cantine.</li>
+      <li><span class="new"><b>Deux menus par jour</b> au choix ; <b>solde prépayé</b> rechargé à la caisse.</span></li>
+      <li>Rapports : réservé, préparé, servi, absences, dépensé ; listes du jour.</li>
+    </ul>
+  </div>
+  <div>
+    <p><b>Hors périmètre de la v1</b> (pistes pour plus tard)</p>
+    <ul>
+      <li>Paiement en ligne ou retenue sur salaire (l'argent est remis en espèces à la cantine).</li>
+      <li>Application mobile native (la v1 est un site responsive, installable sur le téléphone).</li>
+      <li>Plusieurs cantines ou plusieurs services par jour.</li>
+      <li>Plus de deux menus par jour.</li>
+      <li>Repas sans réservation et distribution des assiettes restantes.</li>
+      <li>Notes et avis sur les repas.</li>
+      <li>Interface en arabe (prévue après le lancement).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================== 3. EXIGENCES ============================== -->
+<h1 class="chapter">3. Exigences fonctionnelles</h1>
+<p>Priorité : <b>M</b> = indispensable pour la v1, <b>S</b> = souhaitable, <b>C</b> = possible.</p>
+
+<h2>3.1 Inscription, comptes et paramètres</h2>
+<table>
+  <thead><tr><th style="width:7%">ID</th><th>Exigence</th><th style="width:5%">Prio.</th><th style="width:10%">État</th></tr></thead>
+  <tr><td class="id">FR-01</td><td>L'employé s'inscrit avec prénom, nom, email professionnel, département (facultatif) et mot de passe. <span class="new">L'employé ne saisit pas de matricule : la RH le saisit à la validation (FR-04). Le formulaire affiche les règles du mot de passe : au moins 8 caractères, pas uniquement des chiffres, pas un mot de passe courant, pas proche du nom ou de l'email.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-02</td><td>L'employé confirme son email avec un <b>code à 6 chiffres</b> reçu juste après l'inscription : valable <b>10 minutes</b>, à <b>usage unique</b>, annulé après <b>5 erreurs</b>. Bouton « Renvoyer le code » après 60 secondes (5 codes par heure au maximum) ; un nouveau code annule le précédent. Un compte non vérifié qui se connecte est renvoyé vers l'écran du code. Le code ne sert qu'à l'inscription : la connexion se fait ensuite avec email et mot de passe.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-39</td><td>Mot de passe oublié, en libre-service : l'employé reçoit un lien valable 30 minutes et utilisable une fois. L'écran répond toujours « Si cet email existe, un lien a été envoyé », sans révéler quels emails ont un compte. 3 demandes par heure au maximum ; une nouvelle demande annule le lien précédent. Le nouveau mot de passe ferme toutes les sessions ouvertes.<span class="note"><span class="new">Fermeture des autres sessions livrée le 3/11 ; un compte suspendu ou désactivé ne reçoit plus de nouvel accès.</span></span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-40</td><td>Réinitialisation par la RH ou l'admin : un mot de passe temporaire est généré et affiché une seule fois, à remettre en main propre (jamais par email). À la connexion suivante, l'employé doit en choisir un nouveau ; le mot de passe temporaire expire après 72 heures. Chaque réinitialisation enregistre son auteur.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-03</td><td>Un nouveau compte est « En attente » : la connexion est refusée avec le message « Votre compte attend la validation de la RH ».</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-04</td><td>La RH dispose d'un écran des comptes en attente avec les actions Approuver et Refuser (motif obligatoire). <span class="new">Pour approuver, la RH saisit le matricule de l'employé : obligatoire et unique. Elle peut le corriger plus tard ; chaque correction est tracée. Pas d'approbation groupée, chaque compte ayant son propre matricule.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-05</td><td>À la validation, l'employé reçoit un email « Votre compte est actif » ; en cas de refus, un email avec le motif.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-06</td><td>La RH peut suspendre, réactiver ou désactiver un compte (par exemple au départ d'un employé). Une suspension prend effet immédiatement, même sur un téléphone déjà connecté.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-41</td><td><span class="new">Attribution des rôles dans l'application (décidé le 25/10) : dans l'écran « Comptes », l'admin, et lui seul, change le rôle d'une personne (employé, RH, chef, scanner, Direction, admin). Il ne peut pas changer son propre rôle, et le dernier admin actif ne peut pas perdre le sien. Le rôle admin ouvre aussi le site d'administration technique. Chaque changement est tracé.</span></td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-46</td><td><span class="new"><b>Écran « Paramètres » (décidé le 4/11) :</b> l'admin, et lui seul, règle dans l'application les jours de service ; <b>chaque délai en nombre de jours avant J et une heure</b> : clôture des réservations (par défaut la veille à 23:59:59 ; 0 jour = le matin même) et publication du menu par le chef (par défaut J-2 à 23:59:59) ; l'heure de finalisation le jour J ; les heures de service ; les heures des rappels (chef, Direction, employés) ; la marge (pourcentage ou nombre fixe — la même sert à la proposition et à la finalisation automatique) ; le maximum cuisine ; l'horizon de réservation ; les absences ; le paiement et le prix par défaut. Un changement s'applique tout de suite, pour aujourd'hui et les jours suivants ; une étape déjà passée n'est pas annulée. L'écran refuse un ordre incohérent : publication &lt; clôture &lt; finalisation ≤ début du service &lt; fin du service ; rappel Direction avant la finalisation ; rappel du soir avant une clôture le soir ; au moins un jour de service. Chaque valeur changée est tracée (ancienne et nouvelle valeur). Les textes de l'application (« jusqu'à minuit », « à 20 h »…) suivent ces paramètres.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr class="dropped"><td class="id">FR-37</td><td><span class="gone">Import par la RH d'une liste CSV des matricules, avec repérage « sur la liste » et approbation groupée.</span><span class="note">Abandonné le 26/10 : la RH saisit le matricule à la validation (FR-04). Les lignes déjà importées sont conservées.</span></td><td class="prio">—</td><td><span class="chip drop">Abandonné</span></td></tr>
+</table>
+
+<h2>3.2 Bibliothèque de plats et menus (chef)</h2>
+<table>
+  <thead><tr><th style="width:7%">ID</th><th>Exigence</th><th style="width:5%">Prio.</th><th style="width:10%">État</th></tr></thead>
+  <tr><td class="id">FR-29</td><td>Le chef gère une bibliothèque de plats habituels : nom, description, catégorie (entrée, plat, dessert, accompagnement, boisson), allergènes et photo facultative. <span class="new">Photo : JPEG, PNG ou WebP jusqu'à 5 Mo ; le serveur la redresse, la réduit à 1200 px et l'enregistre en JPEG. Sur les cartes des employés, chaque jour affiche la photo de son plat principal.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-30</td><td>Un plat peut être modifié ou archivé. Un plat archivé disparaît du choix mais reste dans les anciens menus et les rapports. Modifier un plat ne change jamais un menu déjà publié : chaque élément de menu garde une copie du plat au moment de l'ajout.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-31</td><td>La bibliothèque permet la recherche par nom, le filtre par catégorie, et affiche la dernière date où chaque plat a été servi, pour varier les menus.</td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-07</td><td>Le chef compose le menu d'un jour en <b>choisissant des plats de la bibliothèque, ou en créant un plat sur le moment</b> (ajouté à la bibliothèque). Le menu du jour J doit être publié avant 23:59:59 à J-2 <span class="new">(jours et heure réglables, FR-46)</span>. Sinon, le système publie un menu « à venir » (FR-38).</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-38</td><td>Menu « à venir » : à 23:59:59 à J-2, si le jour J n'a pas de menu publié et n'est pas fermé, le planificateur le publie sans plats et les réservations s'ouvrent normalement. Le chef et la Direction sont prévenus. Le chef peut ajouter les plats une fois, jusqu'au début du service le jour J ; ceux qui ont réservé reçoivent alors les plats. Si le menu est encore vide à la clôture et qu'il y a des réservations, le chef et la Direction sont alertés.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-08</td><td>Après la clôture des réservations, la Direction finalise le jour : nombre d'assiettes à préparer, au moins égal au nombre de réservations. Le système propose réservations + marge par défaut.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-09</td><td>Le chef peut dupliquer un menu, planifier une semaine entière et garder un menu en brouillon jusqu'à sa publication. La planification à la semaine est le moyen normal de tenir le délai de 2 jours.</td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-10</td><td>Le chef peut fermer un jour (férié, maintenance). Les réservations de ce jour sont annulées et les employés concernés prévenus.</td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+</table>
+
+<h2>3.3 Réservation (employé)</h2>
+<table>
+  <thead><tr><th style="width:7%">ID</th><th>Exigence</th><th style="width:5%">Prio.</th><th style="width:10%">État</th></tr></thead>
+  <tr><td class="id">FR-11</td><td>L'employé voit les jours publiés avec leur menu et réserve une assiette par jour, dès la publication (par le chef ou en menu « à venir ») et jusqu'à 23:59:59 la veille. Le prix est affiché avant la réservation. <span class="new">Si le jour propose deux menus, l'employé choisit le menu 1 ou le menu 2 et peut changer jusqu'à minuit, sans frais.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-12</td><td>La réservation du jour J est possible jusqu'à 23:59:59 à J-1 <span class="new">(jours et heure réglables, FR-46 ; chaque carte du jour affiche « Réservations jusqu'au … »)</span> ; ensuite le bouton est désactivé et le serveur refuse la demande.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-13</td><td>L'employé peut annuler jusqu'à la même heure limite. <span class="new">Le repas payé est aussitôt remboursé sur le solde ; après minuit, ni annulation ni remboursement.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr class="dropped"><td class="id">FR-14</td><td><span class="gone">Limite de places (« Complet »).</span><span class="note">Supprimé en v2 : pas de limite de places, seule l'heure limite compte.</span></td><td class="prio">—</td><td><span class="chip drop">Supprimé</span></td></tr>
+  <tr><td class="id">FR-15</td><td>Confirmation à l'écran et page « Mes réservations » (avec le statut de paiement les jours payants). La confirmation par email reste facultative et n'est pas envoyée.</td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+</table>
+
+<h2>3.4 Finalisation du nombre d'assiettes (Direction)</h2>
+<table>
+  <thead><tr><th style="width:7%">ID</th><th>Exigence</th><th style="width:5%">Prio.</th><th style="width:10%">État</th></tr></thead>
+  <tr><td class="id">FR-24</td><td>Après la clôture, la Direction voit le nombre de réservations du jour J et fixe le nombre d'assiettes (au moins égal). <span class="new">Un jour à deux menus : un nombre par menu, chacun au moins égal à ses réservations (marge de 10 % par menu, aussi en automatique).</span> Pas de plafond cuisine aujourd'hui.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-25</td><td>Le système propose réservations + marge par défaut (nombre fixe ou pourcentage). La Direction peut la modifier pour le jour.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-26</td><td>Si la Direction n'a pas finalisé à l'<span class="new">heure limite de finalisation (10:00 par défaut, décidé le 26/10 ; jamais après le début du service)</span>, le système finalise automatiquement avec réservations + marge, et le trace.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-27</td><td>Le nombre d'assiettes est verrouillé à <span class="new">10:00 (heure réglable, FR-46)</span> ; il ne peut plus être modifié.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-28</td><td>Le chef reçoit une notification (dans l'application et sur le téléphone) avec le nombre d'assiettes dès que le jour est finalisé, <span class="new">détaillé par menu</span>.</td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+</table>
+
+<h2>3.5 QR code et contrôle à l'entrée</h2>
+<table>
+  <thead><tr><th style="width:7%">ID</th><th>Exigence</th><th style="width:5%">Prio.</th><th style="width:10%">État</th></tr></thead>
+  <tr><td class="id">FR-16</td><td>Chaque réservation confirmée génère un QR code unique pour cet employé et cette date. <span class="new">Le QR code porte le logo du groupe en son centre.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-17</td><td>Le QR code contient un jeton aléatoire signé par le serveur, jamais de données personnelles. Il est affiché dans « Mes réservations », sur le téléphone de l'employé.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-18</td><td>Une page de scan sur le <b>téléphone dédié de la cantine</b> vérifie le code : compte actif, bonne date, réservation non annulée, pas déjà utilisée. Le repas passe alors à « Servi » avec l'heure. Ce passage est atomique : deux scans simultanés ne peuvent pas réussir tous les deux.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-19</td><td>Un code invalide, d'un autre jour ou déjà utilisé affiche un message rouge clair. Un code valide affiche le nom et le matricule de l'employé pour un contrôle visuel, <span class="new">et en gros le menu à servir avec ses plats</span>.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-20</td><td>Solution de secours : recherche par nom ou matricule et validation de la présence ; chaque validation manuelle est tracée.</td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+</table>
+
+<h2>3.6 Deux menus, solde prépayé, listes et caisse (décidé les 3 et 4 novembre 2026)</h2>
+<p><span class="new">Chaque employé a un <b>solde en TND</b>. Il remet l'argent en espèces au personnel de la cantine, qui l'enregistre ;
+les repas sont payés avec le solde au moment de la réservation. <b>Il n'y a plus de paiement au comptoir.</b></span>
+Le paramètre <code>payment_enabled</code> permet toujours de rendre tous les repas gratuits ; un jour sans prix est gratuit.</p>
+<table>
+  <thead><tr><th style="width:7%">ID</th><th>Exigence</th><th style="width:5%">Prio.</th><th style="width:10%">État</th></tr></thead>
+  <tr><td class="id">FR-42</td><td><span class="new"><b>Deux menus par jour :</b> le chef peut ajouter un menu 2 (facultatif) à côté du menu 1. Le menu 2 ne peut plus être retiré dès que quelqu'un l'a réservé. La carte du jour, « Mes réservations », le scanner et les listes indiquent le menu choisi.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-43</td><td><span class="new"><b>Solde prépayé :</b> le scanner ou la Direction enregistre une recharge (au plus 1000 TND, avec confirmation) ; l'employé est prévenu avec son nouveau solde. La réservation prend le prix du jour sur le solde et est refusée si le solde ne suffit pas ; changer de menu est gratuit ; annuler avant minuit rembourse ; une absence garde le repas payé ; un jour fermé rembourse tout le monde. Le solde n'est jamais négatif. Seule la Direction corrige une erreur, avec un motif. Chaque mouvement (recharge, repas, remboursement, correction) est conservé avec le solde après et son auteur ; l'employé voit son historique dans « Mon solde ».</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-44</td><td><span class="new"><b>Listes des réservations :</b> le scanner et la Direction voient, pour n'importe quel jour (passé, aujourd'hui, à venir), les menus, les totaux par statut et par menu, et chaque réservation (nom, matricule, service, menu, statut, heure de service, montant payé), avec filtres, recherche et export CSV. Avant la fin du service, une réservation non scannée s'affiche « Pas encore servi » ; elle ne devient « Absent » qu'une fois la journée terminée.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-45</td><td><span class="new"><b>Encaissements du jour (décidé le 4/11) :</b> le scanner voit seulement les recharges qu'elle a enregistrées aujourd'hui — nombre, total « à remettre » et chaque recharge (heure, employé, montant), aussi sur l'écran Caisse. La Direction (et l'admin) choisit n'importe quel jour : total reçu, détail par personne, chaque recharge et les corrections du jour (avec leur motif) ; les corrections comptent dans le total. Les repas payés avec le solde ne sont pas de l'argent reçu. Export CSV (tracé). <b>Impression :</b> une feuille de remise (date, qui a reçu l'argent, chaque recharge avec heure, employé, matricule et montant, le total, « montant compté » et deux signatures) pour vérifier ligne par ligne l'argent remis à la Direction.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-32</td><td>La Direction fixe le prix du jour (<span class="new">le même pour les deux menus</span>) sur l'écran Finalisation, avec une valeur par défaut dans les paramètres ; modifiable jusqu'à la clôture à J-1, puis figé. <span class="new">Un nouveau prix ne s'applique qu'aux réservations faites après.</span></td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr class="dropped"><td class="id">FR-33 à 35</td><td><span class="gone">Statut « À payer », bouton « Marquer payé » au comptoir, repas servi impayé.</span><span class="note">Remplacés le 3/11 par le solde prépayé (FR-43) : le repas est payé avant d'être réservé.</span></td><td class="prio">—</td><td><span class="chip drop">Remplacé</span></td></tr>
+  <tr><td class="id">FR-36</td><td>Rapports des paiements par jour, par employé et par mois, avec export CSV.<span class="note"><span class="new">Par employé et par mois : « Rapports » ; par jour : « Encaissements » (argent reçu, par caissier, FR-45) et liste du jour (montant payé par réservation).</span></span></td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
+</table>
+
+<h2>3.7 Rapports</h2>
+<table>
+  <thead><tr><th style="width:7%">ID</th><th>Exigence</th><th style="width:5%">Prio.</th><th style="width:10%">État</th></tr></thead>
+  <tr><td class="id">FR-21</td><td>Le chef voit le nombre prévu par jour (réservations, puis assiettes après finalisation) et, le jour même, le nombre de repas servis en direct.<span class="note">Réservations visibles dans le Planning et nombre d'assiettes reçu par notification ; le compteur des repas servis en direct arrive avec les écrans de rapports.</span></td><td class="prio">M</td><td><span class="chip part">Partiel</span></td></tr>
+  <tr><td class="id">FR-22</td><td>La RH <span class="new">et la Direction</span> voient, par employé et par mois, les repas réservés et servis et le taux d'absence, avec export CSV. <span class="new">Écran « Rapports » : réservés, servis, absences, pas encore servis, annulés, taux d'absence (journées terminées seulement), menu 1 / 2, montant dépensé ; totaux du mois, filtres, tri, employés à 3 absences ou plus signalés ; un clic montre les jours de l'employé.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-23</td><td>Un tableau de bord Direction montre les tendances journalières et mensuelles (réservé, préparé, servi, absences) et la marge réellement ajoutée, pour mesurer l'effet de la marge sur les restes, par menu.</td><td class="prio">S</td><td><span class="chip next">À venir</span></td></tr>
+</table>
+
+<!-- ============================== 4. RÈGLES ============================== -->
+<h1 class="chapter">4. Règles de gestion</h1>
+<p>Ces règles sont appliquées par le serveur, jamais seulement par l'écran.</p>
+<table>
+  <thead><tr><th style="width:19%">Règle</th><th>Détail</th><th style="width:10%">État</th></tr></thead>
+  <tr><td><b>États d'un compte</b></td><td>Inscrit, Email vérifié, En attente RH, Actif, Refusé, Suspendu, Désactivé. Seul un compte Actif peut se connecter et réserver.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Clôture des réservations</b></td><td>Le jour J peut être réservé ou annulé jusqu'à 23:59:59 à J-1 <span class="new">(réglable)</span>, à l'heure du serveur, fuseau Africa/Tunis.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Une assiette par jour</b></td><td>Au plus une réservation active par employé et par jour, garantie par une contrainte d'unicité en base.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Sans limite de places</b></td><td>Tout employé validé peut réserver jusqu'à la clôture. Pas de maximum cuisine aujourd'hui (paramètre facultatif vide).</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Horizon de réservation</b></td><td>Sans limite : tout jour dont le menu est publié, aussi loin soit-il. Un paramètre permet d'en fixer une plus tard.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Jusqu'à deux menus par jour</b></td><td><span class="new">Chaque jour a un menu 1 et, au choix du chef, un menu 2. Chaque employé en choisit un et peut changer jusqu'à la clôture ; le nombre d'assiettes est finalisé par menu.</span></td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Finalisation</b></td><td>Après la clôture, la Direction fixe le nombre d'assiettes (≥ réservations), modifiable <span class="new">jusqu'à 10:00 (réglable)</span> puis verrouillé ; sinon finalisation automatique (réservations + marge).</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Marge par défaut</b></td><td><b>10 % des réservations, arrondi au supérieur</b> (47 réservations → 5 de marge → 52 assiettes ; 0 → 0). Modifiable dans les paramètres.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Menu verrouillé à la clôture</b></td><td>Le chef modifie un menu jusqu'à la clôture ; une modification après des réservations prévient les employés concernés. Ensuite le menu est verrouillé.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Délai de publication</b></td><td>Le menu du jour J doit être publié avant 23:59:59 à J-2 <span class="new">par défaut (réglable)</span>. Sinon : menu « à venir » publié automatiquement (FR-38).</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Copie du plat</b></td><td>Un élément de menu copie le nom, la description et les allergènes du plat ; les modifications ultérieures du plat ne changent pas les menus existants.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Validité du QR code</b></td><td>Valable seulement à sa date, une seule fois, tant que la réservation n'est pas annulée et que le compte est actif.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Heures de service</b></td><td>12:00 à 15:00 par défaut. Les scans ne sont acceptés que dans cette plage.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Jours de service</b></td><td><span class="new">Du lundi au samedi (l'entreprise travaille le samedi, décidé le 24/10).</span> Pas de menu ni de menu « à venir » le dimanche.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Scans hors ligne</b></td><td>Un scan mis en file hors ligne est validé à l'heure du scan, pas à celle de l'envoi : accepté s'il a été fait pendant le service.<span class="note">Le serveur accepte l'heure du scan ; la file d'attente sur le téléphone est prévue au sprint 2.</span></td><td><span class="chip part">Partiel</span></td></tr>
+  <tr><td><b>Absence</b></td><td>Une réservation non scannée à la fin du service devient « Absent » et compte dans les rapports. <span class="new">Jamais avant : pendant la journée, elle est « Pas encore servi ».</span> Le repas reste payé.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Conséquences des absences</b></td><td>Premier mois après le lancement : suivi seulement. Ensuite : avertissement amical <span class="new">(notification dans l'application et sur le téléphone)</span> après 3 absences dans le mois. Aucun blocage en v1.</td><td><span class="chip next">À venir</span></td></tr>
+  <tr><td><b>Sans réservation</b></td><td>Pas de repas sans réservation en v1. Stratégie pour les assiettes restantes encore à décider.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Paiement</b></td><td><span class="new">Uniquement par le solde prépayé : l'argent est remis à la cantine qui recharge le solde ; le prix du jour (un seul pour les deux menus, figé à la clôture) est pris à la réservation ; solde insuffisant = pas de réservation ; remboursement si annulé avant la clôture ou si le jour est fermé ; le solde n'est jamais négatif ; corrections par la Direction avec un motif. Plus de paiement au comptoir.</span></td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Conservation des données</b></td><td>Tout est conservé sans limite : comptes, réservations, présence, paiements, journal d'audit. Rien n'est supprimé ni anonymisé ; un compte désactivé garde son historique.</td><td><span class="chip ok">Livré</span></td></tr>
+</table>
+
+<!-- ============================== 5. NFR ============================== -->
+<h1 class="chapter">5. Exigences non fonctionnelles</h1>
+<p>L'application doit être sûre, rapide aux deux pics de la journée (juste avant minuit et au déjeuner) et utilisable sur n'importe quel téléphone sans installation.</p>
+<table>
+  <thead><tr><th style="width:18%">Exigence</th><th>Détail</th><th style="width:10%">État</th></tr></thead>
+  <tr><td><b>Sécurité</b></td><td>HTTPS partout ; mots de passe chiffrés avec Argon2 ; droits par rôle ; limitation des tentatives (connexion, inscription, codes : 60 s entre deux envois, 5 codes par heure, 5 essais par code) ; codes et jetons stockés chiffrés ; journal d'audit des validations, menus, plats, réservations (réserver, annuler, servir, absence), paiements, validations manuelles et changements de rôle.</td><td><span class="chip ok">Livré</span><span class="note">HTTPS au déploiement</span></td></tr>
+  <tr><td><b>Concurrence</b></td><td>Réserver, annuler, finaliser, scanner et marquer payé résistent au double appui : jamais de réservation en double, de repas servi deux fois ni de paiement compté deux fois.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Horloge de test</b></td><td>Toutes les règles liées au temps utilisent une horloge injectable ; en développement, une horloge de test permet de simuler n'importe quelle heure.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Sécurité du QR</b></td><td>Jeton aléatoire long, signé par le serveur, lié à une réservation, impossible à deviner, valable un jour et marqué utilisé au premier scan.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Vie privée</b></td><td>Seulement nom, email professionnel, matricule, département, repas et solde ; chaque rôle ne voit que ce qui lui est utile (<span class="new">le scanner et la Direction voient les listes du jour et le solde de l'employé à recharger — décision de l'entreprise</span>) ; conformité à la loi tunisienne (Loi organique n° 2004-63) à vérifier rapidement avec la RH / le juridique.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Performance</b></td><td>Pages en moins de 2 s sur mobile, scan en moins de 1 s ; dimensionné pour environ 200 utilisateurs connectés juste avant minuit.</td><td><span class="chip next">À venir</span><span class="note">test de charge</span></td></tr>
+  <tr><td><b>Disponibilité</b></td><td>99 % pendant le service et le soir jusqu'à minuit ; sauvegardes quotidiennes ; restauration testée avant le lancement.</td><td><span class="chip next">À venir</span><span class="note">mise en service</span></td></tr>
+  <tr><td><b>Hébergement</b></td><td>Serveur de l'entreprise déjà accessible depuis internet ; application isolée de l'ERP : ses propres conteneurs, base, compte, sous-domaine et certificat.</td><td><span class="chip part">Partiel</span><span class="note">fichiers Docker prêts</span></td></tr>
+  <tr><td><b>Ergonomie</b></td><td>Site pensé pour le mobile ; « se connecter, choisir un jour, réserver » en 3 gestes ; QR code accessible en un geste ; écran de scan lisible à bout de bras (vert / rouge / à payer).</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Langues</b></td><td>Français et anglais au lancement, arabe plus tard ; tous les textes dans des fichiers de traduction ; mise en page prête pour l'écriture de droite à gauche.</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><b>Maintenabilité</b></td><td>Tests automatiques sur les règles de délai, clôture, QR code, finalisation, paiement, validation et droits ; environnements de développement, recette et production ; documentation pour l'informatique.</td><td><span class="chip ok">Livré</span><span class="note">144 tests</span></td></tr>
+</table>
+
+<!-- ============================== 6. DONNÉES ============================== -->
+<h1 class="chapter">6. Modèle de données</h1>
+<p>Les tables ci-dessous contiennent tout ; la réservation est au centre, car elle porte le jeton du QR code, le statut de paiement et le résultat (servi ou absent).</p>
+
+<div class="two">
+<div>
+<h3>Utilisateur</h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>prénom, nom</td><td></td></tr>
+  <tr><td>email professionnel</td><td>Unique ; sert à la connexion</td></tr>
+  <tr><td>matricule</td><td><span class="new">Saisi par la RH à la validation ; vide en attente ; unique une fois rempli</span></td></tr>
+  <tr><td>département</td><td></td></tr>
+  <tr><td>mot de passe</td><td>Chiffré (Argon2)</td></tr>
+  <tr><td>rôle</td><td>employé, RH, chef, scanner, Direction, admin</td></tr>
+  <tr><td>statut</td><td>Voir §4 « États d'un compte »</td></tr>
+  <tr><td>email vérifié le</td><td>Après le code de FR-02</td></tr>
+  <tr><td>mot de passe à changer, expiration</td><td>Après une réinitialisation RH (FR-40)</td></tr>
+  <tr><td>langue préférée</td><td>Aussi langue des notifications</td></tr>
+  <tr><td>rappel du soir</td><td><span class="new">Rappel du soir (20:00 par défaut), désactivable par l'employé</span></td></tr>
+  <tr><td>solde</td><td><span class="new">TND ; jamais négatif ; modifié seulement avec un mouvement de solde</span></td></tr>
+  <tr><td>validé par, le ; motif de refus</td><td>FR-04</td></tr>
+</table>
+
+<h3>Plat (bibliothèque du chef)</h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>nom, description</td><td>Recherche par nom</td></tr>
+  <tr><td>catégorie</td><td>entrée, plat, dessert, accompagnement, boisson</td></tr>
+  <tr><td>allergènes, photo</td><td>Photo facultative</td></tr>
+  <tr><td>archivé</td><td>Caché du choix, gardé dans l'historique</td></tr>
+  <tr><td>dernière date servie</td><td>Calculée (FR-31)</td></tr>
+</table>
+
+<h3>Élément de menu</h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>menu, plat d'origine</td><td></td></tr>
+  <tr><td>menu 1 ou 2</td><td><span class="new">Deux menus par jour</span></td></tr>
+  <tr><td>nom, description, catégorie, allergènes, photo</td><td><b>Copie</b> du plat au moment de l'ajout</td></tr>
+  <tr><td>position</td><td>Ordre d'affichage</td></tr>
+</table>
+
+<h3>Code de vérification email</h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>utilisateur, code chiffré</td><td>Jamais stocké en clair</td></tr>
+  <tr><td>expire le, essais</td><td>10 minutes, annulé à 5 essais</td></tr>
+  <tr><td>utilisé le, annulé le</td><td>Un seul code actif par utilisateur</td></tr>
+</table>
+</div>
+<div>
+<h3>Menu (un par date)</h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>date</td><td>Unique</td></tr>
+  <tr><td>statut</td><td>Brouillon, Publié, Verrouillé, Finalisé, Fermé (§6.3)</td></tr>
+  <tr><td>publié le</td><td>Prouve le délai de J-2</td></tr>
+  <tr><td>menu « à venir », annoncé le</td><td>FR-38</td></tr>
+  <tr><td>assiettes, marge, réservations à la finalisation</td><td>Figés pour les rapports, <span class="new">aussi par menu</span></td></tr>
+  <tr><td>finalisé par, le ; automatique</td><td>FR-24 à FR-26</td></tr>
+  <tr><td>payant, prix</td><td>En TND ; figés à la clôture (FR-32)</td></tr>
+  <tr><td>motif de fermeture</td><td>FR-10</td></tr>
+</table>
+
+<h3>Réservation (une active par employé et par jour)</h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>employé, menu, date</td><td>Contrainte d'unicité hors annulations : un repas par jour</td></tr>
+  <tr><td>menu choisi</td><td><span class="new">1 ou 2, modifiable jusqu'à minuit</span></td></tr>
+  <tr><td>statut</td><td>Réservé, Annulé, Servi, Absent ; chaque passage tracé</td></tr>
+  <tr><td>jeton QR, contenu signé</td><td>Jeton aléatoire long</td></tr>
+  <tr><td>réservé, annulé, servi le</td><td>Servi : passage atomique (FR-18)</td></tr>
+  <tr><td>scanné par, méthode</td><td>QR ou manuel</td></tr>
+  <tr><td>absence notée le</td><td>Par le planificateur</td></tr>
+  <tr><td>paiement, montant, payé le</td><td><span class="new">Gratuit / Payé (par le solde) / Remboursé</span></td></tr>
+</table>
+
+<h3><span class="new">Notification</span> et abonnement push</h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>destinataire, type, paramètres, lien</td><td>13 types (§8) ; texte dans la langue de la personne</td></tr>
+  <tr><td>clé anti-doublon</td><td>Jamais deux fois le même message</td></tr>
+  <tr><td>lu le, envoyé le</td><td>Envoi sur téléphone par le planificateur</td></tr>
+  <tr><td>traité le</td><td><span class="new">Quelqu'un a agi : « Déjà traité » pour tous</span></td></tr>
+  <tr><td>abonnement : adresse push, appareil, révoqué le</td><td>Un par téléphone ; jamais supprimé</td></tr>
+</table>
+
+<h3>Journal d'audit</h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>auteur, action, cible</td><td>Système pour les tâches planifiées</td></tr>
+  <tr><td>ancienne / nouvelle valeur, détails</td><td>Ajout seulement, jamais modifié</td></tr>
+</table>
+
+<h3><span class="new">Mouvement de solde</span></h3>
+<table>
+  <thead><tr><th>Champ</th><th>Notes</th></tr></thead>
+  <tr><td>employé, type</td><td>recharge, repas, remboursement, correction</td></tr>
+  <tr><td>montant, solde après</td><td>Négatif quand l'argent sort</td></tr>
+  <tr><td>réservation, auteur, motif</td><td>Ajout seulement, jamais modifié</td></tr>
+</table>
+
+<h3>Lien de réinitialisation · Liste des matricules</h3>
+<table>
+  <tr><td>Lien : jeton chiffré, expire en 30 min, utilisé / annulé le</td></tr>
+  <tr><td><span class="new">Liste des matricules (FR-37) : plus utilisée depuis le 26/10, conservée</span></td></tr>
+</table>
+</div>
+</div>
+
+<h3>Paramètres (modifiés par l'admin <span class="new">sur l'écran « Paramètres », FR-46</span>, jamais codés en dur)</h3>
+<table>
+  <thead><tr><th style="width:30%">Paramètre</th><th style="width:20%">Valeur</th><th>Notes</th></tr></thead>
+  <tr><td>Jours de service</td><td><span class="new">Lundi → samedi</span></td><td>Décidé le 24/10</td></tr>
+  <tr><td>Clôture des réservations</td><td><span class="new">1 jour avant, 23:59:59</span></td><td>Fuseau Africa/Tunis ; 0 jour = le matin même</td></tr>
+  <tr><td>Heures de service</td><td>12:00 – 15:00</td><td></td></tr>
+  <tr><td>Heure limite de finalisation</td><td><span class="new">10:00</span></td><td>Décidé le 26/10 ; jamais après le début du service</td></tr>
+  <tr><td>Rappels : menus manquants, finalisation, soir</td><td><span class="new">08:00 · 08:00 · 20:00</span></td><td>§8</td></tr>
+  <tr><td>Délai de publication</td><td><span class="new">2 jours avant, 23:59:59</span></td><td>Doit précéder la clôture des réservations</td></tr>
+  <tr><td>Horizon de réservation</td><td>Vide (sans limite)</td><td></td></tr>
+  <tr><td>Marge</td><td>10 %</td><td>Ou nombre fixe d'assiettes ; la même pour la proposition et la finalisation automatique</td></tr>
+  <tr><td>Maximum cuisine</td><td>Vide (sans plafond)</td><td></td></tr>
+  <tr><td>Absences : seuil, période de grâce</td><td>3 par mois ; lancement + 1 mois</td><td></td></tr>
+  <tr><td>Paiement activé ; payant par défaut ; prix par défaut</td><td>À activer au lancement ; oui ; ex. 3,000 TND</td><td>Le prix du jour se change sur l'écran Finalisation</td></tr>
+  <tr><td>Langue par défaut ; langues</td><td>Français ; français, anglais</td><td>Arabe plus tard</td></tr>
+</table>
+
+<h2>6.2 Relations entre les tables</h2>
+<pre class="mermaid">
+erDiagram
+    UTILISATEUR ||--o{ RESERVATION : "fait"
+    UTILISATEUR ||--o{ PLAT : "crée (chef)"
+    PLAT ||--o{ ELEMENT_MENU : "utilisé dans"
+    MENU ||--|{ ELEMENT_MENU : "contient"
+    MENU ||--o{ RESERVATION : "réservé pour"
+    UTILISATEUR ||--o{ NOTIFICATION : "reçoit"
+    UTILISATEUR ||--o{ JOURNAL_AUDIT : "agit dans"
+</pre>
+
+<h2>6.3 Cycle de vie d'un menu</h2>
+<pre class="mermaid">
+stateDiagram-v2
+    state "Brouillon" as Draft
+    state "Publié" as Published
+    state "Verrouillé" as Locked
+    state "Finalisé" as Finalized
+    state "Fermé" as Closed
+    [*] --> Draft : le chef compose
+    Draft --> Published : le chef publie (avant J-2 minuit)
+    [*] --> Published : délai manqué, menu à venir (FR-38)
+    Published --> Locked : clôture à J-1 minuit
+    Locked --> Finalized : la Direction confirme
+    Locked --> Finalized : automatique à 10h
+    Finalized --> Closed : fin du service (15h)
+    Draft --> Closed : jour fermé (FR-10)
+    Published --> Closed : jour fermé (FR-10)
+</pre>
+
+<h2>6.4 Compte et repas</h2>
+<pre class="mermaid">
+stateDiagram-v2
+    direction LR
+    state "Inscrit" as Registered
+    state "Email vérifié" as Verified
+    state "En attente RH" as Pending
+    state "Actif" as Active
+    state "Refusé" as Rejected
+    state "Suspendu" as Suspended
+    state "Désactivé" as Deactivated
+    [*] --> Registered
+    Registered --> Verified : code à 6 chiffres
+    Verified --> Pending
+    Pending --> Active : la RH approuve et saisit le matricule
+    Pending --> Rejected : motif obligatoire
+    Active --> Suspended
+    Suspended --> Active
+    Active --> Deactivated : départ
+</pre>
+<pre class="mermaid">
+stateDiagram-v2
+    direction LR
+    state "Réservé" as Reserved
+    state "Annulé" as Cancelled
+    state "Servi" as Served
+    state "Absent" as NoShow
+    [*] --> Reserved : compte actif seulement
+    Reserved --> Cancelled : avant la clôture
+    Reserved --> Served : scan valide
+    Reserved --> NoShow : fin du service sans scan
+</pre>
+
+<p>En résumé : un compte ne peut réserver qu'une fois validé par la RH ; le chef compose chaque menu depuis sa bibliothèque et le publie deux jours
+à l'avance ; les réservations s'arrêtent à minuit ; la Direction finalise le nombre d'assiettes avant 10:00 ; un repas n'est servi qu'après un scan
+valide sur le téléphone de la cantine, et une réservation non scannée à 15:00 devient une absence.</p>
+
+<!-- ============================== 7. ARCHITECTURE ============================== -->
+<h1 class="chapter">7. Architecture technique</h1>
+<p>Une seule application web responsive et une seule base de données, hébergées sur un serveur de l'entreprise, suffisent pour la v1.</p>
+<table>
+  <thead><tr><th style="width:15%">Couche</th><th>Choix</th><th style="width:34%">Pourquoi</th></tr></thead>
+  <tr><td><b>Interface</b></td><td><b>React</b> (TypeScript, Vite), site installable sur l'écran d'accueil du téléphone (PWA) ; traductions français / anglais, arabe prévu ; lecture du QR par la caméra du navigateur.</td><td>Fonctionne sur tout téléphone sans magasin d'applications.</td></tr>
+  <tr><td><b>Serveur</b></td><td><b>Django + Django REST Framework</b> (Python), API JSON. Organisation en couches : vues minces, règles dans des services, requêtes de lecture séparées.</td><td>Très mature ; authentification, chiffrement des mots de passe, rôles, fuseaux horaires, migrations et administration intégrés.</td></tr>
+  <tr><td><b>Base de données</b></td><td><b>Microsoft SQL Server</b> 2019+, base dédiée séparée de l'ERP, compte dédié ; pilote <code>mssql-django</code> + ODBC 18.</td><td>Gérable par l'informatique avec SSMS. SQLite seulement pour le développement et les démonstrations.</td></tr>
+  <tr><td><b>QR code</b></td><td>Jeton aléatoire signé par le serveur ; image dessinée sur le téléphone de l'employé, avec le logo du groupe.</td><td>Rien de personnel dans le code ; un scan = un appel.</td></tr>
+  <tr><td><b>Scanner / caisse</b></td><td>Page web sur le téléphone dédié de la cantine, compte Scanner : scan (menu à servir), <span class="new">recharges de solde, liste du jour</span>.</td><td>Pas de matériel spécial.</td></tr>
+  <tr><td><b>Notifications</b></td><td><span class="new">Cloche dans l'application + notification sur le téléphone (Web Push, clés VAPID)</span> ; email seulement pour le compte (code, validation, refus, mot de passe).</td><td>Décidé le 24/10 : pas d'email pour la routine quotidienne.</td></tr>
+  <tr><td><b>Tâches planifiées</b></td><td>Planificateur Django chaque minute, tâches rejouables sans effet de bord : menus « à venir », verrouillage, rappels, finalisation automatique, absences, fermeture des journées, envoi des notifications.</td><td>Une tâche en retard ou exécutée deux fois donne le même résultat.</td></tr>
+  <tr><td><b>Hébergement</b></td><td>Serveur de l'entreprise déjà exposé à internet ; conteneurs Docker dédiés, sous-domaine et certificat derrière le proxy, aucun accès aux données de l'ERP ; sauvegardes quotidiennes hors du serveur.</td><td>Infrastructure existante ; réservation possible depuis la maison le soir.</td></tr>
+</table>
+
+<!-- ============================== 8. NOTIFICATIONS ============================== -->
+<h2 style="font-size:14pt">8. Notifications et emails</h2>
+<p><span class="new"><b>Canaux (décidé le 24/10) :</b> les messages sur le <b>compte lui-même</b> partent par <b>email</b>, car la personne ne peut pas encore
+se connecter. <b>Tous les autres</b> sont une notification dans l'application (cloche) <b>et</b> sur le téléphone, jamais un email.</span>
+La notification sur le téléphone s'active une fois par appareil ; elle demande le HTTPS (et, sur iPhone, l'ajout à l'écran d'accueil).</p>
+<div class="box"><span class="new"><b>« Déjà traité » pour tous (3/11).</b> Dès que quelqu'un règle ce qu'une notification demande, elle est
+marquée traitée — et lue — pour tous ses destinataires : elle reste dans la liste, grisée, ne compte plus dans la cloche et
+n'est plus envoyée sur le téléphone. Compte validé ou refusé par un RH ; jour finalisé ; tous les jours d'un rappel « Menus à
+publier » publiés ou fermés ; plats ajoutés à un menu « à venir » ou jour fermé ; l'employé a réservé pour demain.</span></div>
+<table>
+  <thead><tr><th style="width:22%">Déclencheur</th><th style="width:15%">Destinataire</th><th style="width:11%">Canal</th><th>Contenu</th><th style="width:10%">État</th></tr></thead>
+  <tr><td>Inscription</td><td>Employé</td><td>Email</td><td>Code à 6 chiffres (aussi dans l'objet de l'email)</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Mot de passe oublié</td><td>Employé</td><td>Email</td><td>Lien valable 30 minutes, une seule fois</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Mot de passe changé</td><td>Employé</td><td>Email</td><td>Confirmation, avec qui contacter si ce n'est pas lui</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Compte validé / refusé</td><td>Employé</td><td>Email</td><td>« Votre compte est actif » / motif du refus</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Nouveau compte vérifié</td><td>RH</td><td>Appli + tél.</td><td><span class="new">Nom et email ; saisir le matricule</span></td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Menu modifié après réservations</td><td>Ceux qui ont réservé</td><td>Appli + tél.</td><td>Le changement, possibilité d'annuler avant la clôture</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><span class="new">Solde rechargé / corrigé</span></td><td>Employé</td><td>Appli + tél.</td><td>Montant, motif d'une correction, nouveau solde</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Jour fermé</td><td>Ceux qui ont réservé</td><td>Appli + tél.</td><td>Cantine fermée (motif) ; réservation annulée</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td><span class="new">Rappel du soir (20:00 par défaut, réglable)</span></td><td>Employés sans réservation pour le prochain jour qui ferme</td><td>Appli + tél.</td><td>Le menu de demain, avant minuit ; désactivable</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Rappel de finalisation (08:00)</td><td>Direction</td><td>Appli + tél.</td><td>Réservations du jour, à confirmer avant 10:00</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Jour finalisé</td><td>Chef</td><td>Appli + tél.</td><td>Le nombre d'assiettes à préparer, par menu</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Menus manquants (08:00)</td><td>Chef</td><td>Appli + tél.</td><td>Les prochains jours sans menu publié</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Menu « à venir » publié</td><td>Chef, copie Direction</td><td>Appli + tél.</td><td>Ajouter les plats</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Menu annoncé</td><td>Ceux qui ont réservé</td><td>Appli + tél.</td><td>Les plats sont connus</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Menu toujours vide à la clôture</td><td>Direction et chef</td><td>Appli + tél.</td><td>Réservations sans plats ; ajout possible jusqu'au service</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td>Absences répétées</td><td>Employé</td><td>Appli + tél.</td><td>Avertissement amical après 3 absences dans le mois</td><td><span class="chip next">À venir</span></td></tr>
+</table>
+
+<!-- ============================== 9. RISQUES ============================== -->
+<h1 class="chapter">9. Risques et questions ouvertes</h1>
+<p>Les plus grands risques sont humains plutôt que techniques : oublier de réserver, partager un QR code, faire la queue à l'entrée.</p>
+<table>
+  <thead><tr><th style="width:26%">Risque</th><th style="width:24%">Impact</th><th>Parade</th></tr></thead>
+  <tr><td>Les employés oublient de réserver</td><td>Les réservations ne reflètent pas la demande</td><td>Rappel du soir, réservation à l'avance de tout jour publié, communication claire, pilote avec un service</td></tr>
+  <tr><td>Un QR code est partagé ou photographié</td><td>Présence gonflée</td><td>Code à usage unique par personne et par jour ; l'écran de scan affiche nom et matricule</td></tr>
+  <tr><td>File d'attente avec <b>un seul téléphone</b></td><td>Frustration, abandon</td><td>Scan en un appel, recherche manuelle, deuxième téléphone aux heures de pointe si besoin</td></tr>
+  <tr><td>Wi-Fi ou réseau faible à la cantine</td><td>Scans ou QR qui échouent</td><td>Vérifier la couverture avant le lancement ; scans hors ligne ; QR conservé pour la journée</td></tr>
+  <tr><td>L'application partage le serveur de l'ERP</td><td>Une panne touche l'ERP ou expose ses données</td><td>Conteneurs, base, compte et sous-domaine séparés ; limites de ressources ; aucun droit sur les données ERP</td></tr>
+  <tr><td>Pas de remplaçant pour la finalisation</td><td>Nombre d'assiettes laissé au calcul automatique</td><td>Finalisation automatique à 10:00 et rappel ; l'admin peut donner le rôle Direction à plusieurs personnes et régler l'heure et la marge (FR-46)</td></tr>
+  <tr><td>Les validations RH s'accumulent</td><td>Les nouveaux ne peuvent pas réserver</td><td>Alerte RH dans l'application et sur le téléphone, un remplaçant désigné</td></tr>
+  <tr><td>Le chef ne publie pas à temps</td><td>Réservation sans connaître les plats</td><td>Rappel quotidien, planification à la semaine, duplication ; menu « à venir » (FR-38) ; alerte si vide à la clôture</td></tr>
+  <tr><td>La Direction oublie de finaliser</td><td>Le chef n'a pas de nombre</td><td>Rappel à 08:00, finalisation automatique à 10:00</td></tr>
+  <tr><td>Marge trop élevée</td><td>Les restes persistent</td><td>Rapport mensuel marge / restes ; ajuster la marge par défaut</td></tr>
+  <tr><td><span class="new">Erreur de montant à la recharge</span></td><td>Solde faux, litiges</td><td>Confirmation avec montant et nom ; plafond de 1000 TND ; employé prévenu aussitôt ; historique avec l'auteur ; correction par la Direction avec motif</td></tr>
+  <tr><td><span class="new">Solde épuisé</span></td><td>L'employé ne peut plus réserver</td><td>Solde affiché sur l'accueil ; « Solde insuffisant » avant de réserver ; recharge en quelques secondes à la caisse</td></tr>
+  <tr><td>Le personnel n'aime pas le suivi des absences</td><td>Résistance à l'application</td><td>Expliquer le but (moins de gaspillage), un mois de suivi seulement, données individuelles limitées</td></tr>
+</table>
+
+<div class="two">
+<div class="box">
+<h3 style="margin-top:0">Décisions prises</h3>
+<ul>
+  <li>Pas de limite de places ni de maximum cuisine.</li>
+  <li>Service 12:00–15:00, fuseau Africa/Tunis, <span class="new">du lundi au samedi</span>.</li>
+  <li>Menus composés depuis la bibliothèque du chef ; <span class="new">jusqu'à deux menus par jour, au choix</span>.</li>
+  <li><span class="new">Solde prépayé rechargé en espèces à la cantine ; un prix par jour ; plus de paiement au comptoir.</span></li>
+  <li><span class="new">Listes du jour pour le scanner et la Direction ; présence par employé pour la Direction et la RH.</span></li>
+  <li>La Direction finalise, <span class="new">avant 10:00</span> ; <span class="new">pas de remplaçant désigné : sinon finalisation automatique avec la marge (4/11)</span>.</li>
+  <li>Délai J-2 manqué → menu « à venir ».</li>
+  <li>Code email à l'inscription seulement ; mot de passe oublié : lien et réinitialisation RH.</li>
+  <li>Absences : un mois de suivi, puis avertissement après 3 par mois.</li>
+  <li>Pas de repas sans réservation en v1.</li>
+  <li>Scan et recharges par un téléphone dédié de la cantine (rôle Scanner).</li>
+  <li><span class="new">Pas d'annuaire RH : la RH saisit le matricule à la validation.</span></li>
+  <li><span class="new">Notifications dans l'application et sur le téléphone, pas d'email pour la routine.</span></li>
+  <li><span class="new">Rôles attribués par l'admin dans l'application ; tous les délais et horaires réglés par l'admin sur l'écran « Paramètres » (4/11).</span></li>
+  <li><span class="new">Argent reçu seulement par le scanner et la Direction ; encaissements imprimables chaque soir (4/11).</span></li>
+  <li><span class="new">Départ d'un employé : solde rendu en espèces par la Direction, remis à zéro par une correction (4/11).</span></li>
+  <li><span class="new">Tout le monde peut manger à la cantine, quel que soit son rôle.</span></li>
+  <li>Français et anglais, arabe plus tard ; environ 200 utilisateurs ; marge 10 %.</li>
+  <li>Serveur de l'entreprise, isolé de l'ERP ; tout est conservé sans limite.</li>
+  <li>React + Django REST Framework + SQL Server.</li>
+</ul>
+</div>
+<div class="box orange">
+<h3 style="margin-top:0">Encore à décider</h3>
+<ul>
+  <li>Assiettes restantes : les libérer en milieu de service, ou autre solution ? <span class="new">À décider après le pilote.</span></li>
+  <li>Facultatif : vérification rapide avec la RH / le juridique que la conservation illimitée des données respecte la loi tunisienne.</li>
+</ul>
+</div>
+</div>
+
+<!-- ============================== 10. DÉPLOIEMENT ============================== -->
+<h1 class="chapter">10. Stratégie de livraison et de déploiement</h1>
+<p>Construire la plus petite version qui couvre toute la boucle (inscription, validation, menu, réservation, finalisation, scan, rapport),
+la tester avec un groupe, puis l'ouvrir à tous. <span class="new">Avant le lancement : activer le paiement dans les paramètres, fixer le prix par défaut, et prévoir une première recharge de chaque employé à la caisse.</span></p>
+<table>
+  <thead><tr><th style="width:20%">Rôle</th><th>Qui</th><th style="width:30%">Temps nécessaire</th></tr></thead>
+  <tr><td>Responsable produit</td><td>Une personne de la RH ou des opérations, avec pouvoir de décision</td><td>Quelques heures par semaine</td></tr>
+  <tr><td>Développeurs</td><td>Un développeur full-stack, idéalement deux</td><td>Temps plein pendant la construction</td></tr>
+  <tr><td>Informatique</td><td>Serveur, accès internet, certificat, sauvegardes</td><td>Mise en place, puis astreinte</td></tr>
+  <tr><td>Testeurs métier</td><td>Le chef, une personne RH, un responsable, le scanner de la cantine, quelques employés</td><td>Courtes séances pendant les tests et le pilote</td></tr>
+</table>
+<p><b>Mise en service et accompagnement</b></p>
+<ul>
+  <li>Avant le lancement, le chef remplit la bibliothèque avec ses plats habituels : les premiers menus de la semaine prennent quelques minutes.</li>
+  <li><span class="new">La RH valide les inscriptions au fil de l'eau en saisissant le matricule de chacun.</span></li>
+  <li>Choisir un groupe pilote (un service ou une semaine) et expliquer pourquoi l'application existe : moins de gaspillage, de meilleurs repas.</li>
+  <li>Préparer un guide d'une page pour les employés et une courte formation pour la RH, le chef, la Direction et le scanner.</li>
+  <li>Premier mois : suivi des absences seulement ; annoncer la règle d'avertissement avant qu'elle ne s'applique.</li>
+  <li>Garder un canal d'assistance et faire le point chaque jour sur les problèmes pendant les deux premières semaines.</li>
+  <li>Ensuite, revoir les chiffres chaque mois avec le chef, la Direction et la RH (réservé, préparé, servi, marge, absences) et ajuster la marge, l'horizon, la règle d'absences et le prix des repas.</li>
+</ul>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: "base", securityLevel: "loose",
+    themeVariables: { primaryColor: "#e8f3e3", primaryBorderColor: "#0a6b28", primaryTextColor: "#1c2a1e",
+                      lineColor: "#3f9a1e", fontFamily: "Segoe UI, Arial, sans-serif", fontSize: "13px" } });
+</script>
+</body>
+</html>

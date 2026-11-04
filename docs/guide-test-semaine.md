@@ -26,9 +26,9 @@ Mot de passe de tous les comptes : la valeur `DEV_SEED_PASSWORD` du fichier `.en
 | Employé | `employee@ovagri.test` | Réserver, annuler, QR code, rappels |
 | RH | `hr@ovagri.test` | Approuver avec matricule, refuser, suspendre |
 | Chef | `chef@ovagri.test` | Bibliothèque de plats, planification, publication |
-| Direction | `management@ovagri.test` | Finalisation par menu, prix du jour, caisse et corrections, liste du jour |
-| Scanner | `scanner@ovagri.test` | Scan des QR (menu à servir), recherche manuelle, caisse (recharges), liste du jour |
-| Admin | `admin@ovagri.test` | Rôles, tout le reste |
+| Direction | `management@ovagri.test` | Finalisation par menu, prix du jour, caisse et corrections, encaissements, liste du jour, rapports |
+| Scanner | `scanner@ovagri.test` | Scan des QR (menu à servir), recherche manuelle, caisse (recharges), encaissements du jour, liste du jour |
+| Admin | `admin@ovagri.test` | Rôles, **Paramètres** (délais et horaires), tout le reste |
 
 Autres comptes : 20 employés (`mohamed.benali@…`, `fatma.trabelsi@…`, matricules EMP-2001 à EMP-2020) qui
 réservent et mangent ; **Riadh Hamdi** suspendu ; **Sarra Bouzid** et **Omar Tlili** en attente RH, sans matricule.
@@ -65,7 +65,8 @@ reste verrouillé, un repas servi reste servi).
 ## Étape 1 — Mardi 10/11, 20:30 (heure de départ)
 
 **Employé**
-1. La cloche affiche « Réservez pour demain » (rappel de 20:00). En haut à droite : « Solde : 6.000 TND ».
+1. La cloche affiche « Pensez à réserver » (rappel de 20:00). En haut à droite : « Solde : 6.000 TND ». Chaque jour
+   ouvert indique « Réservations jusqu'au … ».
 2. **Mercredi** : « Réserver le menu 2 » → le solde passe à 3.000 TND, le QR code apparaît dans « Mes réservations »
    avec « Menu 2 ».
 3. **Jeudi** : « Prendre ce menu à la place » sur le menu 2 → le choix change, le solde ne bouge pas.
@@ -80,12 +81,16 @@ reste verrouillé, un repas servi reste servi).
 3. Retour employé : réserver **vendredi** → le solde passe à 9.500 TND.
 4. « Liste du jour » : les réservations de mardi (menu, statut, heure de service), puis jour suivant ; filtres,
    recherche « Ben Ali », « Exporter (CSV) ».
+5. « Encaissements » : la recharge de 10 TND apparaît avec le total « Argent à remettre ». « Imprimer » → la feuille de
+   remise (chaque recharge, total, montant compté, deux signatures).
 
 **Direction**
 1. « Caisse » : sur un compte, « Corriger le solde » (ex. -5, motif « Erreur de saisie ») → l'historique garde les deux
    mouvements. Le scanner n'a pas ce bouton.
-2. « Finalisation » : réservations par menu ; « Prix du jour » de samedi modifiable (jusqu'à vendredi minuit).
-3. « Liste du jour » : comme le scanner.
+2. « Encaissements » : le total du jour par personne ; la correction de -5 est comptée, avec son motif.
+3. « Finalisation » : réservations par menu ; « Prix du jour » de samedi modifiable (jusqu'à vendredi minuit).
+4. « Liste du jour » : comme le scanner.
+5. « Rapports » : présence par employé du mois ; cliquer un employé pour voir ses jours.
 
 **RH** (Comptes)
 1. Onglet « En attente » : Sarra Bouzid et Omar Tlili, « Matricule à saisir ».
@@ -100,7 +105,12 @@ reste verrouillé, un repas servi reste servi).
 3. Modifier les plats de **jeudi** → les employés qui ont réservé jeudi reçoivent « Menu modifié ».
 4. Essayer d'enlever le menu 2 de **jeudi** → refusé : des employés l'ont réservé.
 
-**Admin** : changer le rôle d'un employé (Comptes → Rôle).
+**Admin**
+1. Changer le rôle d'un employé (Comptes → Rôle).
+2. « Paramètres » : passer le rappel des employés à 19:30 → la page « Notifications » affiche « À 19:30, si vous
+   n'avez pas encore réservé… ». L'exemple sous les délais montre les heures d'un vrai jour.
+3. Clôture des réservations à 0 jour, 11:00 → refusé (« Les réservations doivent fermer avant l'heure de finalisation »).
+4. **Remettre les valeurs d'origine** (rappel 20:00) avant l'étape 2 : la suite du guide suppose les horaires par défaut.
 
 ## Étape 2 — Mercredi 11/11, 08:30 : finalisation
 
@@ -136,8 +146,8 @@ reste verrouillé, un repas servi reste servi).
 
 - Les réservations non scannées de mercredi passent en « Absent » (visible dans « Mes réservations » d'un employé
   qui n'est pas venu, et dans « Liste du jour »). Le repas reste payé : pas de remboursement.
-- Les écrans « Rapports » sont prévus au sprint 2 : l'historique de lundi à mercredi (servis, absents, marge) est
-  déjà dans la base pour les tester quand ils seront construits.
+- **Direction** : « Rapports » → les absences de mercredi apparaissent ; le taux d'absence ne compte que les journées
+  terminées.
 
 ## Étape 6 — Vendredi 13/11, 12:30 : le prix du jour
 
@@ -147,6 +157,7 @@ Jeudi et vendredi sont finalisés automatiquement en passant 10:00 (si vous ne l
 
 - **Scanner** : scanner le QR de vendredi de l'employé de test → « Payé par le solde (3.500 TND) ». Rien à encaisser
   à la cantine : il n'y a plus de paiement au comptoir, tout passe par le solde.
+- **Direction** : « Encaissements » de mardi 10/11 → le même total que la feuille imprimée par le scanner.
 
 ## Fin des tests
 

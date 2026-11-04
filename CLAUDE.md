@@ -159,4 +159,7 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
   `http://localhost:5173` in Chrome on the phone (camera needs localhost). Redo `adb reverse` after reconnecting.
   `npm run dev:lan` exposes Vite on the Wi-Fi (no camera there: phone shows the QR, PC scans).
 - PDFs are printed from HTML with headless Edge (`msedge --headless --print-to-pdf`, `--virtual-time-budget=20000`
-  for the mermaid diagrams); check pages by rendering them (pypdfium2) before sending.
+  for the mermaid diagrams); check pages by rendering them (pypdfium2) before sending. The French sources are in
+  `docs/pdf-sources/` (spec + test guide, updated 4 Nov 2026 with FR-45/46): edit them, not only the English `.md`.
+  Use a fresh `--user-data-dir` each time (Edge is often open) and wait: Edge writes the PDF a few seconds after
+  the command returns, so render only once the file's timestamp has changed.
