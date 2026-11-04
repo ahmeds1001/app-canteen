@@ -313,3 +313,24 @@ class HandledForEveryoneTests(TestCase):
             with mock.patch("apps.notifications.push.send", return_value=True) as send:
                 jobs.send_pending_pushes()
         send.assert_not_called()
+
+
+class MessageTextTests(TestCase):
+    """French and English texts (checked 2026-11-04): no double brackets, deadlines follow the settings."""
+
+    def test_correction_reason_in_one_pair_of_brackets(self):
+        for lang in ("fr", "en"):
+            _, body = messages.render(K.BALANCE_CORRECTED, {"amount": "-5.000", "reason": "Erreur", "balance": "8.000"},
+                                      lang)
+            self.assertIn(" (Erreur).", body)
+            self.assertNotIn("( (", body)
+
+    def test_menu_and_price_changes_show_the_real_cutoff(self):
+        params = {"date": "2026-11-12", "dishes": ["Couscous"], "until": "2026-11-11T22:00"}
+        _, body = messages.render(K.MENU_CHANGED, params, "fr")
+        self.assertIn("avant mercredi 11 novembre à 22:00", body)
+        _, body = messages.render(K.PRICE_CHANGED, {"date": "2026-11-12", "is_paid": True, "price": "3.000",
+                                                    "until": "2026-11-11T22:00"}, "en")
+        self.assertIn("until Wednesday, November 11 at 22:00", body)
+        _, body = messages.render(K.MENU_CHANGED, {"date": "2026-11-12", "dishes": []}, "fr")  # stored before
+        self.assertIn("minuit la veille", body)

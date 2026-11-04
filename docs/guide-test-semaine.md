@@ -116,7 +116,7 @@ reste verrouillé, un repas servi reste servi).
 
 `dev_clock set 2026-11-11 08:30`
 
-- **Employé** : mercredi n'est plus annulable (réservations closes à minuit).
+- **Employé** : mercredi n'est plus annulable (réservations clôturées à minuit).
 - **Direction** : la cloche affiche « Assiettes à confirmer ». Écran « Finalisation » : un nombre par menu
   (réservations + 10 % de marge chacun) → confirmer, ou saisir d'autres nombres (jamais en dessous des
   réservations du menu).

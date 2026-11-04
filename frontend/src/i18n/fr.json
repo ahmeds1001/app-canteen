@@ -1,5 +1,5 @@
 {
-  "app": { "name": "Cantine", "company": "OVAGRI Groupe", "logout": "Se déconnecter", "language": "Langue",
+  "app": { "name": "Cantine", "company": "OVAGRI Groupe", "logout": "Se déconnecter", "language": "Langue", "mainNav": "Menu principal",
     "devClock": "Horloge de test (développement) : {{time}}" },
   "nav": {
     "home": "Menus", "reservations": "Mes réservations", "dishes": "Plats", "planner": "Planning",
@@ -29,7 +29,7 @@
   },
   "menus": {
     "title": "Menus de la semaine", "reserve": "Réserver", "cancel": "Annuler", "reserved": "Réservé",
-    "closed": "Réservations closes", "toBeAnnounced": "Menu à venir",
+    "closed": "Réservations clôturées", "toBeAnnounced": "Menu à venir",
     "deadline": "Réservations jusqu'au {{date}}", "price": "Prix : {{price}} TND", "free": "Gratuit",
     "empty": "Aucun menu publié pour le moment.",
     "dayClosed": "Fermé", "dayClosedHelp": "La cantine est fermée ce jour-là.",
@@ -62,8 +62,8 @@
   "cash": {
     "title": "Encaissements",
     "titleMine": "Mon encaissement du jour",
-    "help": "L'argent reçu à la cantine ce jour-là : les recharges enregistrées par chaque personne, et les corrections de la direction, qui comptent dans le total.",
-    "helpMine": "Tout l'argent que vous avez enregistré aujourd'hui. C'est le montant à remettre à la direction en fin de journée.",
+    "help": "L'argent reçu à la cantine ce jour-là : les recharges enregistrées par chaque personne, et les corrections de la Direction, qui comptent dans le total.",
+    "helpMine": "Tout l'argent que vous avez enregistré aujourd'hui. C'est le montant à remettre à la Direction en fin de journée.",
     "toHandOver": "Argent à remettre",
     "total": "Total encaissé",
     "topups": "recharges",
@@ -93,7 +93,7 @@
     "sheetTotal_other": "Total — {{count}} recharges",
     "sheetCounted": "Montant compté à la remise : ____________ TND",
     "sheetGivenBy": "Remis par (nom et signature)",
-    "sheetReceivedBy": "Reçu par la direction (nom et signature)"
+    "sheetReceivedBy": "Reçu par la Direction (nom et signature)"
   },
   "cashier": {
     "title": "Caisse — recharger un solde",
@@ -117,7 +117,7 @@
     "eating": "employés ont réservé (sur {{total}})",
     "menuSplit": "Menus choisis : {{m1}} menu 1, {{m2}} menu 2.",
     "overThreshold": "{{count}} employé(s) à {{n}} absences ou plus ce mois-ci",
-    "department": "Service", "allDepartments": "Tous les services",
+    "department": "Département", "allDepartments": "Tous les départements",
     "onlyEating": "Seulement ceux qui ont réservé", "empty": "Aucun employé pour ces filtres.",
     "summary": "{{reserved}} réservé(s), {{served}} servi(s), {{noShow}} absence(s), {{spent}} TND dépensés.",
     "noDays": "Aucune réservation ce mois-ci."
@@ -126,7 +126,7 @@
     "title": "Réservations du jour", "export": "Exporter (CSV)", "prev": "Jour précédent", "next": "Jour suivant",
     "today": "Aujourd'hui", "date": "Date", "noMenu": "Pas de menu ce jour-là.",
     "total": "réservations", "waiting": "à servir", "menu": "Menu", "reservedN": "{{count}} réservation(s)",
-    "all": "Toutes", "search": "Rechercher (nom, matricule ou service)", "empty": "Aucune réservation.",
+    "all": "Toutes", "search": "Rechercher (nom, matricule ou département)", "empty": "Aucune réservation.",
     "manual": "manuel",
     "notServedYet": "Pas encore servi",
     "absentAfter": "Les réservations pas encore servies ne deviennent « Absent » qu'à la fin du service ({{time}}), quand la journée est terminée."
@@ -137,11 +137,11 @@
   },
   "settings": {
     "title": "Paramètres de la cantine",
-    "help": "Les changements s'appliquent tout de suite (dans la minute), pour aujourd'hui et les jours suivants. Une étape déjà passée (jour clôturé ou finalisé) n'est pas annulée. Chaque changement est enregistré dans le journal.",
+    "help": "Les changements s'appliquent tout de suite (dans la minute), pour aujourd'hui et les jours suivants. Une étape déjà passée (réservations clôturées ou jour finalisé) n'est pas annulée. Chaque changement est enregistré dans le journal.",
     "deadlines": "Horaires et délais",
-    "cutoff": "Réservations des employés", "cutoffHint": "Fermeture des réservations d'un jour J. 0 jour = le matin même.",
-    "publish": "Publication du menu (chef)", "publishHint": "Sinon, le jour s'ouvre en « Menu à venir ». Doit précéder la fermeture des réservations.",
-    "finalization": "Finalisation (direction)", "finalizationHint": "Nombre d'assiettes verrouillé ; sans confirmation, finalisation automatique avec la marge.",
+    "cutoff": "Réservations des employés", "cutoffHint": "Clôture des réservations d'un jour J. 0 jour = le jour même.",
+    "publish": "Publication du menu (chef)", "publishHint": "Sinon, le jour s'ouvre en « Menu à venir ». Doit précéder la clôture des réservations.",
+    "finalization": "Finalisation (Direction)", "finalizationHint": "Nombre d'assiettes verrouillé ; sans confirmation, finalisation automatique avec la marge.",
     "service": "Service",
     "daysBefore": "Jours avant", "time": "Heure", "sameDay": "Le jour même à", "from": "De", "to": "À",
     "example": {
@@ -154,12 +154,12 @@
     "reminders": "Rappels",
     "reminderChef": "Chef : menus à publier", "reminderManagement": "Direction : finaliser",
     "reminderEmployees": "Employés : pensez à réserver",
-    "remindersHint": "Le rappel direction doit précéder la finalisation ; le rappel employés part le soir avant la fermeture des réservations.",
+    "remindersHint": "Le rappel de la Direction doit précéder la finalisation ; le rappel des employés part le soir avant la clôture des réservations.",
     "plates": "Assiettes",
     "bufferMode": "Marge", "bufferPercentage": "En pourcentage", "bufferFixed": "En assiettes",
     "bufferPercent": "Marge (%)", "bufferPlates": "Marge (assiettes)", "kitchenMax": "Maximum de la cuisine",
     "noLimit": "Sans limite",
-    "bufferHint": "La même marge sert à la proposition faite à la direction et à la finalisation automatique (arrondie au-dessus).",
+    "bufferHint": "La même marge sert à la proposition faite à la Direction et à la finalisation automatique (arrondie au-dessus).",
     "payment": "Paiement",
     "paymentEnabled": "Repas payants activés", "paidDefault": "Nouveaux jours payants par défaut",
     "priceDefault": "Prix par défaut ({{currency}})",
@@ -189,7 +189,7 @@
     "help": "Le menu d'un jour doit être publié au plus tard {{days}} jours avant, à {{time}}. Sinon, le jour s'ouvre en « Menu à venir ».",
     "weekPublished": "Menus publiés : {{count}}.", "publishWeek": "Publier la semaine ({{count}})",
     "status": {
-      "none": "Pas de menu", "draft": "Brouillon", "published": "Publié", "locked": "Réservations closes",
+      "none": "Pas de menu", "draft": "Brouillon", "published": "Publié", "locked": "Réservations clôturées",
       "finalized": "Finalisé", "closed": "Fermé"
     },
     "placeholder": "Menu à venir (publié automatiquement)", "noDishes": "Aucun plat choisi.",
@@ -279,18 +279,18 @@
       "disabled_on_server": "Pas encore configurées sur le serveur. Les notifications restent visibles dans l'application."
     },
     "eveningTitle": "Rappel du soir",
-    "eveningHelp": "À {{time}}, si vous n'avez pas encore réservé (réservations jusqu'à {{cutoff}})."
+    "eveningHelp": "À {{time}}, si vous n'avez pas encore réservé (clôture des réservations : {{cutoff}})."
   },
   "soon": { "title": "Écran à construire", "help": "Cet écran est prévu dans le cahier des charges ({{refs}}). Il sera développé dans un prochain sprint." },
   "errors": {
     "generic": "Une erreur est survenue. Réessayez.",
     "settings_no_service_day": "Gardez au moins un jour de service.",
-    "settings_publish_after_cutoff": "Le menu doit être publié avant la fermeture des réservations.",
-    "settings_cutoff_after_finalization": "Les réservations doivent fermer avant l'heure de finalisation.",
+    "settings_publish_after_cutoff": "Le menu doit être publié avant la clôture des réservations.",
+    "settings_cutoff_after_finalization": "La clôture des réservations doit précéder l'heure de finalisation.",
     "settings_finalization_after_service": "La finalisation doit avoir lieu au plus tard au début du service.",
     "settings_service_end_before_start": "La fin du service doit être après son début.",
-    "settings_reminder_after_finalization": "Le rappel de la direction doit précéder l'heure de finalisation.",
-    "settings_reminder_after_cutoff": "Le rappel des employés doit précéder la fermeture des réservations.",
+    "settings_reminder_after_finalization": "Le rappel de la Direction doit précéder l'heure de finalisation.",
+    "settings_reminder_after_cutoff": "Le rappel des employés doit précéder la clôture des réservations.",
     "settings_buffer_too_high": "La marge ne peut pas dépasser 100 %.",
     "settings_unknown_field": "Ce paramètre ne peut pas être modifié ici.",
     "invalid_credentials": "Email ou mot de passe incorrect.",
@@ -303,14 +303,14 @@
     "otp_invalid": "Code incorrect.", "otp_expired": "Code expiré. Demandez-en un nouveau.",
     "otp_resend_too_soon": "Patientez 60 secondes avant de demander un nouveau code.",
     "otp_too_many": "Trop de codes demandés. Réessayez dans une heure.",
-    "reservation_closed": "Les réservations pour ce jour sont closes.",
+    "reservation_closed": "Les réservations pour ce jour sont clôturées.",
     "reset_link_invalid": "Ce lien est invalide ou a expiré.",
     "invalid_qr": "QR code invalide.", "already_served": "Repas déjà servi.",
     "reservation_cancelled": "Réservation annulée.", "wrong_date": "Ce code n'est pas pour aujourd'hui.",
     "outside_service_window": "Hors des heures de service.", "account_not_active": "Compte inactif.",
     "http_403": "Votre rôle ne permet pas cette action.",
     "http_429": "Trop de tentatives depuis cet appareil. Réessayez un peu plus tard.",
-    "menu_locked": "Ce menu ne peut plus être modifié (réservations closes).",
+    "menu_locked": "Ce menu ne peut plus être modifié (réservations clôturées).",
     "dish_not_found": "Un des plats n'existe plus ou est archivé.",
     "not_draft": "Seul un menu en brouillon peut être publié.",
     "menu_empty": "Ajoutez au moins un plat avant de publier.",

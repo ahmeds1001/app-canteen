@@ -1,5 +1,5 @@
 {
-  "app": { "name": "Canteen", "company": "OVAGRI Groupe", "logout": "Log out", "language": "Language",
+  "app": { "name": "Canteen", "company": "OVAGRI Groupe", "logout": "Log out", "language": "Language", "mainNav": "Main menu",
     "devClock": "Test clock (development): {{time}}" },
   "nav": {
     "home": "Menus", "reservations": "My reservations", "dishes": "Dishes", "planner": "Planner",
@@ -81,7 +81,7 @@
     "details": "Details",
     "print": "Print",
     "sheetTitle": "OVAGRI Canteen — Cash hand-over sheet",
-    "sheetCashier": "Received by: {{name}}",
+    "sheetCashier": "Recorded by: {{name}}",
     "sheetEveryone": "Everyone who recorded cash",
     "sheetPrinted": "Printed on {{time}}",
     "colTime": "Time",
@@ -137,9 +137,9 @@
   },
   "settings": {
     "title": "Canteen settings",
-    "help": "Changes apply at once (within a minute), for today and the following days. A step already passed (a day closed or finalized) is not undone. Every change is recorded in the audit log.",
+    "help": "Changes apply at once (within a minute), for today and the following days. A step already passed (reservations closed or a day finalized) is not undone. Every change is recorded in the audit log.",
     "deadlines": "Times and deadlines",
-    "cutoff": "Employee reservations", "cutoffHint": "When reservations for day D close. 0 days = the same morning.",
+    "cutoff": "Employee reservations", "cutoffHint": "When reservations for day D close. 0 days = the same day.",
     "publish": "Menu publishing (chef)", "publishHint": "Otherwise the day opens as \"Menu to be announced\". Must come before reservations close.",
     "finalization": "Finalization (management)", "finalizationHint": "Plate count locked; without confirmation, automatic finalization with the buffer.",
     "service": "Service",
@@ -278,7 +278,7 @@
       "disabled_on_server": "Not set up on the server yet. Notifications are still shown in the app."
     },
     "eveningTitle": "Evening reminder",
-    "eveningHelp": "At {{time}}, if you have not reserved yet (reservations close at {{cutoff}})."
+    "eveningHelp": "At {{time}}, if you have not reserved yet (reservations close: {{cutoff}})."
   },
   "soon": { "title": "Screen to build", "help": "This screen is planned in the specification ({{refs}}). It will be built in an upcoming sprint." },
   "errors": {

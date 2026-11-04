@@ -3,7 +3,8 @@ import csv
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.utils.dateparse import parse_date
+from django.utils import timezone
+from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -69,17 +70,30 @@ class DayListView(APIView):
         return Response({**selectors.day_summary(day), "rows": DayReservationSerializer(rows, many=True).data})
 
 
+# The CSV is in French like the other exports (presence, cash): words instead of status codes, local times.
+_STATUS_FR = {"reserved": "réservé", "served": "servi", "no_show": "absent", "cancelled": "annulé"}
+_PAYMENT_FR = {"not_required": "gratuit", "unpaid": "à payer", "paid": "payé", "refunded": "remboursé"}
+_METHOD_FR = {"qr": "QR code", "manual": "manuel"}
+
+
+def _local(value: str | None, fmt: str) -> str:
+    return timezone.localtime(parse_datetime(value)).strftime(fmt) if value else ""
+
+
 def _csv(day, rows) -> HttpResponse:
     response = HttpResponse(content_type="text/csv; charset=utf-8")
     response["Content-Disposition"] = f'attachment; filename="reservations-{day.isoformat()}.csv"'
     response.write("﻿")  # BOM: Excel opens the accents correctly
     writer = csv.writer(response, delimiter=";")
-    writer.writerow(["nom", "matricule", "departement", "menu", "statut", "paiement", "montant", "reserve_le",
-                     "servi_le", "methode"])
+    writer.writerow(["nom", "matricule", "departement", "menu", "statut", "paiement", "montant_tnd", "reserve_le",
+                     "servi_a", "methode"])
     for r in rows:
-        writer.writerow([r["full_name"], r["employee_number"] or "", r["department"], r["choice"], r["status"],
-                         r["payment_status"], r["amount_due"] or "", r["reserved_at"], r["served_at"] or "",
-                         r["scan_method"]])
+        writer.writerow([
+            r["full_name"], r["employee_number"] or "", r["department"], r["choice"],
+            _STATUS_FR.get(r["status"], r["status"]), _PAYMENT_FR.get(r["payment_status"], r["payment_status"]),
+            (r["amount_due"] or "").replace(".", ","), _local(r["reserved_at"], "%d/%m/%Y %H:%M"),
+            _local(r["served_at"], "%H:%M"), _METHOD_FR.get(r["scan_method"] or "", r["scan_method"] or ""),
+        ])
     return response
 
 

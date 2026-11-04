@@ -19,6 +19,13 @@ def _dishes(menu) -> list[str]:
     return list(menu.items.values_list("name", flat=True))
 
 
+def _until(menu) -> str:
+    """Reservation cutoff of the day as "YYYY-MM-DDTHH:MM", company time (set by the admin, FR-46)."""
+    from apps.menus import rules  # lazy: menus imports this module
+
+    return rules.reservation_cutoff(menu.date).strftime("%Y-%m-%dT%H:%M")
+
+
 def account_pending(user) -> None:
     services.notify(
         active_users("hr"), Kind.ACCOUNTS_PENDING,
@@ -38,7 +45,7 @@ def menu_announced(menu) -> None:
 def menu_changed(menu) -> None:
     services.notify(
         _reserved_users(menu), Kind.MENU_CHANGED,
-        params={"date": menu.date.isoformat(), "dishes": _dishes(menu)}, link="/",
+        params={"date": menu.date.isoformat(), "dishes": _dishes(menu), "until": _until(menu)}, link="/",
         dedupe_key=f"{menu.date.isoformat()}@{clock.now().isoformat()}",
     )
 
@@ -46,7 +53,8 @@ def menu_changed(menu) -> None:
 def price_changed(menu) -> None:
     services.notify(
         _reserved_users(menu), Kind.PRICE_CHANGED,
-        params={"date": menu.date.isoformat(), "is_paid": menu.is_paid, "price": str(menu.price or "")},
+        params={"date": menu.date.isoformat(), "is_paid": menu.is_paid, "price": str(menu.price or ""),
+                "until": _until(menu)},
         link="/", dedupe_key=f"{menu.date.isoformat()}@{clock.now().isoformat()}",
     )
 

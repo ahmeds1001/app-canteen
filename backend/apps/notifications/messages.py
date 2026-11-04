@@ -27,9 +27,9 @@ TEXTS: dict[str, dict[str, tuple[str, str]]] = {
     },
     K.MENU_CHANGED: {
         "fr": ("Menu modifié",
-               "Le menu du {date} a changé : {dishes}. Vous pouvez annuler avant minuit la veille."),
+               "Le menu du {date} a changé : {dishes}. Vous pouvez annuler avant {until}."),
         "en": ("Menu changed",
-               "The menu for {date} has changed: {dishes}. You can cancel until midnight the day before."),
+               "The menu for {date} has changed: {dishes}. You can cancel until {until}."),
     },
     K.MENU_ANNOUNCED: {
         "fr": ("Menu annoncé", "Le menu du {date} est connu : {dishes}."),
@@ -37,9 +37,9 @@ TEXTS: dict[str, dict[str, tuple[str, str]]] = {
     },
     K.PRICE_CHANGED: {
         "fr": ("Prix du repas modifié",
-               "Le repas du {date} est maintenant {price}. Vous pouvez annuler avant minuit la veille."),
+               "Le repas du {date} est maintenant {price}. Vous pouvez annuler avant {until}."),
         "en": ("Meal price changed",
-               "The meal on {date} is now {price}. You can cancel until midnight the day before."),
+               "The meal on {date} is now {price}. You can cancel until {until}."),
     },
     K.DAY_CLOSED: {
         "fr": ("Cantine fermée", "La cantine est fermée le {date}{reason}. Votre réservation est annulée."),
@@ -76,8 +76,8 @@ TEXTS: dict[str, dict[str, tuple[str, str]]] = {
         "en": ("Balance topped up", "+{amount} TND added to your balance. New balance: {balance} TND."),
     },
     K.BALANCE_CORRECTED: {
-        "fr": ("Solde corrigé", "Correction de {amount} TND ({reason}). Nouveau solde : {balance} TND."),
-        "en": ("Balance corrected", "Correction of {amount} TND ({reason}). New balance: {balance} TND."),
+        "fr": ("Solde corrigé", "Correction de {amount} TND{reason}. Nouveau solde : {balance} TND."),
+        "en": ("Balance corrected", "Correction of {amount} TND{reason}. New balance: {balance} TND."),
     },
     K.MENU_MISSING: {
         "fr": ("Menus à publier", "Pas encore de menu publié pour : {dates}."),
@@ -119,8 +119,8 @@ def render(kind: str, params: dict, lang: str) -> tuple[str, str]:
         p["dates"] = ", ".join(format_day(d, lang) for d in p["dates"])
     if "dishes" in p:
         p["dishes"] = " · ".join(p["dishes"]) or words["tba"]
-    if kind == K.RESERVATION_REMINDER:
-        # "until" = cutoff as "YYYY-MM-DDTHH:MM" (company time); reminders stored before 2026-11-04 have none.
+    if kind in (K.RESERVATION_REMINDER, K.MENU_CHANGED, K.PRICE_CHANGED):
+        # "until" = cutoff as "YYYY-MM-DDTHH:MM" (company time); notifications stored before 2026-11-04 have none.
         until = p.get("until")
         p["until"] = (words["at"].format(day=format_day(until[:10], lang), time=until[11:16])
                       if until else words["midnight"])

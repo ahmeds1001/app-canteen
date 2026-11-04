@@ -70,7 +70,7 @@ export function AppLayout() {
         <Logo size={40} />
         <span className="shell__title">{t("app.name")}</span>
         {showNav && (
-          <nav className="shell__nav" aria-label="Main">
+          <nav className="shell__nav" aria-label={t("app.mainNav")}>
             {links.map((l) => (
               <NavLink key={l.to} to={l.to} end>
                 {t(l.key)}

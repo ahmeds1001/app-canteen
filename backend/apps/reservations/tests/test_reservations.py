@@ -270,3 +270,7 @@ class DayListTests(TestCase):
         self.assertEqual(len(self._get("scanner", "&q=M-1").json()["rows"]), 1)
         csv_text = self._get("management", "&export=csv").content.decode("utf-8-sig")
         self.assertIn("Test Ben Ali;M-1", csv_text)
+        # In French like the other exports: words, not status codes.
+        self.assertIn(";réservé;", csv_text)
+        self.assertIn(";annulé;", csv_text)
+        self.assertNotIn("cancelled", csv_text)
