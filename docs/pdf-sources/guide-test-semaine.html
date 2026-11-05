@@ -41,136 +41,153 @@
   <img src="logo.png" alt="OVAGRI Groupe">
   <div>
     <h1>Guide de test — Cantine OVAGRI</h1>
-    <p>Semaine de démonstration du 9 au 14 novembre 2026 · horloge de départ : mardi 10/11, 20:30</p>
+    <p>Semaine de démonstration du lundi 30 novembre au samedi 5 décembre 2026 · horloge de départ : mardi 1/12, 20:30</p>
   </div>
 </header>
 
 <p>Les données de test sont créées par <code>manage.py demo_week</code>. Tout ce qui précède l'heure de départ a été « vécu »
-par l'application avec ses vraies règles : menus publiés, réservations et annulations, verrouillage à minuit,
-finalisation, scans, absences, notifications et journal d'audit.</p>
+par l'application avec ses vraies règles : menus publiés, réservations et annulations, clôture à minuit, finalisation,
+scans, absences, notifications et journal d'audit. Chaque résultat attendu ci-dessous a été vérifié en rejouant le guide
+sur une copie de la base (5 novembre 2026).</p>
+
+<h2>Préparer la semaine de test</h2>
+<p>Dans cmd, depuis le dossier de l'application, <strong>une seule fois</strong> :</p>
+<pre>backend\.venv\Scripts\python.exe backend\manage.py demo_week</pre>
+<p>La commande ajoute la semaine du 30 novembre (rien n'est effacé), remet le solde de l'employé de test à 15 TND avant la
+semaine, ajoute deux inscriptions en attente et règle l'horloge de test sur <strong>mardi 1/12, 20:30</strong>. Si la
+semaine existe déjà, elle ne change rien et remet seulement l'horloge.</p>
+<div class="note"><strong>Paramètres par défaut.</strong> Le guide suppose les valeurs d'origine de l'écran « Paramètres » :
+réservations jusqu'à 23:59 la veille, finalisation à 10:00, service de 12:00 à 15:00, rappel du soir à
+<strong>20:00</strong>, marge de 10 %. Vérifiez-les avec le compte admin avant de commencer.</div>
 
 <h2>Lancer l'application</h2>
-<p>Dans cmd, depuis le dossier de l'application. <strong>Régler l'horloge d'abord</strong>, puis ouvrir les 3 fenêtres :</p>
-<pre>backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-11-10 20:30
-start "backend" cmd /k "cd backend && .venv\Scripts\python.exe manage.py runserver"
-start "scheduler" cmd /k "cd backend && .venv\Scripts\python.exe manage.py run_scheduler"
-start "frontend" cmd /k "cd frontend && npm run dev"</pre>
-<p>Ouvrir <strong>http://localhost:5173</strong>. Le bandeau orange « Horloge de test » affiche l'heure simulée.</p>
+<p>Ouvrir les 3 fenêtres (l'horloge a déjà été réglée par <code>demo_week</code>) :</p>
+<pre>start "backend" cmd /k "cd backend &amp;&amp; .venv\Scripts\python.exe manage.py runserver"
+start "scheduler" cmd /k "cd backend &amp;&amp; .venv\Scripts\python.exe manage.py run_scheduler"
+start "frontend" cmd /k "cd frontend &amp;&amp; npm run dev"</pre>
+<p>Ouvrir <strong>http://localhost:5173</strong>. Le bandeau orange « Horloge de test » affiche l'heure simulée. La cloche
+peut contenir des notifications des semaines précédentes : commencez par « Tout marquer comme lu » sur chaque compte.</p>
 
+<div style="break-inside: avoid">
 <h2>Comptes</h2>
 <p>Mot de passe de tous les comptes : la valeur <code>DEV_SEED_PASSWORD</code> du fichier <code>.env</code>.</p>
 <table>
   <tr><th>Rôle</th><th>Email</th><th>Pour tester</th></tr>
-  <tr><td>Employé</td><td><code>employee@ovagri.test</code></td><td>Réserver, annuler, QR code, rappels</td></tr>
-  <tr><td>RH</td><td><code>hr@ovagri.test</code></td><td>Approuver avec matricule, refuser, suspendre</td></tr>
+  <tr><td>Employé</td><td><code>employee@ovagri.test</code></td><td>Réserver, changer de menu, annuler, QR code, solde</td></tr>
+  <tr><td>RH</td><td><code>hr@ovagri.test</code></td><td>Approuver avec matricule, refuser, réactiver</td></tr>
   <tr><td>Chef</td><td><code>chef@ovagri.test</code></td><td>Bibliothèque de plats, planning, publication</td></tr>
-  <tr><td>Direction</td><td><code>management@ovagri.test</code></td><td>Finalisation par menu, prix du jour, caisse et corrections, encaissements, listes, rapports</td></tr>
-  <tr><td>Scanner</td><td><code>scanner@ovagri.test</code></td><td>Scan des QR (menu à servir), liste du jour — <strong>pas d'argent</strong></td></tr>
+  <tr><td>Direction</td><td><code>management@ovagri.test</code></td><td>Finalisation par menu, prix du jour, corrections, encaissements, listes, rapports</td></tr>
+  <tr><td>Scanner</td><td><code>scanner@ovagri.test</code></td><td>Scan des QR (menu à servir), recherche manuelle, liste du jour — <strong>pas d'argent</strong></td></tr>
   <tr><td>Caissier</td><td><code>cashier@ovagri.test</code></td><td>Caisse (recharges), encaissements du jour, feuille de remise — <strong>pas de scan</strong></td></tr>
   <tr><td>Admin</td><td><code>admin@ovagri.test</code></td><td>Rôles, <strong>Paramètres</strong> (délais et horaires), tout le reste</td></tr>
 </table>
-<p>Autres comptes : 20 employés (<code>mohamed.benali@…</code>, <code>fatma.trabelsi@…</code>, matricules EMP-2001 à EMP-2020)
-qui réservent et mangent ; <strong>Riadh Hamdi</strong> suspendu ; <strong>Sarra Bouzid</strong> et <strong>Omar Tlili</strong>
+</div>
+<p>Autres comptes : 20 employés (<code>mohamed.benali@…</code>, <code>hichem.gharbi@…</code>, matricules EMP-2001 à EMP-2020) qui
+réservent et mangent ; <strong>Riadh Hamdi</strong> suspendu ; <strong>Sarra Bouzid</strong> et <strong>Omar Tlili</strong>
 en attente RH, sans matricule.</p>
 
-<h2>État de départ (mardi 10/11, 20:30)</h2>
+<h2>État de départ (mardi 1/12, 20:30)</h2>
 <p>Chaque repas est payé avec le <strong>solde prépayé</strong> au moment de la réservation : 3,000 TND, vendredi
-3,500 TND. Les employés ont rechargé 20 à 50 TND ; l'<strong>employé de test</strong> a rechargé 15 TND et payé lundi,
-mardi et jeudi : <strong>il lui reste 6 TND</strong>.</p>
+3,500 TND. L'<strong>employé de test</strong> avait 15 TND avant la semaine et a payé lundi, mardi et jeudi :
+<strong>il lui reste 6,000 TND</strong>.</p>
 <table>
-  <tr><th>Jour</th><th>Menus</th><th>État</th><th>À savoir</th></tr>
-  <tr><td>Lun 9</td><td>1</td><td>Terminé</td><td>Finalisé automatiquement ; l'employé de test absent (repas payé quand même)</td></tr>
-  <tr><td>Mar 10</td><td>2</td><td>Terminé</td><td>Finalisé par la Direction, par menu ; l'employé de test (menu 2) servi à 12:41</td></tr>
-  <tr class="hl"><td>Mer 11</td><td>2</td><td>Ouvert jusqu'à minuit</td><td>L'employé de test n'a <u>pas</u> réservé</td></tr>
-  <tr><td>Jeu 12</td><td>2</td><td>Ouvert</td><td>L'employé de test a réservé le menu 1</td></tr>
-  <tr><td>Ven 13</td><td>2</td><td>Ouvert, 3,500 TND</td><td>L'employé de test n'aura pas assez de solde</td></tr>
-  <tr><td>Sam 14</td><td>1</td><td>Brouillon du chef</td><td>À publier avant jeudi minuit</td></tr>
-  <tr><td>Lun 16</td><td>—</td><td>Rien</td><td>Le chef doit planifier la semaine suivante</td></tr>
+  <tr><th>Jour</th><th>Menus</th><th>État</th><th>Employé de test</th></tr>
+  <tr><td>Lun 30/11</td><td>1</td><td>Terminé</td><td>Menu 1 réservé, <strong>absent</strong> (repas payé quand même)</td></tr>
+  <tr><td>Mar 1/12</td><td>2</td><td>Terminé</td><td>Menu 2, <strong>servi</strong> à 12:41</td></tr>
+  <tr class="hl"><td>Mer 2/12</td><td>2</td><td>Ouvert jusqu'à minuit</td><td><u>Pas</u> réservé</td></tr>
+  <tr><td>Jeu 3/12</td><td>2</td><td>Ouvert</td><td>Menu 1 réservé</td></tr>
+  <tr><td>Ven 4/12</td><td>2</td><td>Ouvert, 3,500 TND</td><td>Pas réservé (solde trop juste)</td></tr>
+  <tr><td>Sam 5/12</td><td>1</td><td>Brouillon du chef</td><td>À publier avant jeudi 3/12 minuit</td></tr>
+  <tr><td>Lun 7/12</td><td>—</td><td>Rien</td><td>Le chef doit planifier la semaine suivante</td></tr>
 </table>
 
 <h2>Changer l'heure</h2>
-<p>Depuis le dossier de l'application (le planificateur applique les changements tout de suite), puis rafraîchir la page :</p>
-<pre>backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-11-11 08:30</pre>
+<p>Chaque étape commence par sa commande (depuis le dossier de l'application), puis rafraîchir la page. Le planificateur
+applique tout de suite ce qui est dû à cette heure.</p>
 <div class="note"><strong>Avancez toujours dans l'ordre des étapes.</strong> Revenir en arrière ne défait pas ce qui s'est passé :
-un menu verrouillé reste verrouillé, un repas servi reste servi.</div>
+un menu clôturé reste clôturé, un repas servi reste servi.</div>
 
-<div class="step">
-  <h2>Étape 1 — Mardi 10/11, 20:30 (heure de départ)</h2>
-  <span class="clock">dev_clock set 2026-11-10 20:30</span>
+<div class="step pagebreak">
+  <h2>Étape 1 — Mardi 1/12, 20:30 (heure de départ)</h2>
+  <span class="clock">backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-01 20:30</span>
   <h3><span class="role">Employé</span></h3>
   <ol>
-    <li>La cloche affiche « Pensez à réserver ». En haut : « Solde : 6.000 TND ». Chaque jour ouvert indique « Réservations jusqu'au … ».</li>
-    <li><strong>Mercredi</strong> : « Réserver le menu 2 » → solde 3.000 TND ; la cloche marque le rappel « Déjà traité » ;
+    <li>La cloche affiche « Pensez à réserver » pour mercredi 2 décembre. En haut : « Solde : 6.000 TND ». Chaque jour
+      ouvert indique « Réservations jusqu'au … ».</li>
+    <li><strong>Mercredi</strong> : « Réserver le menu 2 » → solde <strong>3.000</strong> ; le rappel passe en « Déjà traité » ;
       le QR code apparaît dans « Mes réservations » avec « Menu 2 ».</li>
-    <li><strong>Jeudi</strong> : « Prendre ce menu à la place » → le choix change, le solde ne bouge pas.</li>
-    <li><strong>Jeudi</strong> : « Annuler (remboursé : 3.000 TND) » → solde 6.000 TND. Réserver de nouveau.</li>
+    <li><strong>Jeudi</strong> : « Prendre ce menu à la place » (menu 2) → le choix change, le solde reste 3.000.</li>
+    <li><strong>Jeudi</strong> : « Annuler (remboursé : 3.000 TND) » → solde <strong>6.000</strong>. Réserver de nouveau le
+      menu 1 → solde <strong>3.000</strong>.</li>
     <li><strong>Vendredi</strong> (3.500 TND) : « Solde insuffisant », boutons désactivés.</li>
-    <li>« Mon solde » : l'historique, avec le solde après chaque mouvement.</li>
+    <li>« Mon solde » : l'historique avec le solde après chaque mouvement (dont « Solde remis à 15 TND » avant la semaine).</li>
   </ol>
   <h3><span class="role">Caissier</span> — Caisse et encaissements</h3>
   <ol>
-    <li>« Caisse » : rechercher « employe » → « 10 TND » → « Enregistrer » → confirmer → solde 13.000 TND
+    <li>« Caisse » : rechercher « employe » → « 10 TND » → « Enregistrer » → confirmer → solde <strong>13.000</strong>
       (notification « Solde rechargé »).</li>
-    <li>Retour employé : réserver <strong>vendredi</strong> → solde 9.500 TND.</li>
-    <li>« Encaissements » : la recharge de 10 TND apparaît, avec le total « Argent à remettre ». « Imprimer » → la feuille de
-      remise (chaque recharge, total, montant compté, deux signatures).</li>
+    <li>Retour employé : réserver <strong>vendredi</strong> → solde <strong>9.500</strong>.</li>
+    <li>« Encaissements » (« Mon encaissement du jour ») : 1 recharge, « Argent à remettre » <strong>10.000 TND</strong>.
+      « Imprimer » → la feuille de remise (chaque recharge, total, montant compté, deux signatures).</li>
     <li>Le caissier n'a ni « Scanner » ni « Liste du jour ».</li>
   </ol>
   <h3><span class="role">Scanner</span> — Liste du jour</h3>
   <ol>
-    <li>« Liste du jour » : menu, statut, heure de service ; filtres, recherche, « Exporter (CSV) ».</li>
+    <li>« Liste du jour » : les réservations de mardi (menu, statut, heure de service), puis mercredi ; filtres,
+      recherche, « Exporter (CSV) ».</li>
     <li>Le scanner n'a ni « Caisse » ni « Encaissements » (ouvrir <code>/cashier</code> ramène aux menus).</li>
   </ol>
   <h3><span class="role">Direction</span></h3>
   <ol>
-    <li>« Caisse » : « Corriger le solde » (ex. -5, motif) — le caissier n'a pas ce bouton.</li>
-    <li>« Encaissements » : le total du jour par personne ; la correction de -5 est comptée, avec son motif.
-      Changer de jour avec ‹ ›, « Exporter (CSV) ».</li>
+    <li>« Caisse » : ouvrir <strong>Mohamed Ben Ali</strong> → « Corriger le solde » : -5, motif « Erreur de saisie ». Le
+      caissier n'a pas ce bouton.</li>
+    <li>« Encaissements » de mardi 1/12 : par personne « Caisse Test 10.000 » (la même somme que la feuille du caissier),
+      la correction de -5.000 avec son motif, <strong>total encaissé 5.000 TND</strong>.</li>
     <li>« Finalisation » : réservations par menu ; « Prix du jour » de samedi modifiable.</li>
-    <li>« Rapports » : présence par employé du mois (réservés, servis, absences, pas encore servis, dépensé) ;
-      cliquer un employé pour voir ses jours.</li>
+    <li>« Rapports » : présence par employé du mois (Réservés = Servis + Absences + Pas encore servis) ; cliquer un
+      employé pour voir ses jours.</li>
   </ol>
   <h3><span class="role">RH</span> — Comptes</h3>
   <ol>
     <li>Onglet « En attente » : Sarra Bouzid et Omar Tlili, « Matricule à saisir ».</li>
-    <li>Approuver Sarra avec <code>EMP-2001</code> → refusé (déjà utilisé). Puis <code>EMP-2101</code> → approuvé :
+    <li>Approuver Sarra avec <code>EMP-2001</code> → refusé (déjà utilisé). Puis <code>EMP-3011</code> → approuvé :
       sa notification passe en « Déjà traité » pour tous les RH.</li>
     <li>Refuser Omar avec un motif.</li>
     <li>Onglet « Suspendus » : réactiver Riadh Hamdi.</li>
   </ol>
   <h3><span class="role">Chef</span></h3>
   <ol>
-    <li>« Plats » : 17 plats ; ajouter un plat avec photo.</li>
-    <li>« Planning » : <strong>samedi 14</strong> → « Modifier les plats » → onglet « Menu 2 » → « Publier ».
-      Composer et publier <strong>lundi 16</strong> : le rappel « Menus à publier » passe en « Déjà traité ».</li>
-    <li>Enlever le menu 2 de <strong>jeudi</strong> → refusé : des employés l'ont réservé.</li>
+    <li>« Plats » : la bibliothèque (17 plats sur une base neuve) ; ajouter un plat avec photo.</li>
+    <li>« Planning » : <strong>samedi 5/12</strong> → « Modifier les plats » → onglet « Menu 2 » → « Publier ».
+      Semaine suivante : composer et publier <strong>lundi 7/12</strong>.</li>
+    <li>Enlever le menu 2 de <strong>jeudi 3/12</strong> → refusé : des employés l'ont réservé.</li>
   </ol>
   <h3><span class="role">Admin</span></h3>
   <ol>
-    <li>Changer le rôle d'un employé (Comptes → Rôle).</li>
+    <li>Changer le rôle d'un employé (Comptes → Rôle), par exemple en « Caissier ».</li>
     <li>« Paramètres » : passer le rappel des employés à 19:30 → « Enregistrer » ; la page « Notifications » affiche
-      « À 19:30, si vous n'avez pas encore réservé… ». L'exemple en bas des délais montre les heures d'un vrai jour.</li>
-    <li>Mettre la clôture des réservations à 0 jour, 11:00 → refusé : « Les réservations doivent fermer avant l'heure
-      de finalisation ».</li>
-    <li><strong>Remettre les valeurs d'origine</strong> (rappel 20:00) avant de passer à l'étape 2 : le reste du guide
-      suppose les horaires par défaut.</li>
+      « À 19:30, si vous n'avez pas encore réservé… ».</li>
+    <li>Clôture des réservations à 0 jour, 11:00 → refusé : « La clôture des réservations doit précéder l'heure de
+      finalisation ».</li>
+    <li><strong>Remettre le rappel à 20:00</strong> avant l'étape 2 : la suite du guide suppose les horaires par défaut.</li>
   </ol>
 </div>
 
 <div class="step keep">
-  <h2>Étape 2 — Mercredi 11/11, 08:30 : finalisation</h2>
-  <span class="clock">dev_clock set 2026-11-11 08:30</span>
+  <h2>Étape 2 — Mercredi 2/12, 08:30 : finalisation</h2>
+  <span class="clock">backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-02 08:30</span>
   <ul>
     <li><span class="role">Employé</span> : mercredi n'est plus annulable (réservations clôturées à minuit).</li>
     <li><span class="role">Direction</span> : « Assiettes à confirmer ». Écran « Finalisation » : un nombre <strong>par
-      menu</strong> (réservations + 10 % chacun) → confirmer. Le rappel passe en « Déjà traité » pour toute la Direction.</li>
+      menu</strong>, réservations + 10 % arrondi au-dessus (ex. 12 → 14, 6 → 7) → confirmer. Le rappel passe en
+      « Déjà traité » pour toute la Direction.</li>
     <li><span class="role">Chef</span> : « Nombre d'assiettes » avec le détail par menu.</li>
   </ul>
 </div>
 
 <div class="step keep">
-  <h2>Étape 3 — Mercredi 11/11, 10:05 : après l'heure limite</h2>
-  <span class="clock">dev_clock set 2026-11-11 10:05</span>
+  <h2>Étape 3 — Mercredi 2/12, 10:05 : après l'heure limite</h2>
+  <span class="clock">backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-02 10:05</span>
   <ul>
     <li><span class="role">Direction</span> : le nombre d'assiettes ne peut plus être changé. Si mercredi n'avait pas été
       confirmé, il a été finalisé automatiquement (réservations + 10 %).</li>
@@ -178,38 +195,37 @@ un menu verrouillé reste verrouillé, un repas servi reste servi.</div>
 </div>
 
 <div class="step keep">
-  <h2>Étape 4 — Mercredi 11/11, 12:30 : le service</h2>
-  <span class="clock">dev_clock set 2026-11-11 12:30</span>
+  <h2>Étape 4 — Mercredi 2/12, 12:30 : le service</h2>
+  <span class="clock">backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-02 12:30</span>
   <h3><span class="role">Scanner</span> (téléphone ou PC)</h3>
   <ol>
     <li>Scanner le QR de mercredi de l'employé de test → « Repas validé », <strong>« Menu 2 »</strong> en gros avec
       ses plats (l'assiette à servir), « Payé par le solde ».</li>
     <li>Le scanner une deuxième fois → « Repas déjà servi » (rouge).</li>
     <li>Scanner le QR de <strong>jeudi</strong> → « Ce code n'est pas pour aujourd'hui ».</li>
-    <li>Recherche manuelle : taper « Ben Ali » → « Valider la présence » pour Mohamed Ben Ali.</li>
+    <li>Recherche manuelle : taper « Gharbi » → « Valider la présence » pour Hichem Gharbi.</li>
   </ol>
 </div>
 
 <div class="step keep">
-  <h2>Étape 5 — Mercredi 11/11, 15:05 : absences</h2>
-  <span class="clock">dev_clock set 2026-11-11 15:05</span>
+  <h2>Étape 5 — Mercredi 2/12, 15:05 : absences</h2>
+  <span class="clock">backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-02 15:05</span>
   <ul>
-    <li>Avant 15:00, « Liste du jour » affiche « Pas encore servi » ; après, les réservations non scannées passent en
-      « Absent ». Le repas reste payé.</li>
-    <li><span class="role">Direction</span> : « Rapports » → les absences de mercredi apparaissent, le taux d'absence
-      ne compte que les journées terminées.</li>
+    <li>Avant 15:00, « Liste du jour » affiche « Pas encore servi » ; après, les réservations non scannées de mercredi
+      passent en « Absent ». Le repas reste payé.</li>
+    <li><span class="role">Direction</span> : « Rapports » (décembre) → les absences de mercredi apparaissent ; le taux
+      d'absence ne compte que les journées terminées.</li>
   </ul>
 </div>
 
 <div class="step keep">
-  <h2>Étape 6 — Vendredi 13/11, 12:30 : le prix du jour</h2>
-  <span class="clock">dev_clock set 2026-11-13 12:30</span>
-  <p>Jeudi et vendredi sont finalisés automatiquement en passant 10:00 (si vous ne l'avez pas fait).</p>
+  <h2>Étape 6 — Vendredi 4/12, 12:30 : le prix du jour</h2>
+  <span class="clock">backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-04 12:30</span>
+  <p>Jeudi et vendredi ont été finalisés automatiquement à 10:00 ; jeudi est terminé.</p>
   <ul>
-    <li><span class="role">Scanner</span> : scanner le QR de vendredi → « Payé par le solde (3.500 TND) ». Rien à
-      encaisser : il n'y a plus de paiement au comptoir, tout passe par le solde.</li>
-    <li><span class="role">Direction</span> : « Encaissements » de mardi 10/11 → le même total que la feuille imprimée
-      par le caissier.</li>
+    <li><span class="role">Scanner</span> : scanner le QR de vendredi de l'employé de test → « Payé par le solde
+      (3.500 TND) ». Rien à encaisser : tout passe par le solde.</li>
+    <li><span class="role">Employé</span> : « Mon solde » → <strong>9.500 TND</strong>.</li>
   </ul>
 </div>
 
@@ -218,12 +234,12 @@ un menu verrouillé reste verrouillé, un repas servi reste servi.</div>
 <p>L'horloge revient à l'heure réelle ; les données restent.</p>
 
 <div style="break-inside: avoid">
-<h2>Recommencer la démo depuis le début</h2>
-<p>Sur le PC de présentation uniquement (base de démonstration) : fermer les 3 fenêtres, puis depuis <code>backend</code> :</p>
-<pre>del db.sqlite3
-.venv\Scripts\python.exe manage.py migrate
-.venv\Scripts\python.exe manage.py demo_week</pre>
-<div class="note">Ne jamais supprimer <code>db.sqlite3</code> sur une base contenant de vraies données.</div>
+<h2>Refaire les tests une autre fois</h2>
+<p>Une semaine de test ne sert qu'une fois. Pour recommencer, construire la semaine suivante :</p>
+<pre>backend\.venv\Scripts\python.exe backend\manage.py demo_week --monday 2026-12-07</pre>
+<p>Tout se passe de la même façon <strong>sept jours plus tard</strong> : ajouter 7 jours à chaque date des commandes
+(<code>2026-12-08 20:30</code>, <code>2026-12-09 08:30</code>…) et prendre un autre matricule libre pour Sarra
+(ex. <code>EMP-3012</code>). Le solde de départ (6.000 TND) et les deux inscriptions en attente sont remis à l'identique.</p>
 </div>
 
 </body>

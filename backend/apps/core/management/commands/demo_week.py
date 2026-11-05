@@ -1,10 +1,12 @@
 """Development only: add a realistic test week (Monday to Saturday) to the current database.
 
-    python manage.py demo_week                      # week of Monday 9 Nov 2026 (the one the guide describes)
-    python manage.py demo_week --monday 2026-11-16  # another week, when that one is already built
+    python manage.py demo_week                      # week of Monday 30 Nov 2026 (the one the guide describes)
+    python manage.py demo_week --monday 2026-12-07  # another week, when that one is already built
 
 Nothing is deleted or overwritten: existing accounts and dishes are reused, missing ones are added, and the
 week is built only if none of its days has a menu yet (running it twice does nothing the second time).
+So that the guide reads the same on any week, the test employee starts the week with exactly 15 TND and two
+sign-ups wait for HR (new ones are added when earlier test weeks already dealt with them).
 
 Every step goes through the real services under a frozen clock, and the scheduler runs at each step, so locks,
 finalizations, scans, no-shows, notifications, balances and the audit log are what the app itself would have
@@ -36,9 +38,9 @@ from apps.reservations.models import Reservation
 from apps.wallet import services as wallet
 
 TZ = ZoneInfo(settings.TIME_ZONE)
-DEFAULT_MONDAY = date(2026, 11, 9)
+DEFAULT_MONDAY = date(2026, 11, 30)  # the week docs/guide-test-semaine.md describes
 PERSONA = "employee@ovagri.test"  # the account the guide uses to test as an employee
-PERSONA_TOP_UP = Decimal("15.000")  # enough for 3 meals at 3.000 (Mon, Tue, Thu) + Wednesday: Friday is short
+PERSONA_START = Decimal("15.000")  # balance before the week: 3 meals (Mon, Tue, Thu) + Wednesday; Friday is short
 MEAL_PRICE = Decimal("3.000")
 FRIDAY_PRICE = Decimal("3.500")
 
@@ -106,7 +108,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--monday", type=date.fromisoformat, default=DEFAULT_MONDAY,
-                            help="Monday of the week to build (YYYY-MM-DD). Default: 2026-11-09.")
+                            help="Monday of the week to build (YYYY-MM-DD). Default: 2026-11-30.")
 
     def handle(self, *args, monday: date, **options):
         if not settings.DEBUG:
@@ -161,11 +163,17 @@ class Command(BaseCommand):
         first, last, dept = SUSPENDED
         self.suspended = self._user(f"{first.lower()}.{last.lower()}@ovagri.test", first, last, password,
                                     department=dept, status=User.Status.ACTIVE, employee_number="EMP-2099")
-        self.pending = [
-            self._user(f"{first.lower()}.{last.lower()}@ovagri.test", first, last, password, department=dept,
-                       status=User.Status.PENDING_HR)
-            for first, last, dept in PENDING
-        ]
+        # He is suspended on Monday: he never reserves (a tester may have reactivated him the week before).
+        self.employees = [u for u in self.employees if u.pk != self.suspended.pk]
+        self.pending = []
+        for first, last, dept in PENDING:
+            email = f"{first.lower()}.{last.lower()}@ovagri.test"
+            user = User.objects.filter(work_email=email).first()
+            if user is not None and user.status != User.Status.PENDING_HR:
+                # Approved or refused during an earlier test week: a new sign-up with the same name waits.
+                email = f"{first.lower()}.{last.lower()}.{self.days[0]:%Y%m%d}@ovagri.test"
+            self.pending.append(self._user(email, first, last, password, department=dept,
+                                           status=User.Status.PENDING_HR))
         return found
 
     def _dishes(self, chef, when) -> dict:
@@ -205,7 +213,7 @@ class Command(BaseCommand):
         for user in self.employees:
             amount = Decimal(self.rng.choice([20, 30, 40, 50]))
             self._on(at(top_ups, 9, self.rng.randint(0, 50)), lambda u=user, a=amount: wallet.top_up(u, a, by=cashier))
-        self._on(at(top_ups, 12), lambda: wallet.top_up(persona, PERSONA_TOP_UP, by=cashier))
+        self._on(at(top_ups, 12), lambda: self._set_persona_balance(persona, cashier, management))
 
         # Chef: Mon–Wed published Thursday before, Thu–Fri on Friday, Saturday still a draft on Tuesday.
         def build(day, publish=True):
@@ -252,6 +260,16 @@ class Command(BaseCommand):
         self._on(at(tue, 9, 20), lambda: self._finalize(tue, management))
         for day in (mon, tue):
             self._on(at(day, 11, 59), lambda day=day: self._plan_service(day, scanner, persona))
+
+    def _set_persona_balance(self, persona, cashier, management):
+        """The test employee starts every test week with exactly PERSONA_START, whatever earlier weeks left:
+        a top-up of the difference, or a management correction when there is more (dev data only)."""
+        persona.refresh_from_db()
+        gap = PERSONA_START - persona.balance
+        if gap > 0:
+            wallet.top_up(persona, gap, by=cashier)
+        elif gap < 0:
+            wallet.correct(persona, gap, by=management, reason="Semaine de test : solde remis à 15 TND")
 
     def _between(self, start: datetime, end: datetime) -> datetime:
         minutes = int((end - start).total_seconds() // 60)

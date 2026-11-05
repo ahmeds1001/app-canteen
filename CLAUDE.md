@@ -153,8 +153,11 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
 - Test clock (DEBUG only): `python manage.py dev_clock set 2026-11-25 08:30` / `dev_clock reset` (shared by API and
   scheduler, file `backend/.dev_clock`; the clock keeps running from the set time). Moving it back undoes nothing.
 - Test week: `python manage.py demo_week [--monday YYYY-MM-DD]` — adds a Monday–Saturday week (two-menu days,
-  balances, history) without deleting anything, then sets the clock to that Tuesday 20:30. On this PC the weeks of
-  9 and 23 Nov are built and the week of 16 Nov is half-built (an old bug, kept); use a later Monday for a new one.
+  balances, history) without deleting anything, then sets the clock to that Tuesday 20:30. Default Monday 30 Nov 2026
+  = the week `docs/guide-test-semaine.md` describes; every week starts the same (test employee at 15 TND before the
+  week, 6 TND on Tuesday; two sign-ups pending, re-created if earlier tests handled them). On this PC the weeks of
+  9, 23 and 30 Nov are built (16 Nov half-built, an old bug, kept); next free Monday: 7 Dec. The guide was rehearsed
+  on a copy of the DB (5 Nov 2026); redo that after changing a rule it describes.
 - Test accounts: `admin@`, `hr@`, `chef@`, `management@`, `scanner@`, `cashier@`, `employee@ovagri.test` + generated employees;
   password = `DEV_SEED_PASSWORD` in `.env` (never write it in files or chat).
 - Pixel 6 Pro over wireless debugging: `adb pair` / `adb connect`, then `adb reverse tcp:5173 tcp:5173` and open
