@@ -78,7 +78,8 @@ item into a plan file in this folder, then the **executor** to build it.
   photo volume, HTTPS header, automatic migrations, health check, upload size, log rotation) — first real run at install.
 - [ ] Deploy on the company server (own containers, own DB and login, subdomain + HTTPS, isolated from the ERP).
 - [ ] Daily backups off the server + one restore test.
-- [ ] Load test: 200 users reserving in the last minutes before midnight.
+- [ ] Load test: 200 users reserving in the last minutes before midnight. Kit ready (2026-11-05): `loadtest/README.md`
+  (scenarios LoginRush and ReservationRush, dry run OK); to run on the company server against `canteen_loadtest`.
 - [ ] One-page employee guide, short trainings (HR, chef, management, scanner).
 
 ## Open questions (see also open-questions.md)

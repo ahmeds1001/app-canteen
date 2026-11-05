@@ -8,19 +8,20 @@ x-logging: &logging   # keep container logs from filling the disk
   options: { max-size: "10m", max-file: "5" }
 
 services:
-  # One-shot: applies database migrations, then exits. backend and scheduler wait for it.
+  # One-shot: applies database migrations (and creates the cache table of the login limits), then exits.
+  # backend and scheduler wait for it.
   migrate:
     build: ./backend
-    env_file: .env
+    env_file: ${ENV_FILE:-.env}
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
-    command: python manage.py migrate --noinput
+    command: sh -c "python manage.py migrate --noinput && python manage.py createcachetable"
     restart: "no"
     logging: *logging
 
   backend:
     build: ./backend
-    env_file: .env
+    env_file: ${ENV_FILE:-.env}
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
     volumes:
@@ -37,12 +38,14 @@ services:
     logging: *logging
     deploy:
       resources:
-        limits: { cpus: "1.0", memory: 768M }
+        # 4 gunicorn workers x 2 threads (backend/gunicorn.conf.py): ~600 MB + up to ~800 MB during a login rush.
+        # Sized for a 4 vCPU / 4 GB server; raise GUNICORN_WORKERS and these limits together.
+        limits: { cpus: "2.0", memory: 2G }
 
   # Scheduled jobs every minute. Exactly ONE instance: do not scale this service.
   scheduler:
     build: ./backend
-    env_file: .env
+    env_file: ${ENV_FILE:-.env}
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
     command: python manage.py run_scheduler
@@ -53,7 +56,7 @@ services:
 
   web:
     build: ./frontend
-    ports: ["8080:80"]
+    ports: ["${WEB_PORT:-8080}:80"]
     volumes:
       - media:/srv/media:ro       # nginx serves the photos the backend stored
     depends_on:

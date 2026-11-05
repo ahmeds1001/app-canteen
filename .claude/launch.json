@@ -14,6 +14,12 @@
       "port": 8000
     },
     {
+      "name": "backend-loadtest",
+      "runtimeExecutable": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "runtimeArgs": ["-c", "export DB_ENGINE=mssql DB_USER= DB_PASSWORD= DB_PORT= 'DB_HOST=localhost\\SQLEXPRESS' DB_NAME=canteen_loadtest THROTTLE_LOGIN=10000/min; exec backend/.venv/Scripts/python.exe backend/manage.py runserver 8001 --noreload"],
+      "port": 8001
+    },
+    {
       "name": "frontend",
       "runtimeExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
       "runtimeArgs": ["--prefix", "frontend", "run", "dev"],

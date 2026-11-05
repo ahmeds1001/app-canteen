@@ -51,3 +51,34 @@ class ProductionSettingsTests(TestCase):
         self.assertEqual(prod.STORAGES["staticfiles"]["BACKEND"],
                          "whitenoise.storage.CompressedManifestStaticFilesStorage")
         self.assertIn("whitenoise.middleware.WhiteNoiseMiddleware", prod.MIDDLEWARE)
+
+
+# The test settings use a cache that stores nothing; the limit needs a real one to count.
+@override_settings(CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+                                       "LOCATION": "login-limit-tests"}})
+class LoginLimitBehindProxiesTests(TestCase):
+    """The login limit (10 per minute) counts per person, not for the whole company behind the proxies."""
+
+    def setUp(self):
+        from django.core.cache import cache
+
+        cache.clear()  # throttle counters
+
+    def _login(self, client_ip):
+        # What reaches Django in production: the company proxy added the user's address, nginx added the proxy's.
+        return APIClient().post("/api/v1/auth/login/", {"work_email": "x@ovagri.test", "password": "wrong"},
+                                format="json", HTTP_X_FORWARDED_FOR=f"{client_ip}, 10.0.0.2",
+                                REMOTE_ADDR="172.18.0.4")
+
+    def test_two_hundred_people_can_log_in_in_the_same_minute(self):
+        prod = prod_settings()
+        with override_settings(REST_FRAMEWORK=prod.REST_FRAMEWORK):
+            codes = {self._login(f"192.168.1.{n}").status_code for n in range(1, 201)}
+        self.assertNotIn(429, codes)
+
+    def test_one_person_retrying_is_still_limited(self):
+        prod = prod_settings()
+        with override_settings(REST_FRAMEWORK=prod.REST_FRAMEWORK):
+            codes = [self._login("192.168.1.7").status_code for _ in range(11)]
+        self.assertEqual(codes[-1], 429)
+        self.assertNotIn(429, codes[:10])

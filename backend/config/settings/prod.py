@@ -23,3 +23,12 @@ STORAGES = {
 # must be accepted, and that URL must not be redirected to HTTPS (no TLS inside the Docker network).
 ALLOWED_HOSTS = [*ALLOWED_HOSTS, "localhost"]  # noqa: F405
 SECURE_REDIRECT_EXEMPT = [r"^api/v1/health/$"]
+
+# Login and sign-up limits count per user address. Requests reach Django through 2 proxies (the company HTTPS
+# proxy, then nginx), so the client is the 2nd address from the end of X-Forwarded-For. Without this, everyone
+# would share one address and the login limit (10 per minute) would apply to the whole company at once.
+REST_FRAMEWORK = {**REST_FRAMEWORK, "NUM_PROXIES": int(env("NUM_PROXIES", "2"))}  # noqa: F405
+
+# The limits' counters must be shared by every gunicorn worker (an in-memory cache would give each worker its
+# own count: 4 workers = 4x the limit). A table in the app's own database; created by the "migrate" service.
+CACHES = {"default": {"BACKEND": "django.core.cache.backends.db.DatabaseCache", "LOCATION": "django_cache"}}

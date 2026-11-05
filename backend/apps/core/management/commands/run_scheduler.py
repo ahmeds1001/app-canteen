@@ -8,6 +8,7 @@ import logging
 import time
 
 from django.core.management.base import BaseCommand
+from django.db import close_old_connections
 
 from apps.menus import jobs as menu_jobs
 from apps.notifications import jobs as notification_jobs
@@ -50,6 +51,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, once=False, interval=60, **options):
         while True:
+            # A long-running process has no request cycle to recycle its database connection: drop it when it is
+            # too old or broken (SQL Server restarted, network cut), so the next tick simply reconnects.
+            close_old_connections()
             results = tick()
             if any(results.values()):
                 logger.info("Scheduler tick: %s", results)

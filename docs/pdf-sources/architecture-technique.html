@@ -86,7 +86,7 @@
   <div class="box">
     <h3>Ce que l'application demande</h3>
     <ul>
-      <li>Un serveur Linux (ou Windows Server) avec <b>Docker + Docker Compose</b> ; 2 vCPU, 2 Go de RAM, 10 Go de disque suffisent.</li>
+      <li>Un serveur <b>Linux</b> avec <b>Docker + Docker Compose</b> (Windows Server seulement s'il fait tourner des conteneurs Linux) ; <b>4 vCPU, 4 Go de RAM, 20 Go de disque</b> — estimation avec marge pour un lancement où tout le monde se connecte en même temps, à confirmer par le test de charge (§9.1).</li>
       <li>Une <b>base SQL Server 2019+</b> dédiée (<code>canteen</code>) et un login SQL qui n'a des droits que sur elle.</li>
       <li>Un <b>sous-domaine</b> (ex. <code>cantine.ovagri.tn</code>) avec certificat HTTPS sur le proxy de l'entreprise.</li>
       <li>Un compte <b>SMTP</b> pour 5 emails de compte (code, validation, refus, mot de passe).</li>
@@ -101,7 +101,7 @@
       <li>Le sous-domaine et qui gère le certificat.</li>
       <li>Création de la base et du login SQL (script en §8.2).</li>
       <li>Identifiants SMTP et adresse d'expéditeur.</li>
-      <li>Ouverture des flux réseau du §7.3.</li>
+      <li>Ouverture des flux réseau du §7.3, et un proxy qui transmet <code>X-Forwarded-For</code> (§7.2).</li>
       <li>Sauvegardes : outil et emplacement hors du serveur ; un test de restauration avant le lancement.</li>
       <li>Supervision : qui reçoit l'alerte si le site ou les tâches planifiées s'arrêtent.</li>
     </ol>
@@ -149,7 +149,7 @@
   <rect x="390" y="128" width="205" height="62" rx="8" fill="#fff" stroke="#0a6b28"/>
   <text x="492" y="148" text-anchor="middle" font-weight="700">backend — Django + gunicorn</text>
   <text x="492" y="165" text-anchor="middle" fill="#5b675d" font-size="10">API REST /api/v1, admin /admin</text>
-  <text x="492" y="180" text-anchor="middle" fill="#5b675d" font-size="10">port 8000 (interne), 3 workers</text>
+  <text x="492" y="180" text-anchor="middle" fill="#5b675d" font-size="10">port 8000 (interne), 4 × 2 threads</text>
   <rect x="390" y="214" width="205" height="62" rx="8" fill="#fff" stroke="#0a6b28"/>
   <text x="492" y="234" text-anchor="middle" font-weight="700">scheduler — même image</text>
   <text x="492" y="251" text-anchor="middle" fill="#5b675d" font-size="10">run_scheduler : tâches chaque minute</text>
@@ -185,7 +185,7 @@
 <table>
   <tr><th style="width:15%">Conteneur</th><th style="width:32%">Technologie</th><th>Rôle</th></tr>
   <tr><td><b>web</b></td><td>nginx 1.27 (alpine) ; site compilé par Vite (Node 22, à la construction seulement)</td><td>Sert le site (React 18 + TypeScript, PWA : installable, service worker, notifications push) et les photos des plats (<code>/media/</code>) ; relaie <code>/api/</code>, <code>/admin/</code>, <code>/static/</code> vers le backend</td></tr>
-  <tr><td><b>backend</b></td><td>Python 3.12, Django 5.2 LTS, Django REST Framework 3.18, SimpleJWT 5.5, gunicorn (3 workers), WhiteNoise, pilote ODBC 18, mssql-django 2.0</td><td>API REST <code>/api/v1/</code> (toutes les règles métier), site d'administration technique <code>/admin/</code> et ses fichiers statiques (WhiteNoise), envoi des emails</td></tr>
+  <tr><td><b>backend</b></td><td>Python 3.12, Django 5.2 LTS, Django REST Framework 3.18, SimpleJWT 5.5, gunicorn (4 workers × 2 threads), WhiteNoise, pilote ODBC 18, mssql-django 2.0</td><td>API REST <code>/api/v1/</code> (toutes les règles métier), site d'administration technique <code>/admin/</code> et ses fichiers statiques (WhiteNoise), envoi des emails</td></tr>
   <tr><td><b>scheduler</b></td><td>Même image que backend, commande <code>python manage.py run_scheduler</code></td><td>Tâches planifiées chaque minute (§4.3) : publication automatique, clôture, finalisation, absences, rappels, envoi des notifications push</td></tr>
   <tr><td>SQL Server</td><td>SQL Server 2019+ de l'entreprise (testé sur 2022)</td><td>Base dédiée <code>canteen</code> ; aucune donnée ERP ; aucun accès de l'application à l'ERP</td></tr>
 </table>
@@ -217,7 +217,7 @@ règles du cahier des charges sont dans les <code>services.py</code>.</p>
     <b>14 jours</b>, chacun utilisable une fois (rotation + liste noire). Un compte suspendu n'obtient plus de jeton,
     même sur un téléphone déjà connecté. Les jetons sont gardés par le navigateur (localStorage) ; pas de cookie de session pour l'API.</li>
   <li>Toutes les routes sont sous <code>/api/v1/</code> ; chaque route vérifie le rôle côté serveur (l'écran ne fait que masquer).</li>
-  <li>Limitation des tentatives : connexion 10/min, inscription 5/h, codes 20/h, mot de passe oublié 3/h.</li>
+  <li>Limitation des tentatives <b>par adresse de l'utilisateur</b> : connexion 10/min, inscription 5/h, codes 20/h, mot de passe oublié 3/h. Les compteurs sont partagés par tous les workers (table de cache dans la base).</li>
 </ul>
 <h3>4.2 QR code et scan</h3>
 <p>Chaque réservation porte un jeton aléatoire <b>signé</b> (clé <code>CANTEEN_SIGNING_KEY</code>), sans donnée personnelle.
@@ -283,7 +283,7 @@ mais deux planificateurs enverraient deux fois plus de requêtes pour rien. Ne p
 <table>
   <tr><th style="width:14%">Service</th><th style="width:30%">Image</th><th style="width:16%">Port</th><th>Notes</th></tr>
   <tr><td>migrate</td><td>image du backend</td><td>aucun</td><td>Applique les migrations de la base puis s'arrête ; backend et scheduler attendent qu'il ait réussi</td></tr>
-  <tr><td>backend</td><td>construite depuis <code>backend/Dockerfile</code></td><td>8000 (interne)</td><td>Limite 1 CPU / 768 Mo ; <b>healthcheck</b> toutes les 30 s sur <code>/api/v1/health/</code> (vérifie aussi SQL Server) ; volume <code>media</code></td></tr>
+  <tr><td>backend</td><td>construite depuis <code>backend/Dockerfile</code></td><td>8000 (interne)</td><td>Limite 2 CPU / 2 Go ; 4 workers × 2 threads (<code>backend/gunicorn.conf.py</code>) ; <b>healthcheck</b> toutes les 30 s sur <code>/api/v1/health/</code> (vérifie aussi SQL Server) ; volume <code>media</code></td></tr>
   <tr><td>scheduler</td><td>image du backend</td><td>aucun</td><td><b>Une seule instance</b></td></tr>
   <tr><td>web</td><td>construite depuis <code>frontend/Dockerfile</code></td><td>80 → <b>8080</b> sur l'hôte</td><td>Le seul port publié ; démarre quand le backend est en bonne santé ; lit le volume <code>media</code></td></tr>
 </table>
@@ -293,6 +293,7 @@ mais deux planificateurs enverraient deux fois plus de requêtes pour rien. Ne p
 <ul>
   <li>Terminer TLS pour <code>cantine.&lt;domaine&gt;</code> et relayer vers <code>http://&lt;serveur&gt;:8080</code>.</li>
   <li>Transmettre les en-têtes <code>Host</code> et <code>X-Forwarded-Proto: https</code> (indispensable : Django s'en sert pour savoir que la requête était en HTTPS ; le conteneur web le transmet tel quel).</li>
+  <li><b>Ajouter l'adresse de l'utilisateur dans <code>X-Forwarded-For</code></b> (indispensable aussi) : la limite de 10 connexions par minute compte par adresse. Sans cet en-tête, tous les employés auraient la même adresse et <b>seules 10 personnes par minute pourraient se connecter dans toute l'entreprise</b>. Si un autre proxy s'ajoute devant, augmenter <code>NUM_PROXIES</code>.</li>
   <li>Taille de requête ≥ 6 Mo (photos des plats jusqu'à 5 Mo). Pas de cache sur <code>/api/</code>.</li>
 </ul>
 
@@ -322,6 +323,11 @@ mais deux planificateurs enverraient deux fois plus de requêtes pour rien. Ne p
   <tr><td><code>DB_EXTRA_PARAMS</code></td><td><code>TrustServerCertificate=yes</code> par défaut ; à remplacer par <code>Encrypt=yes</code> si le serveur SQL a un certificat reconnu</td></tr>
   <tr><td><code>EMAIL_HOST</code>, <code>EMAIL_PORT</code>, <code>EMAIL_HOST_USER</code>, <code>EMAIL_HOST_PASSWORD</code> <span class="tag secret">secret</span>, <code>EMAIL_USE_TLS</code>, <code>DEFAULT_FROM_EMAIL</code></td><td>Compte SMTP de l'entreprise ; expéditeur ex. <code>Cantine OVAGRI &lt;cantine@ovagri.tn&gt;</code></td></tr>
   <tr><td><code>VAPID_PUBLIC_KEY</code>, <code>VAPID_PRIVATE_KEY</code> <span class="tag secret">secret</span>, <code>VAPID_SUBJECT</code></td><td>Clés des notifications push, générées une fois (§8.3) ; vides = pas de push. Les changer oblige chaque téléphone à réactiver les notifications</td></tr>
+  <tr><td><code>NUM_PROXIES</code></td><td><code>2</code> : nombre de proxys devant Django (proxy de l'entreprise + nginx), pour retrouver l'adresse de l'utilisateur</td></tr>
+  <tr><td><code>GUNICORN_WORKERS</code>, <code>GUNICORN_THREADS</code></td><td><code>4</code> et <code>2</code> : requêtes traitées en même temps ; à augmenter avec la limite mémoire du backend</td></tr>
+  <tr><td><code>DB_CONN_MAX_AGE</code></td><td><code>60</code> : secondes de réutilisation d'une connexion SQL Server (vérifiée avant usage)</td></tr>
+  <tr><td><code>THROTTLE_LOGIN</code></td><td>Ne pas définir en production (10/min par défaut). Seulement pour le test de charge (§9.1)</td></tr>
+  <tr><td><code>ENV_FILE</code>, <code>WEB_PORT</code></td><td>Variables du shell (pas du <code>.env</code>) pour lancer une 2ᵉ installation de test à côté : autre fichier de réglages, autre port</td></tr>
   <tr><td><code>LOG_LEVEL</code></td><td><code>INFO</code> (par défaut)</td></tr>
 </table>
 
@@ -369,9 +375,24 @@ Les tâches planifiées rattrapent seules ce qui est tombé pendant la coupure.<
   <tr><td>Supervision</td><td>Alerte si <code>/api/v1/health/</code> ne répond pas 200 (API ou base indisponible), ou si le conteneur <code>scheduler</code> s'arrête (sinon : pas de clôture, pas de finalisation automatique, pas de rappels)</td></tr>
   <tr><td>Heure</td><td>NTP actif sur l'hôte Docker. Une dérive de quelques minutes décale la clôture des réservations</td></tr>
   <tr><td>Paramètres métier</td><td>Horaires, délais, marge, prix : écran « Paramètres » de l'application (compte admin), pas de redéploiement</td></tr>
-  <tr><td>Charge</td><td>Test de charge prévu avant le lancement : 200 utilisateurs qui réservent dans les dernières minutes avant 23:59</td></tr>
+  <tr><td>Charge</td><td>Test de charge avant le lancement (§9.1)</td></tr>
   <tr><td>Comptes</td><td>Le premier admin est créé à l'installation (§8.1) ; ensuite les rôles se donnent dans l'écran « Comptes »</td></tr>
 </table>
+
+<h2>9.1 Test de charge (avant le lancement)</h2>
+<p>Le kit est dans le dépôt : <code>loadtest/</code> (mode d'emploi <code>loadtest/README.md</code>). Il se lance sur une
+<b>installation de test à côté de la vraie</b>, avec sa propre base <code>canteen_loadtest</code> : les 200 comptes de test
+ne doivent jamais entrer dans la base réelle (rien n'y est supprimé). La commande <code>loadtest_accounts</code> crée les
+comptes avec 100 TND et ouvre un jour à deux menus ; elle refuse de tourner sur une base dont le nom ne contient pas « loadtest ».</p>
+<table>
+  <tr><th style="width:22%">Scénario</th><th>Ce qu'il simule</th><th style="width:28%">Réussi si (95 % des requêtes)</th></tr>
+  <tr><td><code>LoginRush</code></td><td>Jour du lancement : 200 comptes se connectent une fois, dans la même minute</td><td>connexion &lt; 5 s, moins de 1 % d'erreurs</td></tr>
+  <tr><td><code>ReservationRush</code></td><td>Rush du soir : 200 personnes pendant 5 min (menus, réserver, changer de menu, annuler, solde)</td><td>&lt; 1 s (connexion &lt; 5 s), moins de 1 % d'erreurs</td></tr>
+</table>
+<p class="muted">Essai à blanc sur le poste de développement (serveur de développement, un seul processus) : 60 connexions
+simultanées et 1 027 requêtes de rush, aucune erreur, 95 % des réservations en moins de 63 ms. Il valide le kit ; le vrai
+chiffre viendra du serveur. La connexion est volontairement la requête la plus lourde (vérification Argon2 du mot de
+passe, ~100 Mo) : c'est elle qui dimensionne le CPU et la mémoire du backend.</p>
 
 <!-- ============================== 10. ÉTAT ============================== -->
 <h1>10. État de la configuration Docker</h1>
@@ -392,7 +413,8 @@ encore tourné dans Docker (pas de Docker sur le poste de développement). Les v
 <ol>
   <li>IT : serveur, base SQL, sous-domaine, SMTP, flux réseau (§1).</li>
   <li>Installation avec l'IT (§8) et vérifications (§8.5).</li>
-  <li>Sauvegarde + test de restauration ; test de charge 200 utilisateurs.</li>
+  <li>Sauvegarde + test de restauration ; test de charge (§9.1) ; ouverture des inscriptions quelques jours avant,
+    service par service, pour étaler les premières connexions.</li>
   <li>Pilote avec un service pendant une à deux semaines, puis ouverture à tous.</li>
 </ol>
 

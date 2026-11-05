@@ -109,6 +109,10 @@ else:
                 "driver": env("DB_ODBC_DRIVER", "ODBC Driver 18 for SQL Server"),
                 "extra_params": env("DB_EXTRA_PARAMS", "TrustServerCertificate=yes"),
             },
+            # Keep each worker's connection open between requests (opening one costs a few ms over ODBC);
+            # checked before reuse, so a SQL Server restart only costs a reconnect.
+            "CONN_MAX_AGE": int(env("DB_CONN_MAX_AGE", "60")),
+            "CONN_HEALTH_CHECKS": True,
         }
     }
 
@@ -155,7 +159,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "EXCEPTION_HANDLER": "apps.core.exceptions.api_exception_handler",
     "DEFAULT_THROTTLE_RATES": {
-        "login": "10/min",
+        # Per user address. THROTTLE_LOGIN is raised only for a load test, where every request comes from one machine.
+        "login": env("THROTTLE_LOGIN", "10/min"),
         "register": "5/hour",
         "otp_verify": "20/hour",
         "password_reset": "3/hour",

@@ -129,6 +129,12 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
    fixed: WhiteNoise for /static/, `media` volume served by nginx, nginx keeps X-Forwarded-Proto, one-shot `migrate`
    service, backend healthcheck (/api/v1/health/ also checks the DB), 6 MB uploads, log rotation. Not yet run in
    Docker (no Docker on this PC): validate at the first install. Waiting for IT: server/OS, Docker, subdomain, SQL login, SMTP.
+   Rush-proofing (5 Nov): server 4 vCPU / 4 GB (Linux); gunicorn gthread 4x2 (`backend/gunicorn.conf.py`), backend 2 CPU/2 GB;
+   `NUM_PROXIES=2` so the login limit counts per user (the company proxy MUST send X-Forwarded-For); limit counters in
+   a DB cache table (`createcachetable` in the migrate service); `CONN_MAX_AGE=60`; scheduler calls close_old_connections.
+   Load-test kit `loadtest/` (Locust, `manage.py loadtest_accounts` refuses DBs not named *loadtest*; THROTTLE_LOGIN only
+   there). Dry run here on SQL Server Express DB `canteen_loadtest` (launch config backend-loadtest, port 8001): 0 errors.
+   On Windows use 127.0.0.1, not localhost, for local HTTP timing (localhost adds ~2 s per new connection).
 5. Then: no-show warning after 3 per month, management trend charts (FR-23), chef live count (FR-21), offline scans.
 
 ### How the user works

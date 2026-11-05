@@ -14,4 +14,4 @@ COPY . .
 ENV DJANGO_SETTINGS_MODULE=config.settings.prod PYTHONUNBUFFERED=1
 RUN DJANGO_SECRET_KEY=build-only DB_ENGINE=sqlite python manage.py collectstatic --noinput
 EXPOSE 8000
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["gunicorn", "config.wsgi:application", "-c", "gunicorn.conf.py"]
