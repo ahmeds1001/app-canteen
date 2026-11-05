@@ -58,6 +58,8 @@ item into a plan file in this folder, then the **executor** to build it.
 - [ ] Remaining report screens: daily/monthly trends with charts, buffer vs leftovers per menu (FR-21, FR-23),
   chef's live served count.
 - [ ] No-show warning email after 3 per calendar month, only after the grace month (business rule "No-show consequences").
+- [x] **Scanner and Cashier split** (FR-47, 2026-11-05): new role `cashier` for top-ups and the day's cash;
+  the scanner keeps scanning and day lists, no money; one role per account; test account `cashier@ovagri.test`.
 - [x] **Settings screen** (FR-46, 2026-11-04): "Paramètres" for the admin only — every deadline as days + time
   (reservation cutoff, chef publishing), finalization, service hours, reminders, service days, buffer (same value
   for the proposal and auto-finalization), kitchen max, payment, horizon, no-shows. Applies at once; incoherent

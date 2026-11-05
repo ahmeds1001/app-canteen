@@ -13,7 +13,7 @@ import "./scanner.css";
 
 const QUICK_AMOUNTS = ["5", "10", "20", "50"];
 
-/** Prepaid balance (decided 2026-11-03): an employee gives cash at the canteen, the scanner or management
+/** Prepaid balance (decided 2026-11-03): an employee gives cash at the canteen, the cashier or management
  *  records it here. Management can also correct a mistake, with a reason. Nothing is ever deleted. */
 export default function CashierPage() {
   const { t } = useTranslation();
@@ -51,11 +51,11 @@ export default function CashierPage() {
   );
 }
 
-/** The cash this person recorded today (FR-45): the scanner knows at a glance what she holds. */
+/** The cash this person recorded today (FR-45): the cashier knows at a glance what she holds. */
 function CashToday() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const mine = user?.role === "scanner";
+  const mine = user?.role === "cashier";
   const cash = useQuery({ queryKey: ["wallet", "cash", "today"], queryFn: () => reportApi.cash() });
   if (!cash.data) return null;
   return (

@@ -14,7 +14,7 @@ from apps.wallet.models import BalanceTransaction
 
 class TopUpTests(TestCase):
     def setUp(self):
-        self.cashier = f.user(role="scanner")
+        self.cashier = f.user(role="cashier")
         self.employee = f.user()
 
     def test_top_up_credits_records_audits_and_notifies(self):
@@ -41,7 +41,7 @@ class CorrectionTests(TestCase):
     def setUp(self):
         self.manager = f.user(role="management")
         self.employee = f.user()
-        services.top_up(self.employee, Decimal("50"), by=f.user(role="scanner"))  # meant 5
+        services.top_up(self.employee, Decimal("50"), by=f.user(role="cashier"))  # meant 5
 
     def test_management_corrects_with_a_reason(self):
         entry = services.correct(self.employee, Decimal("-45"), by=self.manager, reason="Erreur de saisie : 5 TND")
@@ -56,15 +56,22 @@ class CorrectionTests(TestCase):
             services.correct(self.employee, Decimal("-60"), by=self.manager, reason="Trop")
         self.assertEqual(ctx.exception.code, "insufficient_balance")
 
-    def test_scanner_cannot_correct(self):
+    def test_cashier_cannot_correct(self):
         with self.assertRaises(NotAllowed):
-            services.correct(self.employee, Decimal("-45"), by=f.user(role="scanner"), reason="Erreur")
+            services.correct(self.employee, Decimal("-45"), by=f.user(role="cashier"), reason="Erreur")
+
+    def test_only_cashier_and_management_record_cash(self):
+        """FR-47 (2026-11-05): the scanner no longer handles money, nor does any other role."""
+        for role in ("scanner", "employee", "chef", "hr"):
+            with self.assertRaises(NotAllowed):
+                services.top_up(self.employee, Decimal("10"), by=f.user(role=role))
+        services.top_up(self.employee, Decimal("10"), by=self.manager)
 
 
 class CashierApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.client.force_authenticate(f.user(role="scanner"))
+        self.client.force_authenticate(f.user(role="cashier"))
         self.employee = f.user(last_name="Trabelsi", employee_number="EMP-77")
 
     def test_search_top_up_and_history(self):
@@ -76,7 +83,7 @@ class CashierApiTests(TestCase):
         self.assertEqual([t["kind"] for t in history["transactions"]], ["topup"])
 
     def test_employee_sees_own_balance(self):
-        services.top_up(self.employee, Decimal("8"), by=f.user(role="scanner"))
+        services.top_up(self.employee, Decimal("8"), by=f.user(role="cashier"))
         me = APIClient()
         me.force_authenticate(self.employee)
         body = me.get("/api/v1/wallet/me/").json()

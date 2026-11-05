@@ -169,13 +169,13 @@ def employee_attendance(start: date, end: date) -> list[dict]:
 def cash_report(viewer: User, day: date | None = None) -> dict:
     """Money received at the canteen on one day (company time zone).
 
-    The scanner sees only her own top-ups of today: the amount she hands over at the end of the day.
+    The cashier sees only her own top-ups of today (FR-47): the amount she hands over at the end of the day.
     Management (and admin) see any day, split per cashier, plus that day's corrections, which count in the
     total: a wrong top-up fixed the same day changes the cash expected. Meals paid from balances are not cash
     and are left out.
     """
     K = BalanceTransaction.Kind
-    mine = viewer.role == User.Role.SCANNER
+    mine = viewer.role == User.Role.CASHIER
     day = clock.today() if mine or day is None else day
     entries = BalanceTransaction.objects.filter(created_at__date=day).select_related("user", "by")
     entries = entries.filter(kind=K.TOPUP, by=viewer) if mine else entries.filter(kind__in=[K.TOPUP, K.CORRECTION])

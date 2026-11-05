@@ -64,11 +64,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "cashier",
-        element: <Protected roles={["scanner", "management"]}><CashierPage /></Protected>,
+        element: <Protected roles={["cashier", "management"]}><CashierPage /></Protected>,
       },
       {
         path: "cash",
-        element: <Protected roles={["scanner", "management"]}><CashReportPage /></Protected>,
+        element: <Protected roles={["cashier", "management"]}><CashReportPage /></Protected>,
       },
       {
         path: "scan",

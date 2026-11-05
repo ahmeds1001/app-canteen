@@ -23,7 +23,7 @@ const STATUS_TONE: Partial<Record<AccountStatus, "green" | "orange" | "red">> = 
 
 type Transition = "suspend" | "reactivate" | "deactivate";
 
-const ROLES: Role[] = ["employee", "hr", "chef", "management", "scanner", "admin"];
+const ROLES: Role[] = ["employee", "hr", "chef", "management", "scanner", "cashier", "admin"];
 
 /** FR-04 to FR-06, FR-40: HR approves registrations (entering the matricule) and manages accounts. */
 export default function AccountsPage() {

@@ -27,7 +27,8 @@ Mot de passe de tous les comptes : la valeur `DEV_SEED_PASSWORD` du fichier `.en
 | RH | `hr@ovagri.test` | Approuver avec matricule, refuser, suspendre |
 | Chef | `chef@ovagri.test` | Bibliothèque de plats, planification, publication |
 | Direction | `management@ovagri.test` | Finalisation par menu, prix du jour, caisse et corrections, encaissements, liste du jour, rapports |
-| Scanner | `scanner@ovagri.test` | Scan des QR (menu à servir), recherche manuelle, caisse (recharges), encaissements du jour, liste du jour |
+| Scanner | `scanner@ovagri.test` | Scan des QR (menu à servir), recherche manuelle, liste du jour — **pas d'argent** |
+| Caissier | `cashier@ovagri.test` | Caisse (recharges), encaissements du jour et feuille de remise — **pas de scan** |
 | Admin | `admin@ovagri.test` | Rôles, **Paramètres** (délais et horaires), tout le reste |
 
 Autres comptes : 20 employés (`mohamed.benali@…`, `fatma.trabelsi@…`, matricules EMP-2001 à EMP-2020) qui
@@ -74,19 +75,23 @@ reste verrouillé, un repas servi reste servi).
 5. **Vendredi** (3.500 TND) : « Solde insuffisant » → les boutons sont désactivés.
 6. « Mon solde » : l'historique (recharge, repas, remboursement), avec le solde après chaque mouvement.
 
-**Scanner** (Caisse)
+**Caissier** (Caisse)
 1. « Caisse » : rechercher « employe » → ouvrir le compte de l'employé de test.
 2. Choisir « 10 TND » → « Enregistrer 10.000 TND » → confirmer → nouveau solde 13.000 TND (l'employé reçoit une
    notification « Solde rechargé »).
 3. Retour employé : réserver **vendredi** → le solde passe à 9.500 TND.
-4. « Liste du jour » : les réservations de mardi (menu, statut, heure de service), puis jour suivant ; filtres,
-   recherche « Ben Ali », « Exporter (CSV) ».
-5. « Encaissements » : la recharge de 10 TND apparaît avec le total « Argent à remettre ». « Imprimer » → la feuille de
+4. « Encaissements » : la recharge de 10 TND apparaît avec le total « Argent à remettre ». « Imprimer » → la feuille de
    remise (chaque recharge, total, montant compté, deux signatures).
+5. Le caissier n'a ni « Scanner » ni « Liste du jour ».
+
+**Scanner**
+1. « Liste du jour » : les réservations de mardi (menu, statut, heure de service), puis jour suivant ; filtres,
+   recherche « Ben Ali », « Exporter (CSV) ».
+2. Le scanner n'a ni « Caisse » ni « Encaissements » (ouvrir `/cashier` ramène aux menus).
 
 **Direction**
 1. « Caisse » : sur un compte, « Corriger le solde » (ex. -5, motif « Erreur de saisie ») → l'historique garde les deux
-   mouvements. Le scanner n'a pas ce bouton.
+   mouvements. Le caissier n'a pas ce bouton.
 2. « Encaissements » : le total du jour par personne ; la correction de -5 est comptée, avec son motif.
 3. « Finalisation » : réservations par menu ; « Prix du jour » de samedi modifiable (jusqu'à vendredi minuit).
 4. « Liste du jour » : comme le scanner.
@@ -157,7 +162,7 @@ Jeudi et vendredi sont finalisés automatiquement en passant 10:00 (si vous ne l
 
 - **Scanner** : scanner le QR de vendredi de l'employé de test → « Payé par le solde (3.500 TND) ». Rien à encaisser
   à la cantine : il n'y a plus de paiement au comptoir, tout passe par le solde.
-- **Direction** : « Encaissements » de mardi 10/11 → le même total que la feuille imprimée par le scanner.
+- **Direction** : « Encaissements » de mardi 10/11 → le même total que la feuille imprimée par le caissier.
 
 ## Fin des tests
 

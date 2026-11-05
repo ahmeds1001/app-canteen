@@ -233,7 +233,7 @@
     },
     "number": "No. {{number}}", "noNumber": "Employee number to enter", "since": "registered {{date}}",
     "roles": {
-      "employee": "Employee", "hr": "HR", "chef": "Chef", "scanner": "Scanner", "management": "Management",
+      "employee": "Employee", "hr": "HR", "chef": "Chef", "scanner": "Scanner", "cashier": "Cashier", "management": "Management",
       "admin": "Admin"
     },
     "status": {
@@ -283,6 +283,7 @@
   "soon": { "title": "Screen to build", "help": "This screen is planned in the specification ({{refs}}). It will be built in an upcoming sprint." },
   "errors": {
     "generic": "Something went wrong. Please try again.",
+    "cashier_only": "Only the cashier and management can record cash.",
     "settings_no_service_day": "Keep at least one service day.",
     "settings_publish_after_cutoff": "The menu must be published before reservations close.",
     "settings_cutoff_after_finalization": "Reservations must close before the finalization time.",

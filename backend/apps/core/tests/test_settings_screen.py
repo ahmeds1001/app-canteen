@@ -27,7 +27,7 @@ class SettingsScreenTests(TestCase):
         return client.patch(URL, data, format="json")
 
     def test_only_the_admin(self):
-        for role in ("management", "hr", "chef", "scanner", "employee"):
+        for role in ("management", "hr", "chef", "scanner", "cashier", "employee"):
             self.assertEqual(self._patch(f.user(role=role), {"buffer_value": 20}).status_code, 403, role)
         client = APIClient()
         client.force_authenticate(f.user(role="management"))

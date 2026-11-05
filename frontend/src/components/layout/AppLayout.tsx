@@ -34,10 +34,15 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
     { to: "/hr/accounts", key: "nav.accounts" },
     { to: "/hr/reports", key: "nav.reports" },
   ],
-  // The canteen phone scans, and the staff using it eat at the canteen too.
+  // The canteen phone scans (no money since 2026-11-05, FR-47); the staff using it eat at the canteen too.
   scanner: [
     { to: "/scan", key: "nav.scan" },
     { to: "/day-list", key: "nav.dayList" },
+    { to: "/", key: "nav.home" },
+    { to: "/reservations", key: "nav.reservations" },
+  ],
+  // FR-47: the cashier records the cash employees hand in, and hands it over to management.
+  cashier: [
     { to: "/cashier", key: "nav.cashier" },
     { to: "/cash", key: "nav.cash" },
     { to: "/", key: "nav.home" },

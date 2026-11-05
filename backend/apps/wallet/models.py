@@ -11,7 +11,7 @@ from apps.core import clock
 
 class BalanceTransaction(models.Model):
     class Kind(models.TextChoices):
-        TOPUP = "topup", "Top-up"  # cash given to the canteen, recorded by the scanner or management
+        TOPUP = "topup", "Top-up"  # cash given to the canteen, recorded by the cashier or management
         MEAL = "meal", "Meal"  # paid when the meal is reserved (negative)
         REFUND = "refund", "Refund"  # reservation cancelled before the cutoff, or day closed
         CORRECTION = "correction", "Correction"  # management fixes a mistake, with a reason

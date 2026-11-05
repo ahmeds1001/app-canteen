@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from apps.accounts.models import User
 from apps.core import audit, clock
 from apps.core.models import AuditLog
-from apps.core.permissions import IsChefOrManagement, IsScannerOrManagement, role_permission
+from apps.core.permissions import IsCashierOrManagement, IsChefOrManagement, role_permission
 from apps.reservations.serializers import DayReservationSerializer
 
 from . import selectors
@@ -115,10 +115,10 @@ class EmployeeMonthView(APIView):
 
 
 class CashView(APIView):
-    """Money received on a day (FR-45): the scanner's own top-ups today, or every cashier on any day for
+    """Money received on a day (FR-45): the cashier's own top-ups today, or every cashier on any day for
     management. `?date=YYYY-MM-DD` (management only), `?export=csv`."""
 
-    permission_classes = [IsScannerOrManagement]
+    permission_classes = [IsCashierOrManagement]
 
     def get(self, request):
         report = selectors.cash_report(request.user, parse_date(request.query_params.get("date", "")))

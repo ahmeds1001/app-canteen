@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       const data = await authApi.login(email, password);
       signIn(data);
-      navigate(data.user.role === "scanner" ? "/scan" : "/");
+      navigate(data.user.role === "scanner" ? "/scan" : data.user.role === "cashier" ? "/cashier" : "/");
     } catch (err) {
       // An unverified account goes back to the code screen (FR-02).
       if (err instanceof ApiError && err.code === "email_not_verified") {

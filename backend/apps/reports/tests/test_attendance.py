@@ -18,11 +18,12 @@ class MonthlyAttendanceTests(TestCase):
         cfg.payment_enabled = True
         cfg.save()
         self.scanner = f.user(role="scanner")
+        self.cashier = f.user(role="cashier")
         self.amel = f.user(last_name="Amel", department="Qualité")
         self.bilel = f.user(last_name="Bilel", department="Production")
         self.idle = f.user(last_name="Zied", department="Production")  # never reserves
-        wallet.top_up(self.amel, Decimal("50"), by=self.scanner)
-        wallet.top_up(self.bilel, Decimal("50"), by=self.scanner)
+        wallet.top_up(self.amel, Decimal("50"), by=self.cashier)
+        wallet.top_up(self.bilel, Decimal("50"), by=self.cashier)
         chef = f.user(role="chef")
         mon, tue, wed = date(2026, 11, 2), date(2026, 11, 3), date(2026, 11, 4)
         self.menus = {}

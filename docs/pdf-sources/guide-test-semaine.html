@@ -65,7 +65,8 @@ start "frontend" cmd /k "cd frontend && npm run dev"</pre>
   <tr><td>RH</td><td><code>hr@ovagri.test</code></td><td>Approuver avec matricule, refuser, suspendre</td></tr>
   <tr><td>Chef</td><td><code>chef@ovagri.test</code></td><td>Bibliothèque de plats, planning, publication</td></tr>
   <tr><td>Direction</td><td><code>management@ovagri.test</code></td><td>Finalisation par menu, prix du jour, caisse et corrections, encaissements, listes, rapports</td></tr>
-  <tr><td>Scanner</td><td><code>scanner@ovagri.test</code></td><td>Scan des QR (menu à servir), caisse (recharges), encaissements du jour, liste du jour</td></tr>
+  <tr><td>Scanner</td><td><code>scanner@ovagri.test</code></td><td>Scan des QR (menu à servir), liste du jour — <strong>pas d'argent</strong></td></tr>
+  <tr><td>Caissier</td><td><code>cashier@ovagri.test</code></td><td>Caisse (recharges), encaissements du jour, feuille de remise — <strong>pas de scan</strong></td></tr>
   <tr><td>Admin</td><td><code>admin@ovagri.test</code></td><td>Rôles, <strong>Paramètres</strong> (délais et horaires), tout le reste</td></tr>
 </table>
 <p>Autres comptes : 20 employés (<code>mohamed.benali@…</code>, <code>fatma.trabelsi@…</code>, matricules EMP-2001 à EMP-2020)
@@ -106,18 +107,23 @@ un menu verrouillé reste verrouillé, un repas servi reste servi.</div>
     <li><strong>Vendredi</strong> (3.500 TND) : « Solde insuffisant », boutons désactivés.</li>
     <li>« Mon solde » : l'historique, avec le solde après chaque mouvement.</li>
   </ol>
-  <h3><span class="role">Scanner</span> — Caisse et liste du jour</h3>
+  <h3><span class="role">Caissier</span> — Caisse et encaissements</h3>
   <ol>
     <li>« Caisse » : rechercher « employe » → « 10 TND » → « Enregistrer » → confirmer → solde 13.000 TND
       (notification « Solde rechargé »).</li>
     <li>Retour employé : réserver <strong>vendredi</strong> → solde 9.500 TND.</li>
-    <li>« Liste du jour » : menu, statut, heure de service ; filtres, recherche, « Exporter (CSV) ».</li>
     <li>« Encaissements » : la recharge de 10 TND apparaît, avec le total « Argent à remettre ». « Imprimer » → la feuille de
       remise (chaque recharge, total, montant compté, deux signatures).</li>
+    <li>Le caissier n'a ni « Scanner » ni « Liste du jour ».</li>
+  </ol>
+  <h3><span class="role">Scanner</span> — Liste du jour</h3>
+  <ol>
+    <li>« Liste du jour » : menu, statut, heure de service ; filtres, recherche, « Exporter (CSV) ».</li>
+    <li>Le scanner n'a ni « Caisse » ni « Encaissements » (ouvrir <code>/cashier</code> ramène aux menus).</li>
   </ol>
   <h3><span class="role">Direction</span></h3>
   <ol>
-    <li>« Caisse » : « Corriger le solde » (ex. -5, motif) — le scanner n'a pas ce bouton.</li>
+    <li>« Caisse » : « Corriger le solde » (ex. -5, motif) — le caissier n'a pas ce bouton.</li>
     <li>« Encaissements » : le total du jour par personne ; la correction de -5 est comptée, avec son motif.
       Changer de jour avec ‹ ›, « Exporter (CSV) ».</li>
     <li>« Finalisation » : réservations par menu ; « Prix du jour » de samedi modifiable.</li>
@@ -203,7 +209,7 @@ un menu verrouillé reste verrouillé, un repas servi reste servi.</div>
     <li><span class="role">Scanner</span> : scanner le QR de vendredi → « Payé par le solde (3.500 TND) ». Rien à
       encaisser : il n'y a plus de paiement au comptoir, tout passe par le solde.</li>
     <li><span class="role">Direction</span> : « Encaissements » de mardi 10/11 → le même total que la feuille imprimée
-      par le scanner.</li>
+      par le caissier.</li>
   </ul>
 </div>
 
@@ -211,12 +217,14 @@ un menu verrouillé reste verrouillé, un repas servi reste servi.</div>
 <pre>backend\.venv\Scripts\python.exe backend\manage.py dev_clock reset</pre>
 <p>L'horloge revient à l'heure réelle ; les données restent.</p>
 
+<div style="break-inside: avoid">
 <h2>Recommencer la démo depuis le début</h2>
 <p>Sur le PC de présentation uniquement (base de démonstration) : fermer les 3 fenêtres, puis depuis <code>backend</code> :</p>
 <pre>del db.sqlite3
 .venv\Scripts\python.exe manage.py migrate
 .venv\Scripts\python.exe manage.py demo_week</pre>
 <div class="note">Ne jamais supprimer <code>db.sqlite3</code> sur une base contenant de vraies données.</div>
+</div>
 
 </body>
 </html>

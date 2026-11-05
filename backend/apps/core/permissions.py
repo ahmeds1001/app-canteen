@@ -26,11 +26,12 @@ def role_permission(*roles: str) -> type[BasePermission]:
     return _RolePermission
 
 
-IsEmployee = role_permission("employee", "hr", "chef", "scanner", "management")
+IsEmployee = role_permission("employee", "hr", "chef", "scanner", "cashier", "management")
 IsHR = role_permission("hr")
 IsChef = role_permission("chef")
 IsScanner = role_permission("scanner")
 IsManagement = role_permission("management")
 IsChefOrManagement = role_permission("chef", "management")
-IsScannerOrManagement = role_permission("scanner", "management")
+IsScannerOrManagement = role_permission("scanner", "management")  # day lists (FR-44)
+IsCashierOrManagement = role_permission("cashier", "management")  # money (FR-43, FR-45, FR-47)
 IsAdmin = role_permission("admin")

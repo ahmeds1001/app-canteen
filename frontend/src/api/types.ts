@@ -1,6 +1,6 @@
 /** API "models": mirror of the Django serializers (backend/apps/<app>/serializers.py). Keep them in sync. */
 
-export type Role = "employee" | "hr" | "chef" | "scanner" | "management" | "admin";
+export type Role = "employee" | "hr" | "chef" | "scanner" | "cashier" | "management" | "admin";
 export type AccountStatus =
   | "registered"
   | "email_verified"
@@ -227,7 +227,7 @@ export interface DayReservation extends ScanResult {
   scan_method: "qr" | "manual" | "";
 }
 
-/** Cash received on one day (FR-45): the scanner's own top-ups today, or every cashier for management. */
+/** Cash received on one day (FR-45): the cashier's own top-ups today, or every cashier for management. */
 export interface CashReport {
   date: string;
   scope: "mine" | "all";
@@ -320,7 +320,7 @@ export interface MyBalance {
   transactions: BalanceTransaction[];
 }
 
-/** An account as the cashier (scanner / management) sees it. */
+/** An account as the cashier (cashier role / management) sees it. */
 export interface WalletAccount {
   id: number;
   full_name: string;

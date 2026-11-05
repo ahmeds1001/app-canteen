@@ -147,7 +147,7 @@ class PrepaidBalanceTests(TestCase):
         cfg = CanteenSettings.load()
         cfg.payment_enabled = True
         cfg.save()
-        self.cashier = f.user(role="scanner")
+        self.cashier = f.user(role="cashier")
         self.employee = f.user()
         self.menu = f.menu(MONDAY, is_paid=True, price=Decimal("3.500"))
 

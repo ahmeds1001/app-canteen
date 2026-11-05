@@ -29,7 +29,8 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
         EMPLOYEE = "employee", "Employee"
         HR = "hr", "HR"
         CHEF = "chef", "Chef"
-        SCANNER = "scanner", "Scanner / cashier"
+        SCANNER = "scanner", "Scanner"  # scans meals; no money since 2026-11-05 (FR-47)
+        CASHIER = "cashier", "Cashier"  # records cash top-ups (FR-47)
         MANAGEMENT = "management", "Management"
         ADMIN = "admin", "Admin"
 

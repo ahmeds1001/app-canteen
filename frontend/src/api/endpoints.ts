@@ -194,7 +194,7 @@ export const reportApi = {
     api<EmployeeMonth>(`/reports/attendance/monthly/${userId}/?month=${month}`),
   exportCsv: (month: string) =>
     download(`/reports/attendance/monthly/?month=${month}&export=csv`, `presence-${month}.csv`),
-  /** Cash received (FR-45). The scanner always gets her own top-ups of today; `date` is for management. */
+  /** Cash received (FR-45). The cashier always gets her own top-ups of today; `date` is for management. */
   cash: (date?: string) => api<CashReport>(`/reports/cash/${date ? `?date=${date}` : ""}`),
   cashCsv: (date: string) => download(`/reports/cash/?date=${date}&export=csv`, `caisse-${date}.csv`),
 };
@@ -202,7 +202,7 @@ export const reportApi = {
 /** Prepaid balance (decided 2026-11-03): the only way meals are paid. */
 export const walletApi = {
   me: () => api<MyBalance>("/wallet/me/"),
-  /** Cashier (scanner / management): find an account by name, employee number or email (2+ letters). */
+  /** Cashier (cashier role / management): find an account by name, employee number or email (2+ letters). */
   search: (q: string) => api<WalletAccount[]>(`/wallet/accounts/?q=${encodeURIComponent(q)}`),
   history: (id: number) =>
     api<{ account: WalletAccount; transactions: BalanceTransaction[] }>(`/wallet/accounts/${id}/transactions/`),

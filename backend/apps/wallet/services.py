@@ -1,6 +1,6 @@
 """Prepaid balance rules (decided 2026-11-03).
 
-- Employees give cash to the canteen; the scanner or management records it as a top-up.
+- Employees give cash to the canteen; the cashier or management records it as a top-up (FR-47).
 - A meal is paid from the balance when it is reserved; without enough money the reservation is refused.
 - Cancelling before the cutoff (midnight the day before) pays the meal back; a no-show keeps it paid.
 - The balance never goes below zero: every debit is a conditional update `balance >= amount`.
@@ -45,7 +45,9 @@ def _amount(value) -> Decimal:
 
 
 def top_up(user: User, amount, *, by) -> BalanceTransaction:
-    """Cash received at the canteen. Scanner or management (checked by the API)."""
+    """Cash received at the canteen. Cashier or management only (FR-47; the API checks it too)."""
+    if by.role not in (User.Role.CASHIER, User.Role.MANAGEMENT, User.Role.ADMIN):
+        raise NotAllowed("cashier_only", "Only the cashier or management can record cash.")
     amount = _amount(amount)
     if amount <= 0:
         raise DomainError("amount_positive", "The amount must be greater than zero.")

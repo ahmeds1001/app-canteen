@@ -234,7 +234,7 @@
     },
     "number": "Matricule {{number}}", "noNumber": "Matricule à saisir", "since": "inscrit le {{date}}",
     "roles": {
-      "employee": "Employé", "hr": "RH", "chef": "Chef", "scanner": "Scanner", "management": "Direction",
+      "employee": "Employé", "hr": "RH", "chef": "Chef", "scanner": "Scanner", "cashier": "Caissier", "management": "Direction",
       "admin": "Administrateur"
     },
     "status": {
@@ -284,6 +284,7 @@
   "soon": { "title": "Écran à construire", "help": "Cet écran est prévu dans le cahier des charges ({{refs}}). Il sera développé dans un prochain sprint." },
   "errors": {
     "generic": "Une erreur est survenue. Réessayez.",
+    "cashier_only": "Seuls le caissier et la Direction peuvent enregistrer de l'argent.",
     "settings_no_service_day": "Gardez au moins un jour de service.",
     "settings_publish_after_cutoff": "Le menu doit être publié avant la clôture des réservations.",
     "settings_cutoff_after_finalization": "La clôture des réservations doit précéder l'heure de finalisation.",

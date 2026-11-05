@@ -10,14 +10,14 @@ import { useServerTime } from "@/hooks/useServerTime";
 import { addDays, formatCompanyDateTime, formatDay, isoToday } from "@/utils/dates";
 import "./staff.css";
 
-/** FR-45 (decided 2026-11-04): money received at the canteen on a day. The scanner sees her own top-ups of
+/** FR-45 (decided 2026-11-04): money received at the canteen on a day. The cashier sees her own top-ups of
  *  today — the cash she hands over in the evening; management sees any day, per cashier, with corrections. */
 export default function CashReportPage() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const toMessage = useErrorMessage();
   const { serverTime } = useServerTime();
-  const mine = user?.role === "scanner";
+  const mine = user?.role === "cashier";
   const today = serverTime?.slice(0, 10) ?? isoToday();
   const [picked, setPicked] = useState<string | null>(null);
   const day = mine ? today : picked ?? today;
@@ -115,7 +115,7 @@ export default function CashReportPage() {
   );
 }
 
-/** The paper the scanner hands over with the money: every top-up of the day, the total, two signatures.
+/** The paper the cashier hands over with the money: every top-up of the day, the total, two signatures.
  *  Hidden on screen; only this comes out of the printer. */
 function CashSheet({ data, mine, cashier, printedAt }: { data: CashReport; mine: boolean; cashier: string; printedAt?: string }) {
   const { t, i18n } = useTranslation();

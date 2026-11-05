@@ -122,6 +122,8 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
    corrects it to zero; cash collected by scanner + management only; no finalization backup → the admin's
    **Settings screen** (FR-46, `/admin/settings`, `apps/core/services.update_settings`) sets every deadline as
    days + time, the buffer, reminders…; leftover plates still open. (Cash report: "Encaissements", FR-45.)
+   5 Nov 2026: **Scanner and Cashier split (FR-47)** — role `cashier` ("Caissier") does top-ups + own cash;
+   `scanner` scans + day list, no money (`IsCashierOrManagement`, `wallet.top_up` refuses other roles).
 4. Deploy on the company server (Docker, SQL Server, HTTPS, backups + restore test), load test (200 users), pilot.
 5. Then: no-show warning after 3 per month, management trend charts (FR-23), chef live count (FR-21), offline scans.
 
@@ -153,7 +155,7 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
 - Test week: `python manage.py demo_week [--monday YYYY-MM-DD]` — adds a Monday–Saturday week (two-menu days,
   balances, history) without deleting anything, then sets the clock to that Tuesday 20:30. On this PC the weeks of
   9 and 23 Nov are built and the week of 16 Nov is half-built (an old bug, kept); use a later Monday for a new one.
-- Test accounts: `admin@`, `hr@`, `chef@`, `management@`, `scanner@`, `employee@ovagri.test` + generated employees;
+- Test accounts: `admin@`, `hr@`, `chef@`, `management@`, `scanner@`, `cashier@`, `employee@ovagri.test` + generated employees;
   password = `DEV_SEED_PASSWORD` in `.env` (never write it in files or chat).
 - Pixel 6 Pro over wireless debugging: `adb pair` / `adb connect`, then `adb reverse tcp:5173 tcp:5173` and open
   `http://localhost:5173` in Chrome on the phone (camera needs localhost). Redo `adb reverse` after reconnecting.

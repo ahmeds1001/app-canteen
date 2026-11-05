@@ -48,6 +48,7 @@ STAFF = {  # email: (first name, last name, role, matricule)
     "hr@ovagri.test": ("RH", "Test", User.Role.HR, "RH-001"),
     "chef@ovagri.test": ("Chef", "Test", User.Role.CHEF, "CHEF-001"),
     "scanner@ovagri.test": ("Scanner", "Test", User.Role.SCANNER, "SCAN-001"),
+    "cashier@ovagri.test": ("Caisse", "Test", User.Role.CASHIER, "CAIS-001"),  # FR-47: records the top-ups
     "management@ovagri.test": ("Direction", "Test", User.Role.MANAGEMENT, "DIR-001"),
 }
 
@@ -184,6 +185,7 @@ class Command(BaseCommand):
 
     def _plan_week(self, users, dishes):
         chef, hr, management, scanner, persona = (users[k] for k in ("chef", "hr", "management", "scanner", "persona"))
+        cashier = users["cashier"]  # top-ups go through the cashier since 2026-11-05 (FR-47)
         mon, tue, wed, thu, fri, sat = self.days
         cfg = CanteenSettings.load()
         # Every meal is paid from the prepaid balance (decided 2026-11-03): 3.000 TND by default.
@@ -202,8 +204,8 @@ class Command(BaseCommand):
         top_ups = mon - timedelta(days=4)
         for user in self.employees:
             amount = Decimal(self.rng.choice([20, 30, 40, 50]))
-            self._on(at(top_ups, 9, self.rng.randint(0, 50)), lambda u=user, a=amount: wallet.top_up(u, a, by=scanner))
-        self._on(at(top_ups, 12), lambda: wallet.top_up(persona, PERSONA_TOP_UP, by=scanner))
+            self._on(at(top_ups, 9, self.rng.randint(0, 50)), lambda u=user, a=amount: wallet.top_up(u, a, by=cashier))
+        self._on(at(top_ups, 12), lambda: wallet.top_up(persona, PERSONA_TOP_UP, by=cashier))
 
         # Chef: Mon–Wed published Thursday before, Thu–Fri on Friday, Saturday still a draft on Tuesday.
         def build(day, publish=True):

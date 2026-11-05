@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 
 from apps.core.tests import factories as f
 
-ROLES = ["employee", "hr", "chef", "scanner", "management", "admin"]
+ROLES = ["employee", "hr", "chef", "scanner", "cashier", "management", "admin"]
 EVERYONE = set(ROLES)
 D = "2099-01-04"  # a Monday with no menu
 ID = 999999  # no such user / reservation
@@ -38,8 +38,9 @@ MATRIX = [
     ("post", f"/api/v1/checkin/{ID}/manual/", {"scanner"}),
     ("get", f"/api/v1/reservations/day/?date={D}", {"scanner", "management"}),
     ("get", "/api/v1/wallet/me/", EVERYONE),
-    ("get", "/api/v1/wallet/accounts/?q=zz", {"scanner", "management"}),
-    ("post", f"/api/v1/wallet/accounts/{ID}/topup/", {"scanner", "management"}),
+    ("get", "/api/v1/wallet/accounts/?q=zz", {"cashier", "management"}),
+    ("post", f"/api/v1/wallet/accounts/{ID}/topup/", {"cashier", "management"}),
+    ("get", "/api/v1/reports/cash/", {"cashier", "management"}),
     ("post", f"/api/v1/wallet/accounts/{ID}/correct/", {"management"}),
     ("get", "/api/v1/reports/daily/", {"chef", "management"}),
     ("get", "/api/v1/reports/attendance/", {"hr", "management"}),

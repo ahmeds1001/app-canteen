@@ -1,4 +1,4 @@
-"""Prepaid balance API: the employee's own balance, and the cashier screen (scanner and management)."""
+"""Prepaid balance API: the employee's own balance, and the cashier screen (cashier and management, FR-47)."""
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from apps.accounts.models import User
-from apps.core.permissions import IsEmployee, IsManagement, IsScannerOrManagement
+from apps.core.permissions import IsCashierOrManagement, IsEmployee, IsManagement
 
 from . import selectors, services
 from .serializers import AccountSerializer, CorrectionSerializer, TopUpSerializer, TransactionSerializer
@@ -29,7 +29,7 @@ class AccountViewSet(GenericViewSet):
     serializer_class = AccountSerializer
 
     def get_permissions(self):
-        return [IsManagement()] if self.action == "correct" else [IsScannerOrManagement()]
+        return [IsManagement()] if self.action == "correct" else [IsCashierOrManagement()]
 
     def _account(self, pk) -> User:
         return get_object_or_404(User, pk=pk)
