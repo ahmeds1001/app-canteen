@@ -1,30 +1,68 @@
 # Production-like stack for the company server. The canteen app runs in its own containers and its own
-# database, isolated from the ERP. HTTPS is terminated by the company reverse proxy in front of "web".
+# database, isolated from the ERP. HTTPS is terminated by the company reverse proxy in front of "web" (port 8080).
+#   docker compose up -d --build     # migrations run first (service "migrate"), then the app starts
+# Full guide: docs/architecture-technique.pdf
+
+x-logging: &logging   # keep container logs from filling the disk
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
 services:
+  # One-shot: applies database migrations, then exits. backend and scheduler wait for it.
+  migrate:
+    build: ./backend
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    command: python manage.py migrate --noinput
+    restart: "no"
+    logging: *logging
+
   backend:
     build: ./backend
     env_file: .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
+    volumes:
+      - media:/app/media          # dish photos survive rebuilds; back this volume up with the database
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    healthcheck:                  # 200 only when the API reaches SQL Server
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
+    logging: *logging
     deploy:
       resources:
         limits: { cpus: "1.0", memory: 768M }
 
+  # Scheduled jobs every minute. Exactly ONE instance: do not scale this service.
   scheduler:
     build: ./backend
     env_file: .env
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
     command: python manage.py run_scheduler
+    depends_on:
+      migrate: { condition: service_completed_successfully }
     restart: unless-stopped
-    depends_on: [backend]
+    logging: *logging
 
   web:
     build: ./frontend
     ports: ["8080:80"]
+    volumes:
+      - media:/srv/media:ro       # nginx serves the photos the backend stored
+    depends_on:
+      backend: { condition: service_healthy }
     restart: unless-stopped
-    depends_on: [backend]
+    logging: *logging
+
+volumes:
+  media:
 
 # Local SQL Server for development only (uncomment). Production uses the company SQL Server.
 #  db:

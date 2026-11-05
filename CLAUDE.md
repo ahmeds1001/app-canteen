@@ -125,6 +125,10 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
    5 Nov 2026: **Scanner and Cashier split (FR-47)** — role `cashier` ("Caissier") does top-ups + own cash;
    `scanner` scans + day list, no money (`IsCashierOrManagement`, `wallet.top_up` refuses other roles).
 4. Deploy on the company server (Docker, SQL Server, HTTPS, backups + restore test), load test (200 users), pilot.
+   5 Nov 2026: technical PDF for IT `docs/architecture-technique.pdf` (source in `docs/pdf-sources/`); Docker stack
+   fixed: WhiteNoise for /static/, `media` volume served by nginx, nginx keeps X-Forwarded-Proto, one-shot `migrate`
+   service, backend healthcheck (/api/v1/health/ also checks the DB), 6 MB uploads, log rotation. Not yet run in
+   Docker (no Docker on this PC): validate at the first install. Waiting for IT: server/OS, Docker, subdomain, SQL login, SMTP.
 5. Then: no-show warning after 3 per month, management trend charts (FR-23), chef live count (FR-21), offline scans.
 
 ### How the user works

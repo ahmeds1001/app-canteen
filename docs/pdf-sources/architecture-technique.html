@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Dossier technique — Application Cantine OVAGRI</title>
+<style>
+  @page { size: A4; margin: 15mm 15mm 16mm 15mm;
+    @bottom-left { content: "Dossier technique — Application Cantine OVAGRI · 5 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
+    @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; } }
+  @page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
+  :root { --green: #0a6b28; --green-soft: #e8f3e3; --orange: #f89000; --orange-soft: #fff3e0; --red: #b42318; --red-soft: #fdecea;
+          --blue: #1d4f91; --blue-soft: #e8eff9; --text: #1c2a1e; --muted: #5b675d; --line: #d9e2d6; }
+  * { box-sizing: border-box; }
+  body { font: 9.6pt/1.42 "Segoe UI", Arial, sans-serif; color: var(--text); margin: 0; }
+  h1 { color: var(--green); font-size: 16pt; margin: 0 0 8px; padding-bottom: 4px; border-bottom: 3px solid;
+       border-image: linear-gradient(90deg, #f89000, #a6c914, #0a6b28) 1; break-after: avoid; }
+  h1.chapter { break-before: page; }
+  h2 { color: var(--green); font-size: 11.5pt; margin: 14px 0 5px; break-after: avoid; }
+  h3 { font-size: 10pt; margin: 10px 0 4px; break-after: avoid; }
+  p { margin: 4px 0 7px; }
+  ul, ol { margin: 3px 0 8px; padding-inline-start: 18px; }
+  li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 5px 0 10px; font-size: 8.8pt; }
+  th { background: var(--green); color: #fff; text-align: start; padding: 4px 6px; font-weight: 600; }
+  td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr { break-inside: avoid; }
+  tr:nth-child(even) td { background: #f7faf6; }
+  code { font-family: Consolas, monospace; font-size: 8.6pt; background: #eef2ec; padding: 0 3px; border-radius: 3px; }
+  pre { font-family: Consolas, monospace; font-size: 8.4pt; background: #1f2a21; color: #e9f5e4; padding: 7px 10px; border-radius: 6px;
+        margin: 5px 0 9px; white-space: pre-wrap; break-inside: avoid; }
+  .box { border: 1px solid var(--line); border-inline-start: 5px solid var(--green); border-radius: 6px; padding: 7px 11px; margin: 8px 0; break-inside: avoid; }
+  .box.orange { border-inline-start-color: var(--orange); background: #fffaf2; }
+  .box.red { border-inline-start-color: var(--red); background: #fffafa; }
+  .box h3 { margin-top: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tag { display: inline-block; font-size: 7.6pt; font-weight: 700; padding: 0 5px; border-radius: 8px; }
+  .tag.secret { background: var(--red-soft); color: var(--red); }
+  .tag.todo { background: var(--orange-soft); color: #8a4b00; }
+  .tag.ok { background: var(--green-soft); color: var(--green); }
+  .muted { color: var(--muted); }
+  /* Cover */
+  .cover { height: 250mm; display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { width: 70px; height: 70px; }
+  .brand p { margin: 0; color: var(--muted); }
+  .band { height: 5px; margin: 22px 0 26px; background: linear-gradient(90deg, #f89000, #a6c914, #0a6b28); }
+  .title { font-size: 26pt; color: var(--green); margin: 0; line-height: 1.12; border: 0; }
+  .sub { font-size: 12pt; color: var(--muted); margin-top: 8px; }
+  .meta { margin-top: 30px; font-size: 9.5pt; }
+  .cover .box { margin-top: auto; }
+  figure { margin: 6px 0 10px; break-inside: avoid; }
+  pre.diagram { white-space: pre; font-size: 7.4pt; }
+  h1 { margin-top: 16px; }
+  h1.chapter { margin-top: 0; }
+  figcaption { font-size: 8.4pt; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COUVERTURE ============================== -->
+<section class="cover">
+  <div class="brand">
+    <img src="logo.png" alt="OVAGRI Groupe">
+    <p><b>OVAGRI Groupe</b><br>Direction des opérations · Informatique</p>
+  </div>
+  <div class="band"></div>
+  <h1 class="title" style="border:0">Dossier technique<br>Application Cantine</h1>
+  <p class="sub">Architecture, déploiement et exploitation — à l'attention de l'équipe IT / DevOps</p>
+  <div class="meta">
+    <b>Version du 5 novembre 2026</b> · code : <code>github.com/ahmeds1001/app-canteen</code> (branche <code>main</code>)<br>
+    État : application développée et testée (148 tests automatiques, aussi sur SQL Server 2022), <b>pas encore déployée</b>.<br>
+    Documents liés : cahier des charges (<code>docs/cahier-des-charges.pdf</code>), guide de test (<code>docs/guide-test-semaine.pdf</code>).
+  </div>
+  <div class="box">
+    <h3>En une phrase</h3>
+    <p>Une application web (site installable sur le téléphone) où ~200 employés réservent leur repas la veille ; la
+    cuisine prépare réservations + 10 % ; un téléphone de la cantine scanne un QR code par repas. Elle tourne dans
+    <b>trois conteneurs Docker</b> (site, API, tâches planifiées) derrière le proxy HTTPS de l'entreprise, avec
+    <b>sa propre base SQL Server</b>, isolée de l'ERP.</p>
+  </div>
+</section>
+
+<!-- ============================== 1. SYNTHÈSE ============================== -->
+<h1 class="chapter">1. Synthèse pour l'IT</h1>
+<div class="two">
+  <div class="box">
+    <h3>Ce que l'application demande</h3>
+    <ul>
+      <li>Un serveur Linux (ou Windows Server) avec <b>Docker + Docker Compose</b> ; 2 vCPU, 2 Go de RAM, 10 Go de disque suffisent.</li>
+      <li>Une <b>base SQL Server 2019+</b> dédiée (<code>canteen</code>) et un login SQL qui n'a des droits que sur elle.</li>
+      <li>Un <b>sous-domaine</b> (ex. <code>cantine.ovagri.tn</code>) avec certificat HTTPS sur le proxy de l'entreprise.</li>
+      <li>Un compte <b>SMTP</b> pour 5 emails de compte (code, validation, refus, mot de passe).</li>
+      <li>Un accès <b>Internet sortant en 443</b> vers les services push (Google, Mozilla, Apple, Microsoft).</li>
+      <li>Une <b>horloge serveur juste</b> (NTP) : les délais de réservation se jouent à la minute.</li>
+    </ul>
+  </div>
+  <div class="box orange">
+    <h3>Ce que nous attendons de vous</h3>
+    <ol>
+      <li>Choix du serveur et de son OS ; Docker autorisé ou non.</li>
+      <li>Le sous-domaine et qui gère le certificat.</li>
+      <li>Création de la base et du login SQL (script en §8.2).</li>
+      <li>Identifiants SMTP et adresse d'expéditeur.</li>
+      <li>Ouverture des flux réseau du §7.3.</li>
+      <li>Sauvegardes : outil et emplacement hors du serveur ; un test de restauration avant le lancement.</li>
+      <li>Supervision : qui reçoit l'alerte si le site ou les tâches planifiées s'arrêtent.</li>
+    </ol>
+  </div>
+</div>
+
+<h2>Chiffres clés</h2>
+<table>
+  <tr><th style="width:34%">Élément</th><th>Valeur</th></tr>
+  <tr><td>Utilisateurs</td><td>~200 employés, 7 rôles (employé, RH, chef, scanner, caissier, Direction, admin) ; un rôle par compte</td></tr>
+  <tr><td>Pics de charge</td><td>Les dernières minutes avant la clôture des réservations (23:59 la veille par défaut) et le service de midi (scans, 12:00–15:00)</td></tr>
+  <tr><td>Volume de données</td><td>Faible : ~60 000 réservations par an, quelques Mo ; plus les photos des plats (≈ 200 Ko chacune). <b>Rien n'est jamais supprimé</b> (décision de l'entreprise)</td></tr>
+  <tr><td>Disponibilité visée</td><td>99 % pendant le service et le soir ; une coupure de quelques minutes le reste du temps est sans conséquence</td></tr>
+  <tr><td>Fuseau horaire</td><td><code>Africa/Tunis</code> pour toutes les règles ; dates stockées en UTC dans la base</td></tr>
+  <tr><td>Langues</td><td>Français (défaut) et anglais ; arabe prévu plus tard</td></tr>
+</table>
+
+<!-- ============================== 2. ARCHITECTURE ============================== -->
+<h1 class="chapter">2. Vue d'ensemble</h1>
+<figure>
+<svg viewBox="0 0 760 345" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5b675d"/></marker>
+  </defs>
+  <!-- users -->
+  <rect x="10" y="20" width="150" height="62" rx="8" fill="#e8eff9" stroke="#1d4f91"/>
+  <text x="85" y="44" text-anchor="middle" font-weight="700" fill="#1d4f91">Employés et personnel</text>
+  <text x="85" y="62" text-anchor="middle" fill="#1c2a1e">téléphone / PC</text>
+  <text x="85" y="75" text-anchor="middle" fill="#5b675d" font-size="10">navigateur (PWA)</text>
+  <rect x="10" y="100" width="150" height="50" rx="8" fill="#e8eff9" stroke="#1d4f91"/>
+  <text x="85" y="122" text-anchor="middle" font-weight="700" fill="#1d4f91">Téléphone cantine</text>
+  <text x="85" y="139" text-anchor="middle" fill="#5b675d" font-size="10">scan des QR (caméra)</text>
+  <!-- proxy -->
+  <rect x="205" y="45" width="135" height="80" rx="8" fill="#fff3e0" stroke="#f89000"/>
+  <text x="272" y="72" text-anchor="middle" font-weight="700" fill="#8a4b00">Proxy de l'entreprise</text>
+  <text x="272" y="90" text-anchor="middle">HTTPS (certificat)</text>
+  <text x="272" y="106" text-anchor="middle" fill="#5b675d" font-size="10">cantine.ovagri.tn → :8080</text>
+  <!-- docker host -->
+  <rect x="370" y="10" width="245" height="300" rx="10" fill="#f7faf6" stroke="#0a6b28" stroke-dasharray="5 4"/>
+  <text x="492" y="28" text-anchor="middle" font-weight="700" fill="#0a6b28">Serveur Docker (docker compose)</text>
+  <rect x="390" y="42" width="205" height="62" rx="8" fill="#fff" stroke="#0a6b28"/>
+  <text x="492" y="62" text-anchor="middle" font-weight="700">web — nginx</text>
+  <text x="492" y="79" text-anchor="middle" fill="#5b675d" font-size="10">site React compilé + proxy /api</text>
+  <text x="492" y="94" text-anchor="middle" fill="#5b675d" font-size="10">port 80 (publié en 8080)</text>
+  <rect x="390" y="128" width="205" height="62" rx="8" fill="#fff" stroke="#0a6b28"/>
+  <text x="492" y="148" text-anchor="middle" font-weight="700">backend — Django + gunicorn</text>
+  <text x="492" y="165" text-anchor="middle" fill="#5b675d" font-size="10">API REST /api/v1, admin /admin</text>
+  <text x="492" y="180" text-anchor="middle" fill="#5b675d" font-size="10">port 8000 (interne), 3 workers</text>
+  <rect x="390" y="214" width="205" height="62" rx="8" fill="#fff" stroke="#0a6b28"/>
+  <text x="492" y="234" text-anchor="middle" font-weight="700">scheduler — même image</text>
+  <text x="492" y="251" text-anchor="middle" fill="#5b675d" font-size="10">run_scheduler : tâches chaque minute</text>
+  <text x="492" y="266" text-anchor="middle" fill="#5b675d" font-size="10">1 seule instance</text>
+  <!-- right side -->
+  <rect x="640" y="100" width="112" height="70" rx="8" fill="#e8f3e3" stroke="#0a6b28"/>
+  <text x="696" y="124" text-anchor="middle" font-weight="700" fill="#0a6b28">SQL Server</text>
+  <text x="696" y="141" text-anchor="middle" font-size="10">base « canteen »</text>
+  <text x="696" y="156" text-anchor="middle" fill="#5b675d" font-size="10">TCP 1433</text>
+  <rect x="640" y="190" width="112" height="44" rx="8" fill="#fff" stroke="#5b675d"/>
+  <text x="696" y="209" text-anchor="middle" font-weight="700">SMTP</text>
+  <text x="696" y="225" text-anchor="middle" fill="#5b675d" font-size="10">port 587 (TLS)</text>
+  <rect x="640" y="250" width="112" height="60" rx="8" fill="#fff" stroke="#5b675d"/>
+  <text x="696" y="270" text-anchor="middle" font-weight="700">Services push</text>
+  <text x="696" y="285" text-anchor="middle" fill="#5b675d" font-size="10">Google, Mozilla,</text>
+  <text x="696" y="299" text-anchor="middle" fill="#5b675d" font-size="10">Apple, Microsoft (443)</text>
+  <!-- arrows -->
+  <line x1="160" y1="55" x2="203" y2="72" stroke="#5b675d" marker-end="url(#a)"/>
+  <line x1="160" y1="122" x2="203" y2="104" stroke="#5b675d" marker-end="url(#a)"/>
+  <line x1="340" y1="80" x2="388" y2="74" stroke="#5b675d" marker-end="url(#a)"/>
+  <line x1="492" y1="104" x2="492" y2="126" stroke="#5b675d" marker-end="url(#a)"/>
+  <line x1="595" y1="152" x2="638" y2="140" stroke="#5b675d" marker-end="url(#a)"/>
+  <line x1="595" y1="238" x2="638" y2="150" stroke="#5b675d" marker-end="url(#a)"/>
+  <line x1="595" y1="172" x2="638" y2="205" stroke="#5b675d" marker-end="url(#a)"/>
+  <line x1="595" y1="256" x2="638" y2="275" stroke="#5b675d" marker-end="url(#a)"/>
+  <path d="M640,300 C420,345 120,330 60,152" fill="none" stroke="#9aa59b" stroke-dasharray="4 3" marker-end="url(#a)"/>
+  <text x="330" y="341" text-anchor="middle" fill="#5b675d" font-size="10">notification sur le téléphone (ouvre l'application en un clic)</text>
+</svg>
+<figcaption>Figure 1 — Composants et flux. Seul le conteneur « web » est exposé ; l'API et les tâches parlent à SQL Server, SMTP et aux services push.</figcaption>
+</figure>
+
+<h2>Composants</h2>
+<table>
+  <tr><th style="width:15%">Conteneur</th><th style="width:32%">Technologie</th><th>Rôle</th></tr>
+  <tr><td><b>web</b></td><td>nginx 1.27 (alpine) ; site compilé par Vite (Node 22, à la construction seulement)</td><td>Sert le site (React 18 + TypeScript, PWA : installable, service worker, notifications push) et les photos des plats (<code>/media/</code>) ; relaie <code>/api/</code>, <code>/admin/</code>, <code>/static/</code> vers le backend</td></tr>
+  <tr><td><b>backend</b></td><td>Python 3.12, Django 5.2 LTS, Django REST Framework 3.18, SimpleJWT 5.5, gunicorn (3 workers), WhiteNoise, pilote ODBC 18, mssql-django 2.0</td><td>API REST <code>/api/v1/</code> (toutes les règles métier), site d'administration technique <code>/admin/</code> et ses fichiers statiques (WhiteNoise), envoi des emails</td></tr>
+  <tr><td><b>scheduler</b></td><td>Même image que backend, commande <code>python manage.py run_scheduler</code></td><td>Tâches planifiées chaque minute (§4.3) : publication automatique, clôture, finalisation, absences, rappels, envoi des notifications push</td></tr>
+  <tr><td>SQL Server</td><td>SQL Server 2019+ de l'entreprise (testé sur 2022)</td><td>Base dédiée <code>canteen</code> ; aucune donnée ERP ; aucun accès de l'application à l'ERP</td></tr>
+</table>
+
+<!-- ============================== 3. LOGICIEL ============================== -->
+<h1 class="chapter">3. Organisation du logiciel</h1>
+<p>Architecture en couches : le site (vue) appelle l'API en JSON ; dans l'API, les vues restent minces et toutes les
+règles du cahier des charges sont dans les <code>services.py</code>.</p>
+<pre class="diagram">React (vue)  ──HTTPS/JSON──▶  vues DRF (contrôleur)  ──▶  services.py (règles métier)  ──▶  models.py (tables)
+                                   │                                                ▲
+                                   └── serializers.py (validation)          selectors.py (lectures, rapports)</pre>
+<table>
+  <tr><th style="width:18%">Application Django</th><th>Contenu</th></tr>
+  <tr><td><code>core</code></td><td>Horloge (une seule source de l'heure, pour les tests), paramètres de la cantine (écran admin), journal d'audit, droits par rôle, tâches planifiées</td></tr>
+  <tr><td><code>accounts</code></td><td>Comptes, inscription avec code email, validation RH et matricule, mots de passe, sessions</td></tr>
+  <tr><td><code>menus</code></td><td>Bibliothèque de plats (photos), menus du jour (1 ou 2 menus), publication, clôture, finalisation du nombre d'assiettes</td></tr>
+  <tr><td><code>reservations</code></td><td>Réservations, QR codes signés, scan, listes du jour, absences</td></tr>
+  <tr><td><code>wallet</code></td><td>Solde prépayé : recharges (caissier, Direction), paiement à la réservation, remboursements, corrections</td></tr>
+  <tr><td><code>notifications</code></td><td>Notifications dans l'application et sur le téléphone (Web Push)</td></tr>
+  <tr><td><code>reports</code></td><td>Présence par employé, encaissements du jour, exports CSV</td></tr>
+</table>
+<p class="muted">Le site (<code>frontend/src</code>) : un fichier par écran et par rôle, tous les textes dans <code>i18n/fr.json</code> et
+<code>en.json</code>, un seul module pour appeler l'API (<code>api/endpoints.ts</code>).</p>
+
+<h1>4. Fonctionnement</h1>
+<h3>4.1 Sessions et API</h3>
+<ul>
+  <li>Connexion par email + mot de passe → jeton d'accès JWT valable <b>30 minutes</b> et jeton de renouvellement de
+    <b>14 jours</b>, chacun utilisable une fois (rotation + liste noire). Un compte suspendu n'obtient plus de jeton,
+    même sur un téléphone déjà connecté. Les jetons sont gardés par le navigateur (localStorage) ; pas de cookie de session pour l'API.</li>
+  <li>Toutes les routes sont sous <code>/api/v1/</code> ; chaque route vérifie le rôle côté serveur (l'écran ne fait que masquer).</li>
+  <li>Limitation des tentatives : connexion 10/min, inscription 5/h, codes 20/h, mot de passe oublié 3/h.</li>
+</ul>
+<h3>4.2 QR code et scan</h3>
+<p>Chaque réservation porte un jeton aléatoire <b>signé</b> (clé <code>CANTEEN_SIGNING_KEY</code>), sans donnée personnelle.
+Le téléphone de la cantine lit le QR avec sa caméra (le navigateur exige HTTPS pour la caméra) et l'API passe la
+réservation à « Servi » par une mise à jour conditionnelle : deux scans simultanés ne peuvent pas réussir tous les deux.</p>
+<h3>4.3 Tâches planifiées (conteneur <code>scheduler</code>)</h3>
+<p>Une boucle exécute ces tâches <b>chaque minute</b>. Chacune est idempotente : la relancer ou la lancer en retard donne
+le même résultat (après une coupure, le premier passage rattrape tout).</p>
+<table>
+  <tr><th style="width:26%">Tâche</th><th>Effet</th></tr>
+  <tr><td><code>publish_placeholders</code></td><td>Publie « Menu à venir » si le chef n'a pas publié à temps</td></tr>
+  <tr><td><code>lock_menus</code></td><td>Clôture les réservations à l'heure limite (23:59 la veille par défaut)</td></tr>
+  <tr><td><code>finalization_reminder</code>, <code>menu_missing_reminder</code>, <code>evening_reservation_reminder</code></td><td>Rappels (Direction, chef, employés) aux heures des paramètres</td></tr>
+  <tr><td><code>auto_finalize</code></td><td>Fixe le nombre d'assiettes (réservations + marge) si la Direction ne l'a pas fait à 10:00</td></tr>
+  <tr><td><code>mark_no_shows</code>, <code>close_finished_days</code></td><td>Absences et fin de journée après le service</td></tr>
+  <tr><td><code>send_pending_pushes</code></td><td>Envoie les notifications aux téléphones (timeout 10 s, durée de vie 24 h ; un abonnement mort est retiré)</td></tr>
+</table>
+<div class="box red"><b>Une seule instance du conteneur <code>scheduler</code>.</b> Les tâches sont protégées contre les doublons,
+mais deux planificateurs enverraient deux fois plus de requêtes pour rien. Ne pas le mettre à l'échelle.</div>
+<h3>4.4 Emails et notifications</h3>
+<ul>
+  <li><b>Email</b> (SMTP) seulement pour le compte : code d'inscription, compte validé ou refusé, mot de passe oublié ou
+    changé. Envoyés après l'enregistrement en base, pour qu'un SMTP lent ne bloque rien.</li>
+  <li><b>Notifications</b> dans l'application et sur le téléphone (standard Web Push, clés VAPID) : rappels, menu
+    modifié, solde rechargé… Le serveur appelle le service push du navigateur (Google FCM pour Chrome/Android, Mozilla,
+    Apple, Microsoft) en HTTPS sortant ; sans clés VAPID, les notifications restent visibles dans l'application.</li>
+</ul>
+
+<!-- ============================== 5. DONNÉES ============================== -->
+<h1>5. Données</h1>
+<ul>
+  <li><b>Base</b> : SQL Server, base dédiée <code>canteen</code>, accès par le pilote ODBC Driver 18. 13 tables métier
+    (utilisateurs, plats, menus et leurs plats, réservations, mouvements de solde, notifications et abonnements push,
+    codes email, liens de réinitialisation, paramètres, journal d'audit) + les tables Django.</li>
+  <li><b>Schéma</b> : créé et modifié uniquement par les migrations Django (<code>python manage.py migrate</code>), jamais à la main.
+    Les migrations sont ajoutées par le développeur et appliquées à chaque mise à jour.</li>
+  <li><b>Rien n'est supprimé</b> (décision de l'entreprise) : pas de suppression d'utilisateurs, de réservations ni de
+    lignes d'audit ; la suppression est bloquée dans l'administration. Le journal d'audit est en ajout seulement.</li>
+  <li><b>Fichiers</b> : les photos des plats (<code>media/dishes/</code>, réduites à 1200 px), dans le volume Docker
+    <code>media</code> : elles survivent aux mises à jour et sont sauvegardées avec la base (voir §9).</li>
+  <li><b>Dates</b> : stockées en UTC ; toutes les règles et l'affichage utilisent <code>Africa/Tunis</code>.</li>
+  <li><b>Données personnelles</b> : nom, email professionnel, matricule, département, repas, solde. Exports CSV tracés.
+    Loi organique n° 2004-63 : une vérification rapide avec la RH / le juridique est recommandée.</li>
+</ul>
+
+<h1>6. Sécurité</h1>
+<table>
+  <tr><th style="width:24%">Sujet</th><th>Mesure</th></tr>
+  <tr><td>Transport</td><td>HTTPS obligatoire (proxy de l'entreprise) ; en production Django redirige vers HTTPS, cookies sécurisés, HSTS 30 jours</td></tr>
+  <tr><td>Mots de passe</td><td>Argon2 ; au moins 8 caractères, pas courant, pas que des chiffres, pas proche du nom</td></tr>
+  <tr><td>Codes et liens</td><td>Code email à 6 chiffres (10 min, 5 essais) et liens de réinitialisation (30 min) stockés <b>hachés</b></td></tr>
+  <tr><td>Droits</td><td>Vérifiés par l'API pour chaque route et chaque rôle (testé : chaque rôle × chaque route) ; un rôle par compte</td></tr>
+  <tr><td>Secrets</td><td>Uniquement dans le fichier <code>.env</code> du serveur (jamais dans Git) ; la production refuse de démarrer sans <code>DJANGO_SECRET_KEY</code></td></tr>
+  <tr><td>Audit</td><td>Validations, rôles, menus, réservations, scans, recharges, corrections, paramètres, exports : qui, quoi, quand, avant/après</td></tr>
+  <tr><td>Administration</td><td><code>/admin/</code> réservé aux comptes admin ; à restreindre au réseau interne sur le proxy si possible</td></tr>
+  <tr><td>Isolement</td><td>Conteneurs, base, login SQL et sous-domaine propres ; aucun droit sur l'ERP ; limites CPU/mémoire</td></tr>
+</table>
+
+<!-- ============================== 7. DÉPLOIEMENT ============================== -->
+<h1 class="chapter">7. Déploiement cible</h1>
+<h2>7.1 Docker Compose (fichier <code>docker-compose.yml</code> à la racine)</h2>
+<p class="muted">Fichiers de déploiement dans le dépôt : <code>docker-compose.yml</code>, <code>backend/Dockerfile</code>, <code>frontend/Dockerfile</code>, <code>frontend/nginx.conf</code>, <code>.env.example</code>.</p>
+<table>
+  <tr><th style="width:14%">Service</th><th style="width:30%">Image</th><th style="width:16%">Port</th><th>Notes</th></tr>
+  <tr><td>migrate</td><td>image du backend</td><td>aucun</td><td>Applique les migrations de la base puis s'arrête ; backend et scheduler attendent qu'il ait réussi</td></tr>
+  <tr><td>backend</td><td>construite depuis <code>backend/Dockerfile</code></td><td>8000 (interne)</td><td>Limite 1 CPU / 768 Mo ; <b>healthcheck</b> toutes les 30 s sur <code>/api/v1/health/</code> (vérifie aussi SQL Server) ; volume <code>media</code></td></tr>
+  <tr><td>scheduler</td><td>image du backend</td><td>aucun</td><td><b>Une seule instance</b></td></tr>
+  <tr><td>web</td><td>construite depuis <code>frontend/Dockerfile</code></td><td>80 → <b>8080</b> sur l'hôte</td><td>Le seul port publié ; démarre quand le backend est en bonne santé ; lit le volume <code>media</code></td></tr>
+</table>
+<p class="muted">Tous les services redémarrent seuls (<code>restart: unless-stopped</code>) et leurs journaux tournent (10 Mo × 5 fichiers).</p>
+
+<h2>7.2 Ce que le proxy HTTPS doit faire</h2>
+<ul>
+  <li>Terminer TLS pour <code>cantine.&lt;domaine&gt;</code> et relayer vers <code>http://&lt;serveur&gt;:8080</code>.</li>
+  <li>Transmettre les en-têtes <code>Host</code> et <code>X-Forwarded-Proto: https</code> (indispensable : Django s'en sert pour savoir que la requête était en HTTPS ; le conteneur web le transmet tel quel).</li>
+  <li>Taille de requête ≥ 6 Mo (photos des plats jusqu'à 5 Mo). Pas de cache sur <code>/api/</code>.</li>
+</ul>
+
+<h2>7.3 Flux réseau</h2>
+<table>
+  <tr><th style="width:24%">Source</th><th style="width:28%">Destination</th><th style="width:12%">Port</th><th>Usage</th></tr>
+  <tr><td>Utilisateurs (Internet / Wi-Fi)</td><td>Proxy de l'entreprise</td><td>443</td><td>Le site et l'API</td></tr>
+  <tr><td>Proxy</td><td>Serveur Docker</td><td>8080</td><td>Conteneur web</td></tr>
+  <tr><td>backend, scheduler</td><td>SQL Server</td><td>1433</td><td>Base <code>canteen</code></td></tr>
+  <tr><td>backend</td><td>Serveur SMTP</td><td>587</td><td>Emails de compte</td></tr>
+  <tr><td>scheduler</td><td>fcm.googleapis.com, updates.push.services.mozilla.com, *.push.apple.com, *.notify.windows.com</td><td>443</td><td>Notifications sur les téléphones</td></tr>
+  <tr><td>Hôte Docker (construction)</td><td>Docker Hub, PyPI, npm, packages.microsoft.com</td><td>443</td><td>Construire les images (pas nécessaire à l'exécution)</td></tr>
+</table>
+<p class="muted">Le téléphone de la cantine doit avoir un réseau fiable dans la salle (Wi-Fi ou 4G) : à vérifier avant le lancement.</p>
+
+<h2>7.4 Variables d'environnement (fichier <code>.env</code> à côté de <code>docker-compose.yml</code>)</h2>
+<table>
+  <tr><th style="width:30%">Variable</th><th>Rôle et valeur en production</th></tr>
+  <tr><td><code>DJANGO_SECRET_KEY</code> <span class="tag secret">secret</span></td><td>Chaîne aléatoire longue (50+ caractères)</td></tr>
+  <tr><td><code>CANTEEN_SIGNING_KEY</code> <span class="tag secret">secret</span></td><td>Autre chaîne aléatoire ; signe les QR et hache les codes. <b>La changer invalide les QR existants</b></td></tr>
+  <tr><td><code>DJANGO_DEBUG</code></td><td><code>false</code></td></tr>
+  <tr><td><code>DJANGO_ALLOWED_HOSTS</code></td><td><code>cantine.ovagri.tn</code> (le sous-domaine)</td></tr>
+  <tr><td><code>CSRF_TRUSTED_ORIGINS</code>, <code>CORS_ALLOWED_ORIGINS</code></td><td><code>https://cantine.ovagri.tn</code></td></tr>
+  <tr><td><code>FRONTEND_URL</code></td><td><code>https://cantine.ovagri.tn</code> (liens dans les emails)</td></tr>
+  <tr><td><code>COMPANY_TIME_ZONE</code></td><td><code>Africa/Tunis</code></td></tr>
+  <tr><td><code>DB_HOST</code>, <code>DB_PORT</code>, <code>DB_NAME</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code> <span class="tag secret">secret</span></td><td>Serveur SQL, 1433, <code>canteen</code>, <code>canteen_app</code>, mot de passe du login</td></tr>
+  <tr><td><code>DB_EXTRA_PARAMS</code></td><td><code>TrustServerCertificate=yes</code> par défaut ; à remplacer par <code>Encrypt=yes</code> si le serveur SQL a un certificat reconnu</td></tr>
+  <tr><td><code>EMAIL_HOST</code>, <code>EMAIL_PORT</code>, <code>EMAIL_HOST_USER</code>, <code>EMAIL_HOST_PASSWORD</code> <span class="tag secret">secret</span>, <code>EMAIL_USE_TLS</code>, <code>DEFAULT_FROM_EMAIL</code></td><td>Compte SMTP de l'entreprise ; expéditeur ex. <code>Cantine OVAGRI &lt;cantine@ovagri.tn&gt;</code></td></tr>
+  <tr><td><code>VAPID_PUBLIC_KEY</code>, <code>VAPID_PRIVATE_KEY</code> <span class="tag secret">secret</span>, <code>VAPID_SUBJECT</code></td><td>Clés des notifications push, générées une fois (§8.3) ; vides = pas de push. Les changer oblige chaque téléphone à réactiver les notifications</td></tr>
+  <tr><td><code>LOG_LEVEL</code></td><td><code>INFO</code> (par défaut)</td></tr>
+</table>
+
+<!-- ============================== 8. INSTALLATION ============================== -->
+<h1>8. Installation et mises à jour</h1>
+<h2>8.1 Première installation</h2>
+<pre>git clone https://github.com/ahmeds1001/app-canteen.git cantine &amp;&amp; cd cantine
+cp .env.example .env            # puis remplir les valeurs du §7.4
+docker compose up -d --build    # construit, applique les migrations, démarre
+docker compose run --rm backend python manage.py createsuperuser   # le premier compte admin</pre>
+
+<h2>8.2 Base de données (à faire par l'administrateur SQL Server)</h2>
+<pre>CREATE DATABASE canteen COLLATE French_CI_AS;
+CREATE LOGIN canteen_app WITH PASSWORD = '&lt;mot de passe fort&gt;';
+USE canteen;
+CREATE USER canteen_app FOR LOGIN canteen_app;
+ALTER ROLE db_owner ADD MEMBER canteen_app;   -- sur cette base seulement (les migrations créent les tables)</pre>
+
+<h2>8.3 Clés des notifications push (une fois)</h2>
+<pre>docker compose run --rm backend python manage.py generate_vapid_keys   # 2 lignes à copier dans .env
+docker compose up -d                                                  # pour les prendre en compte</pre>
+
+<h2>8.4 Mise à jour</h2>
+<pre>git pull
+docker compose up -d --build    # les migrations passent avant le redémarrage de l'API</pre>
+<p>Moins d'une minute d'interruption ; à faire hors des pics (pas entre 23:30 et 00:15, ni entre 11:45 et 15:00).
+Les tâches planifiées rattrapent seules ce qui est tombé pendant la coupure.</p>
+
+<h2>8.5 Vérifications après installation</h2>
+<ul>
+  <li><code>https://cantine.&lt;domaine&gt;/api/v1/health/</code> répond <code>{"status": "ok", "database": "ok", "server_time": …}</code> avec l'heure de Tunis ;
+    <code>docker compose ps</code> montre le backend « healthy ».</li>
+  <li><code>docker compose logs scheduler</code> montre une ligne « Scheduler tick » par minute, sans <code>-1</code> (tâche en échec).</li>
+  <li>Inscription d'un compte de test : l'email avec le code arrive.</li>
+  <li>Sur un téléphone : « Activer » les notifications, recharger un solde, la notification arrive.</li>
+  <li><code>/admin/</code> s'affiche avec sa mise en forme ; une photo de plat ajoutée par le chef s'affiche sur l'accueil.</li>
+</ul>
+
+<!-- ============================== 9. EXPLOITATION ============================== -->
+<h1>9. Exploitation</h1>
+<table>
+  <tr><th style="width:22%">Sujet</th><th>Consigne</th></tr>
+  <tr><td>Sauvegardes</td><td>Sauvegarde <b>complète quotidienne</b> de la base <code>canteen</code> (+ journaux de transactions si mode de récupération complet) et du volume Docker des photos (<code>&lt;projet&gt;_media</code>), copiées <b>hors du serveur</b>. Garder au moins 30 jours. <b>Un test de restauration avant le lancement</b>, puis chaque trimestre</td></tr>
+  <tr><td>Journaux</td><td>Sortie standard des conteneurs (<code>docker compose logs</code>), avec rotation automatique (10 Mo × 5 fichiers par service)</td></tr>
+  <tr><td>Supervision</td><td>Alerte si <code>/api/v1/health/</code> ne répond pas 200 (API ou base indisponible), ou si le conteneur <code>scheduler</code> s'arrête (sinon : pas de clôture, pas de finalisation automatique, pas de rappels)</td></tr>
+  <tr><td>Heure</td><td>NTP actif sur l'hôte Docker. Une dérive de quelques minutes décale la clôture des réservations</td></tr>
+  <tr><td>Paramètres métier</td><td>Horaires, délais, marge, prix : écran « Paramètres » de l'application (compte admin), pas de redéploiement</td></tr>
+  <tr><td>Charge</td><td>Test de charge prévu avant le lancement : 200 utilisateurs qui réservent dans les dernières minutes avant 23:59</td></tr>
+  <tr><td>Comptes</td><td>Le premier admin est créé à l'installation (§8.1) ; ensuite les rôles se donnent dans l'écran « Comptes »</td></tr>
+</table>
+
+<!-- ============================== 10. ÉTAT ============================== -->
+<h1>10. État de la configuration Docker</h1>
+<p>Cinq défauts relevés en préparant ce document ont été <b>corrigés le 5 novembre 2026</b> :</p>
+<table>
+  <tr><th style="width:4%">#</th><th style="width:34%">Défaut</th><th>Correction</th></tr>
+  <tr><td>1</td><td>Mise en forme de <code>/admin/</code> absente (fichiers statiques non servis sans <code>DEBUG</code>)</td><td>WhiteNoise dans le backend ; fichiers compressés et versionnés à la construction de l'image</td></tr>
+  <tr><td>2</td><td>Photos des plats non affichées et perdues à chaque reconstruction</td><td>Volume <code>media</code> partagé ; nginx sert <code>/media/</code></td></tr>
+  <tr><td>3</td><td>Boucle de redirection HTTPS derrière le proxy</td><td>nginx transmet le <code>X-Forwarded-Proto</code> reçu du proxy</td></tr>
+  <tr><td>4</td><td>Migrations et contrôle de santé manuels</td><td>Service <code>migrate</code> automatique ; healthcheck du backend (API + base)</td></tr>
+  <tr><td>5</td><td>Photos de plus de 1 Mo refusées par nginx</td><td><code>client_max_body_size 6m</code></td></tr>
+</table>
+<div class="box orange"><b>À valider lors de la première installation.</b> Les corrections 1, 3 et 4 côté Django sont couvertes par
+des tests automatiques et vérifiées avec les réglages de production ; la configuration nginx et Docker Compose n'a pas
+encore tourné dans Docker (pas de Docker sur le poste de développement). Les vérifications du §8.5 le confirment.</div>
+
+<h2>Calendrier proposé</h2>
+<ol>
+  <li>IT : serveur, base SQL, sous-domaine, SMTP, flux réseau (§1).</li>
+  <li>Installation avec l'IT (§8) et vérifications (§8.5).</li>
+  <li>Sauvegarde + test de restauration ; test de charge 200 utilisateurs.</li>
+  <li>Pilote avec un service pendant une à deux semaines, puis ouverture à tous.</li>
+</ol>
+
+
+
+</body>
+</html>

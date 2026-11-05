@@ -74,6 +74,8 @@ item into a plan file in this folder, then the **executor** to build it.
   one-reservation-per-day index (SQL Server refuses `NOT` in a filtered index → `status IN (...)`), SimpleJWT's
   token_blacklist migrations (replaced by one migration, `config/token_blacklist_migrations`), and
   `bulk_create(ignore_conflicts=True)` in `notify()` (not supported by mssql-django).
+- [x] **Technical file for IT** (2026-11-05): `docs/architecture-technique.pdf`; Docker stack ready (static files,
+  photo volume, HTTPS header, automatic migrations, health check, upload size, log rotation) — first real run at install.
 - [ ] Deploy on the company server (own containers, own DB and login, subdomain + HTTPS, isolated from the ERP).
 - [ ] Daily backups off the server + one restore test.
 - [ ] Load test: 200 users reserving in the last minutes before midnight.
