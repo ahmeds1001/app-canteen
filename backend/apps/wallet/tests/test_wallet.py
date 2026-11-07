@@ -5,7 +5,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 from apps.core.exceptions import DomainError, NotAllowed
-from apps.core.models import AuditLog
+from apps.core.models import AuditLog, CanteenSettings
 from apps.core.tests import factories as f
 from apps.notifications.models import Notification
 from apps.wallet import services
@@ -35,6 +35,49 @@ class TopUpTests(TestCase):
     def test_inactive_account_cannot_be_topped_up(self):
         with self.assertRaises(DomainError):
             services.top_up(f.user(status="suspended"), Decimal("10"), by=self.cashier)
+
+
+class MinimumTopUpTests(TestCase):
+    """FR-48 (decided 2026-11-07): no small daily top-ups at the counter. 20 TND by default, set by the admin;
+    the cashier must respect it, management may record less for a special case, corrections are not top-ups."""
+
+    def setUp(self):
+        self.cashier = f.user(role="cashier")
+        self.employee = f.user()
+
+    def test_cashier_below_the_minimum_is_refused(self):
+        self.assertEqual(CanteenSettings.load().min_topup_amount, Decimal("20.000"))
+        with self.assertRaises(DomainError) as ctx:
+            services.top_up(self.employee, Decimal("19.999"), by=self.cashier)
+        self.assertEqual(ctx.exception.code, "topup_below_minimum")
+        services.top_up(self.employee, Decimal("20"), by=self.cashier)  # exactly the minimum is fine
+        self.employee.refresh_from_db()
+        self.assertEqual(self.employee.balance, Decimal("20.000"))
+
+    def test_management_may_record_less(self):
+        services.top_up(self.employee, Decimal("5"), by=f.user(role="management"))
+        self.employee.refresh_from_db()
+        self.assertEqual(self.employee.balance, Decimal("5.000"))
+
+    def test_corrections_are_not_concerned(self):
+        services.top_up(self.employee, Decimal("20"), by=self.cashier)
+        services.correct(self.employee, Decimal("-3"), by=f.user(role="management"), reason="Erreur")
+        self.employee.refresh_from_db()
+        self.assertEqual(self.employee.balance, Decimal("17.000"))
+
+    def test_admin_sets_or_removes_the_minimum(self):
+        client = APIClient()
+        admin = f.user(role="admin")
+        client.force_authenticate(admin)
+        self.assertEqual(client.patch("/api/v1/settings/", {"min_topup_amount": "0"}, format="json").status_code, 200)
+        services.top_up(self.employee, Decimal("2"), by=self.cashier)  # 0 = no minimum
+        self.assertEqual(client.patch("/api/v1/settings/", {"min_topup_amount": "1000.001"},
+                                      format="json").status_code, 400)
+        self.assertTrue(AuditLog.objects.filter(action=AuditLog.Action.PAYMENT_CONFIG_CHANGE, actor=admin,
+                                                meta__field="min_topup_amount").exists())
+
+    def test_the_cashier_screen_knows_the_minimum(self):
+        self.assertEqual(APIClient().get("/api/v1/settings/public/").json()["min_topup_amount"], "20.000")
 
 
 class CorrectionTests(TestCase):
@@ -77,14 +120,14 @@ class CashierApiTests(TestCase):
     def test_search_top_up_and_history(self):
         found = self.client.get("/api/v1/wallet/accounts/?q=trab").json()
         self.assertEqual([a["employee_number"] for a in found], ["EMP-77"])
-        r = self.client.post(f"/api/v1/wallet/accounts/{self.employee.pk}/topup/", {"amount": "15.500"}, format="json")
-        self.assertEqual(r.json()["account"]["balance"], "15.500")
+        r = self.client.post(f"/api/v1/wallet/accounts/{self.employee.pk}/topup/", {"amount": "25.500"}, format="json")
+        self.assertEqual(r.json()["account"]["balance"], "25.500")
         history = self.client.get(f"/api/v1/wallet/accounts/{self.employee.pk}/transactions/").json()
         self.assertEqual([t["kind"] for t in history["transactions"]], ["topup"])
 
     def test_employee_sees_own_balance(self):
-        services.top_up(self.employee, Decimal("8"), by=f.user(role="cashier"))
+        services.top_up(self.employee, Decimal("28"), by=f.user(role="cashier"))
         me = APIClient()
         me.force_authenticate(self.employee)
         body = me.get("/api/v1/wallet/me/").json()
-        self.assertEqual((body["balance"], len(body["transactions"])), ("8.000", 1))
+        self.assertEqual((body["balance"], len(body["transactions"])), ("28.000", 1))

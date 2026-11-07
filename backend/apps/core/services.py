@@ -7,7 +7,7 @@ from . import audit
 from .exceptions import DomainError, NotAllowed
 from .models import AuditLog, CanteenSettings
 
-PAYMENT_FIELDS = {"payment_enabled", "meal_paid_default", "meal_price_default"}
+PAYMENT_FIELDS = {"payment_enabled", "meal_paid_default", "meal_price_default", "min_topup_amount"}
 EDITABLE_FIELDS = {
     "service_weekdays", "cutoff_days", "cutoff_time", "publish_deadline_days", "publish_deadline_time",
     "finalization_deadline", "service_window_start", "service_window_end",

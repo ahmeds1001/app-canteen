@@ -60,6 +60,10 @@ class CanteenSettings(models.Model):
     payment_enabled = models.BooleanField(default=False)
     meal_paid_default = models.BooleanField(default=False)
     meal_price_default = models.DecimalField(max_digits=8, decimal_places=3, default=Decimal("0.000"))
+    min_topup_amount = models.DecimalField(
+        max_digits=8, decimal_places=3, default=Decimal("20.000"),
+        help_text="Smallest top-up the cashier may record (FR-48); 0 = no minimum. Not for management or corrections.",
+    )
     currency = models.CharField(max_length=3, default="TND")
     default_language = models.CharField(max_length=5, default="fr")
     enabled_languages = models.CharField(max_length=50, default="fr,en")

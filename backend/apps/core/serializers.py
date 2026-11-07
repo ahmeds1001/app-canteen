@@ -20,6 +20,7 @@ class PublicSettingsSerializer(serializers.ModelSerializer):
             "publish_deadline_time",
             "evening_reminder_time",
             "payment_enabled",
+            "min_topup_amount",
             "currency",
             "default_language",
             "enabled_languages",
@@ -37,6 +38,9 @@ class AdminSettingsSerializer(serializers.ModelSerializer):
     booking_horizon_days = serializers.IntegerField(min_value=1, max_value=365, allow_null=True)
     no_show_warning_threshold = serializers.IntegerField(min_value=1, max_value=31)
     meal_price_default = serializers.DecimalField(
+        max_digits=8, decimal_places=3, min_value=Decimal("0"), max_value=Decimal("1000")
+    )
+    min_topup_amount = serializers.DecimalField(  # at most a top-up's own ceiling (1000 TND)
         max_digits=8, decimal_places=3, min_value=Decimal("0"), max_value=Decimal("1000")
     )
 

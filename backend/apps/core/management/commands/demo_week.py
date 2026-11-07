@@ -213,7 +213,7 @@ class Command(BaseCommand):
         for user in self.employees:
             amount = Decimal(self.rng.choice([20, 30, 40, 50]))
             self._on(at(top_ups, 9, self.rng.randint(0, 50)), lambda u=user, a=amount: wallet.top_up(u, a, by=cashier))
-        self._on(at(top_ups, 12), lambda: self._set_persona_balance(persona, cashier, management))
+        self._on(at(top_ups, 12), lambda: self._set_persona_balance(persona, management))
 
         # Chef: Mon–Wed published Thursday before, Thu–Fri on Friday, Saturday still a draft on Tuesday.
         def build(day, publish=True):
@@ -261,13 +261,13 @@ class Command(BaseCommand):
         for day in (mon, tue):
             self._on(at(day, 11, 59), lambda day=day: self._plan_service(day, scanner, persona))
 
-    def _set_persona_balance(self, persona, cashier, management):
+    def _set_persona_balance(self, persona, management):
         """The test employee starts every test week with exactly PERSONA_START, whatever earlier weeks left:
         a top-up of the difference, or a management correction when there is more (dev data only)."""
         persona.refresh_from_db()
         gap = PERSONA_START - persona.balance
         if gap > 0:
-            wallet.top_up(persona, gap, by=cashier)
+            wallet.top_up(persona, gap, by=management)  # may be under the cashier's minimum (FR-48)
         elif gap < 0:
             wallet.correct(persona, gap, by=management, reason="Semaine de test : solde remis à 15 TND")
 

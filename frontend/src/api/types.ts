@@ -78,6 +78,8 @@ export interface PublicSettings {
   /** "Remember to reserve" reminder (spec §8), the evening before reservations close. */
   evening_reminder_time: string;
   payment_enabled: boolean;
+  /** Smallest top-up the cashier may record (FR-48); "0.000" = no minimum. */
+  min_topup_amount: string;
   currency: string;
   default_language: string;
   enabled_languages: string;
@@ -105,6 +107,7 @@ export interface AdminSettings {
   payment_enabled: boolean;
   meal_paid_default: boolean;
   meal_price_default: string;
+  min_topup_amount: string;
   currency: string;
   updated_at: string;
 }

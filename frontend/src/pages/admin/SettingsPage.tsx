@@ -191,7 +191,10 @@ export default function SettingsPage() {
           <Field label={t("settings.priceDefault", { currency: form.currency })} type="number" min={0} max={1000}
             step="0.001" value={form.meal_price_default} disabled={!form.payment_enabled}
             onChange={(e) => set("meal_price_default", e.target.value)} />
+          <Field label={t("settings.minTopUp", { currency: form.currency })} type="number" min={0} max={1000}
+            step="0.001" value={form.min_topup_amount} onChange={(e) => set("min_topup_amount", e.target.value)} />
         </div>
+        <p className="muted settings__hint">{t("settings.minTopUpHint")}</p>
       </Card>
 
       <Card>

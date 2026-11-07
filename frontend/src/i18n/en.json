@@ -106,7 +106,8 @@
     "correct": "Correct the balance",
     "correctHelp": "To fix a mistake (wrong amount, wrong person). Negative amount to take money off. The reason is kept and the employee is told.",
     "correctAmount": "Correction amount (TND, e.g. -45)", "reason": "Reason",
-    "corrected": "Correction recorded. New balance: {{balance}} TND."
+    "corrected": "Correction recorded. New balance: {{balance}} TND.",
+    "minimum": "Minimum top-up: {{amount}} TND."
   },
   "attendance": {
     "title": "Attendance per employee",
@@ -163,6 +164,8 @@
     "payment": "Payment",
     "paymentEnabled": "Paid meals enabled", "paidDefault": "New days paid by default",
     "priceDefault": "Default price ({{currency}})",
+    "minTopUp": "Minimum top-up at the cashier ({{currency}})",
+    "minTopUpHint": "The cashier cannot record less (0 = no minimum). Management may record less for a special case; corrections are not concerned.",
     "other": "Other",
     "horizon": "Reservations open up to (days ahead)", "noShowThreshold": "Warning after (no-shows / month)",
     "noShowGrace": "No warnings before",
@@ -284,6 +287,7 @@
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "cashier_only": "Only the cashier and management can record cash.",
+    "topup_below_minimum": "Amount too small: the minimum top-up is set in the settings.",
     "settings_no_service_day": "Keep at least one service day.",
     "settings_publish_after_cutoff": "The menu must be published before reservations close.",
     "settings_cutoff_after_finalization": "Reservations must close before the finalization time.",

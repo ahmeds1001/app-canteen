@@ -45,13 +45,14 @@ class Command(BaseCommand):
             raise CommandError("Set LOADTEST_PASSWORD: it becomes the password of the load-test accounts.")
 
         staff = {role: self._user(f"{role}@{DOMAIN}", "Test charge", role.capitalize(), role, password)
-                 for role in (User.Role.CHEF, User.Role.CASHIER)}
+                 for role in (User.Role.CHEF, User.Role.MANAGEMENT)}
         created = 0
         for n in range(1, count + 1):
             user = self._user(f"user{n:03d}@{DOMAIN}", f"Charge{n:03d}", "Test", User.Role.EMPLOYEE, password,
                               employee_number=f"LT-{n:04d}")
             if user.balance < BALANCE:
-                wallet.top_up(user, BALANCE - user.balance, by=staff[User.Role.CASHIER])
+                # Direction tops up: the gap can be under the cashier's minimum (FR-48).
+                wallet.top_up(user, BALANCE - user.balance, by=staff[User.Role.MANAGEMENT])
                 created += 1
         day = self._open_day(staff[User.Role.CHEF])
         self.stdout.write(f"{count} accounts user001…user{count:03d}@{DOMAIN} ready ({created} topped up to "

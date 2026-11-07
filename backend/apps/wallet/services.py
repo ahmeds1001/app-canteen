@@ -16,6 +16,7 @@ from django.db.models import F
 from apps.accounts.models import User
 from apps.core import audit, clock
 from apps.core.exceptions import DomainError, NotAllowed
+from apps.core.models import CanteenSettings
 from apps.notifications.services import Kind, notify
 
 from .models import BalanceTransaction
@@ -51,6 +52,10 @@ def top_up(user: User, amount, *, by) -> BalanceTransaction:
     amount = _amount(amount)
     if amount <= 0:
         raise DomainError("amount_positive", "The amount must be greater than zero.")
+    # FR-48: no small daily top-ups at the counter. Management may still record less for a special case.
+    minimum = CanteenSettings.load().min_topup_amount
+    if by.role == User.Role.CASHIER and amount < minimum:
+        raise DomainError("topup_below_minimum", f"The minimum top-up is {minimum} TND.")
     if amount > MAX_TOPUP:
         raise DomainError("amount_too_large", f"A top-up cannot exceed {MAX_TOPUP} TND.")
     if not user.is_active_account:

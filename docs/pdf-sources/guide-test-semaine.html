@@ -124,10 +124,11 @@ un menu clôturé reste clôturé, un repas servi reste servi.</div>
   </ol>
   <h3><span class="role">Caissier</span> — Caisse et encaissements</h3>
   <ol>
-    <li>« Caisse » : rechercher « employe » → « 10 TND » → « Enregistrer » → confirmer → solde <strong>13.000</strong>
-      (notification « Solde rechargé »).</li>
-    <li>Retour employé : réserver <strong>vendredi</strong> → solde <strong>9.500</strong>.</li>
-    <li>« Encaissements » (« Mon encaissement du jour ») : 1 recharge, « Argent à remettre » <strong>10.000 TND</strong>.
+    <li>« Caisse » : rechercher « employe ». Taper 10 dans le montant → « Recharge minimum : 20.000 TND » en rouge,
+      bouton désactivé (pas de boutons 5 et 10 TND). Choisir « 20 TND » → « Enregistrer » → confirmer → solde
+      <strong>23.000</strong> (notification « Solde rechargé »).</li>
+    <li>Retour employé : réserver <strong>vendredi</strong> → solde <strong>19.500</strong>.</li>
+    <li>« Encaissements » (« Mon encaissement du jour ») : 1 recharge, « Argent à remettre » <strong>20.000 TND</strong>.
       « Imprimer » → la feuille de remise (chaque recharge, total, montant compté, deux signatures).</li>
     <li>Le caissier n'a ni « Scanner » ni « Liste du jour ».</li>
   </ol>
@@ -141,8 +142,8 @@ un menu clôturé reste clôturé, un repas servi reste servi.</div>
   <ol>
     <li>« Caisse » : ouvrir <strong>Mohamed Ben Ali</strong> → « Corriger le solde » : -5, motif « Erreur de saisie ». Le
       caissier n'a pas ce bouton.</li>
-    <li>« Encaissements » de mardi 1/12 : par personne « Caisse Test 10.000 » (la même somme que la feuille du caissier),
-      la correction de -5.000 avec son motif, <strong>total encaissé 5.000 TND</strong>.</li>
+    <li>« Encaissements » de mardi 1/12 : par personne « Caisse Test 20.000 » (la même somme que la feuille du caissier),
+      la correction de -5.000 avec son motif, <strong>total encaissé 15.000 TND</strong>.</li>
     <li>« Finalisation » : réservations par menu ; « Prix du jour » de samedi modifiable.</li>
     <li>« Rapports » : présence par employé du mois (Réservés = Servis + Absences + Pas encore servis) ; cliquer un
       employé pour voir ses jours.</li>
@@ -160,11 +161,13 @@ un menu clôturé reste clôturé, un repas servi reste servi.</div>
     <li>« Plats » : la bibliothèque (17 plats sur une base neuve) ; ajouter un plat avec photo.</li>
     <li>« Planning » : <strong>samedi 5/12</strong> → « Modifier les plats » → onglet « Menu 2 » → « Publier ».
       Semaine suivante : composer et publier <strong>lundi 7/12</strong>.</li>
-    <li>Enlever le menu 2 de <strong>jeudi 3/12</strong> → refusé : des employés l'ont réservé.</li>
+    <li>Enlever le menu 2 de <strong>mercredi 2/12</strong> → refusé : l'employé de test l'a réservé (étape « Employé »).</li>
   </ol>
   <h3><span class="role">Admin</span></h3>
   <ol>
     <li>Changer le rôle d'un employé (Comptes → Rôle), par exemple en « Caissier ».</li>
+    <li>« Paramètres » : la « Recharge minimum à la caisse » est à 20 TND (la Direction peut enregistrer moins, pas le
+      caissier).</li>
     <li>« Paramètres » : passer le rappel des employés à 19:30 → « Enregistrer » ; la page « Notifications » affiche
       « À 19:30, si vous n'avez pas encore réservé… ».</li>
     <li>Clôture des réservations à 0 jour, 11:00 → refusé : « La clôture des réservations doit précéder l'heure de
@@ -179,7 +182,7 @@ un menu clôturé reste clôturé, un repas servi reste servi.</div>
   <ul>
     <li><span class="role">Employé</span> : mercredi n'est plus annulable (réservations clôturées à minuit).</li>
     <li><span class="role">Direction</span> : « Assiettes à confirmer ». Écran « Finalisation » : un nombre <strong>par
-      menu</strong>, réservations + 10 % arrondi au-dessus (ex. 12 → 14, 6 → 7) → confirmer. Le rappel passe en
+      menu</strong>, réservations + 10 % arrondi au-dessus (ex. 6 → 7, 12 → 14) → confirmer. Le rappel passe en
       « Déjà traité » pour toute la Direction.</li>
     <li><span class="role">Chef</span> : « Nombre d'assiettes » avec le détail par menu.</li>
   </ul>
@@ -225,7 +228,7 @@ un menu clôturé reste clôturé, un repas servi reste servi.</div>
   <ul>
     <li><span class="role">Scanner</span> : scanner le QR de vendredi de l'employé de test → « Payé par le solde
       (3.500 TND) ». Rien à encaisser : tout passe par le solde.</li>
-    <li><span class="role">Employé</span> : « Mon solde » → <strong>9.500 TND</strong>.</li>
+    <li><span class="role">Employé</span> : « Mon solde » → <strong>19.500 TND</strong>.</li>
   </ul>
 </div>
 

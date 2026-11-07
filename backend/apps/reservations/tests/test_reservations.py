@@ -75,6 +75,20 @@ class ScanTests(TestCase):
                 services.scan(self.reservation.qr_signed_payload, by=self.scanner)
         self.assertEqual(ctx.exception.code, "wrong_date")
 
+    def test_tomorrows_code_refused_today_and_still_valid_tomorrow(self):
+        tuesday = f.menu(date(2026, 11, 3))
+        with clock.frozen(f.at(2026, 11, 1, 20)):
+            tomorrow = services.reserve(f.user(), tuesday)
+        with clock.frozen(f.at(2026, 11, 2, 12, 30)):  # Monday: Tuesday's code
+            with self.assertRaises(DomainError) as ctx:
+                services.scan(tomorrow.qr_signed_payload, by=self.scanner)
+        self.assertEqual(ctx.exception.code, "wrong_date")
+        tomorrow.refresh_from_db()
+        self.assertEqual(tomorrow.status, Reservation.Status.RESERVED)  # the refused scan used nothing up
+        with clock.frozen(f.at(2026, 11, 3, 12, 30)):
+            self.assertEqual(services.scan(tomorrow.qr_signed_payload, by=self.scanner).status,
+                             Reservation.Status.SERVED)
+
     def test_outside_service_window_refused(self):
         with clock.frozen(f.at(2026, 11, 2, 11, 59)):
             with self.assertRaises(DomainError):
@@ -146,6 +160,7 @@ class PrepaidBalanceTests(TestCase):
     def setUp(self):
         cfg = CanteenSettings.load()
         cfg.payment_enabled = True
+        cfg.min_topup_amount = 0  # these tests set exact small balances; the counter minimum is tested in wallet
         cfg.save()
         self.cashier = f.user(role="cashier")
         self.employee = f.user()
@@ -193,6 +208,41 @@ class PrepaidBalanceTests(TestCase):
         r.refresh_from_db()
         self.assertEqual(self.employee.balance, Decimal("3.500"))
         self.assertEqual(r.payment_status, Reservation.PaymentStatus.REFUNDED)
+
+    def test_screenshot_of_a_cancelled_reservation_is_refused(self):
+        """Fraud attempt: keep a screenshot of the QR code, cancel to get the money back, eat anyway."""
+        scanner = f.user(role="scanner")
+        self._top_up("3.500")
+        with clock.frozen(f.at(2026, 11, 1, 20)):
+            r = services.reserve(self.employee, self.menu)
+            screenshot = r.qr_signed_payload
+            services.cancel(r, by=self.employee)
+        with clock.frozen(f.at(2026, 11, 2, 12, 30)):
+            with self.assertRaises(Conflict) as ctx:
+                services.scan(screenshot, by=scanner)
+        self.assertEqual(ctx.exception.code, "reservation_cancelled")
+        r.refresh_from_db()
+        self.employee.refresh_from_db()
+        self.assertEqual((r.status, r.payment_status),
+                         (Reservation.Status.CANCELLED, Reservation.PaymentStatus.REFUNDED))
+        self.assertEqual(self.employee.balance, Decimal("3.500"))  # refunded once, no meal served
+        self.assertFalse(Reservation.objects.filter(status=Reservation.Status.SERVED).exists())
+
+    def test_old_screenshot_refused_after_reserving_again(self):
+        """Cancel, reserve again: the new reservation gets a new code; the old screenshot stays refused."""
+        scanner = f.user(role="scanner")
+        self._top_up("3.500")
+        with clock.frozen(f.at(2026, 11, 1, 20)):
+            first = services.reserve(self.employee, self.menu)
+            screenshot = first.qr_signed_payload
+            services.cancel(first, by=self.employee)
+            again = services.reserve(self.employee, self.menu)
+        with clock.frozen(f.at(2026, 11, 2, 12, 30)):
+            with self.assertRaises(Conflict):
+                services.scan(screenshot, by=scanner)
+            self.assertEqual(services.scan(again.qr_signed_payload, by=scanner).status, Reservation.Status.SERVED)
+        self.employee.refresh_from_db()
+        self.assertEqual(self.employee.balance, Decimal("0.000"))  # one meal paid, one meal served
 
     def test_no_cancel_and_no_refund_after_cutoff(self):
         self._top_up("3.500")

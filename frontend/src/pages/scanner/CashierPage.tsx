@@ -6,12 +6,13 @@ import { reportApi, walletApi } from "@/api/endpoints";
 import type { WalletAccount } from "@/api/types";
 import { Alert, Button, Card, Field } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
+import { useCanteenSettings } from "@/hooks/useCanteenSettings";
 import { useConfirm } from "@/hooks/useConfirm";
 import { useErrorMessage } from "@/hooks/useErrorMessage";
 import { Ledger } from "@/pages/employee/BalancePage";
 import "./scanner.css";
 
-const QUICK_AMOUNTS = ["5", "10", "20", "50"];
+const QUICK_AMOUNTS = ["5", "10", "20", "30", "50", "100"];
 
 /** Prepaid balance (decided 2026-11-03): an employee gives cash at the canteen, the cashier or management
  *  records it here. Management can also correct a mistake, with a reason. Nothing is ever deleted. */
@@ -80,6 +81,11 @@ function AccountPanel({ account, onBack }: { account: WalletAccount; onBack: () 
   const history = useQuery({ queryKey: ["wallet", "account", account.id], queryFn: () => walletApi.history(account.id) });
   const current = history.data?.account ?? account;
   const canCorrect = user?.role === "management" || user?.role === "admin";
+  // FR-48: the cashier cannot record less than the minimum set by the admin; management may (special cases).
+  const { settings } = useCanteenSettings();
+  const minimum = user?.role === "cashier" ? Number(settings?.min_topup_amount ?? 0) : 0;
+  const quickAmounts = QUICK_AMOUNTS.filter((a) => Number(a) >= minimum);
+  const tooSmall = Number(amount) > 0 && Number(amount) < minimum;
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["wallet"] });
   const topUp = useMutation({
@@ -113,7 +119,7 @@ function AccountPanel({ account, onBack }: { account: WalletAccount; onBack: () 
         <form className="stack" onSubmit={submit}>
           <h2>{t("cashier.topUp")}</h2>
           <div className="actions">
-            {QUICK_AMOUNTS.map((a) => (
+            {quickAmounts.map((a) => (
               <Button key={a} type="button" className="btn--sm" variant={amount === a ? "primary" : "ghost"} onClick={() => setAmount(a)}>
                 {a} TND
               </Button>
@@ -123,14 +129,19 @@ function AccountPanel({ account, onBack }: { account: WalletAccount; onBack: () 
             label={t("cashier.amount")}
             type="number"
             inputMode="decimal"
-            min="0.001"
+            min={minimum > 0 ? minimum : 0.001}
             max="1000"
             step="0.001"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required
           />
-          <Button type="submit" block disabled={topUp.isPending || !(Number(amount) > 0)}>
+          {minimum > 0 && (
+            <p className={tooSmall ? "field__error" : "muted"} style={{ margin: 0 }}>
+              {t("cashier.minimum", { amount: minimum.toFixed(3) })}
+            </p>
+          )}
+          <Button type="submit" block disabled={topUp.isPending || !(Number(amount) > 0) || tooSmall}>
             {t("cashier.record", { amount: Number(amount) > 0 ? Number(amount).toFixed(3) : "…" })}
           </Button>
         </form>

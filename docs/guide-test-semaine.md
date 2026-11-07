@@ -88,10 +88,11 @@ backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-01 20:3
 6. « Mon solde » : l'historique avec le solde après chaque mouvement (dont « Solde remis à 15 TND » avant la semaine).
 
 **Caissier** (Caisse et encaissements)
-1. « Caisse » : rechercher « employe » → « 10 TND » → « Enregistrer » → confirmer → solde **13.000** (notification
-   « Solde rechargé »).
-2. Retour employé : réserver **vendredi** → solde **9.500**.
-3. « Encaissements » (« Mon encaissement du jour ») : 1 recharge, « Argent à remettre » **10.000 TND**. « Imprimer » →
+1. « Caisse » : rechercher « employe ». Taper 10 dans le montant → « Recharge minimum : 20.000 TND » en rouge, bouton
+   désactivé (les boutons 5 et 10 TND n'apparaissent pas). Choisir « 20 TND » → « Enregistrer » → confirmer → solde
+   **23.000** (notification « Solde rechargé »).
+2. Retour employé : réserver **vendredi** → solde **19.500**.
+3. « Encaissements » (« Mon encaissement du jour ») : 1 recharge, « Argent à remettre » **20.000 TND**. « Imprimer » →
    la feuille de remise (chaque recharge, total, montant compté, deux signatures).
 4. Le caissier n'a ni « Scanner » ni « Liste du jour ».
 
@@ -103,8 +104,8 @@ backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-01 20:3
 **Direction**
 1. « Caisse » : ouvrir **Mohamed Ben Ali** → « Corriger le solde » : -5, motif « Erreur de saisie ». Le caissier n'a pas
    ce bouton.
-2. « Encaissements » de mardi 1/12 : par personne « Caisse Test 10.000 » (la même somme que la feuille du caissier),
-   la correction de -5.000 avec son motif, **total encaissé 5.000 TND**.
+2. « Encaissements » de mardi 1/12 : par personne « Caisse Test 20.000 » (la même somme que la feuille du caissier),
+   la correction de -5.000 avec son motif, **total encaissé 15.000 TND**.
 3. « Finalisation » : réservations par menu ; « Prix du jour » de samedi modifiable.
 4. « Rapports » : présence par employé du mois (Réservés = Servis + Absences + Pas encore servis) ; cliquer un employé
    pour voir ses jours.
@@ -120,11 +121,12 @@ backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-01 20:3
 1. « Plats » : la bibliothèque (17 plats sur une base neuve) ; ajouter un plat avec photo.
 2. « Planning » : **samedi 5/12** → « Modifier les plats » → onglet « Menu 2 » → « Publier ». Semaine suivante :
    composer et publier **lundi 7/12**.
-3. Enlever le menu 2 de **jeudi 3/12** → refusé : des employés l'ont réservé.
+3. Enlever le menu 2 de **mercredi 2/12** → refusé : l'employé de test l'a réservé (étape « Employé » ci-dessus).
 
 **Admin**
 1. Changer le rôle d'un employé (Comptes → Rôle), par exemple en « Caissier ».
-2. « Paramètres » : passer le rappel des employés à 19:30 → « Enregistrer » ; la page « Notifications » affiche
+2. « Paramètres » : la « Recharge minimum à la caisse » est à 20 TND (la Direction peut enregistrer moins, pas le
+   caissier). Passer le rappel des employés à 19:30 → « Enregistrer » ; la page « Notifications » affiche
    « À 19:30, si vous n'avez pas encore réservé… ».
 3. Clôture des réservations à 0 jour, 11:00 → refusé (« La clôture des réservations doit précéder l'heure de
    finalisation »).
@@ -138,7 +140,7 @@ backend\.venv\Scripts\python.exe backend\manage.py dev_clock set 2026-12-02 08:3
 
 - **Employé** : mercredi n'est plus annulable (réservations clôturées à minuit).
 - **Direction** : « Assiettes à confirmer ». Écran « Finalisation » : un nombre par menu, réservations + 10 % arrondi
-  au-dessus (ex. 12 → 14, 6 → 7) → confirmer. Le rappel passe en « Déjà traité » pour toute la Direction.
+  au-dessus (ex. 6 → 7, 12 → 14) → confirmer. Le rappel passe en « Déjà traité » pour toute la Direction.
 - **Chef** : notification « Nombre d'assiettes » avec le détail par menu.
 
 ## Étape 3 — Mercredi 2/12, 10:05 : après l'heure limite
@@ -184,7 +186,7 @@ Jeudi et vendredi ont été finalisés automatiquement à 10:00 ; jeudi est term
 
 - **Scanner** : scanner le QR de vendredi de l'employé de test → « Payé par le solde (3.500 TND) ». Rien à encaisser :
   tout passe par le solde.
-- **Employé** : « Mon solde » → **9.500 TND**.
+- **Employé** : « Mon solde » → **19.500 TND**.
 
 ## Fin des tests
 

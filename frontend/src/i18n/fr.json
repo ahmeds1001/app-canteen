@@ -106,7 +106,8 @@
     "correct": "Corriger le solde",
     "correctHelp": "Pour réparer une erreur (mauvais montant, mauvaise personne). Montant négatif pour retirer. Le motif est conservé et l'employé est prévenu.",
     "correctAmount": "Montant de la correction (TND, ex. -45)", "reason": "Motif",
-    "corrected": "Correction enregistrée. Nouveau solde : {{balance}} TND."
+    "corrected": "Correction enregistrée. Nouveau solde : {{balance}} TND.",
+    "minimum": "Recharge minimum : {{amount}} TND."
   },
   "attendance": {
     "title": "Présence par employé",
@@ -163,6 +164,8 @@
     "payment": "Paiement",
     "paymentEnabled": "Repas payants activés", "paidDefault": "Nouveaux jours payants par défaut",
     "priceDefault": "Prix par défaut ({{currency}})",
+    "minTopUp": "Recharge minimum à la caisse ({{currency}})",
+    "minTopUpHint": "Le caissier ne peut pas enregistrer moins (0 = pas de minimum). La Direction peut enregistrer moins dans un cas particulier ; les corrections ne sont pas concernées.",
     "other": "Autres",
     "horizon": "Réservation possible jusqu'à (jours)", "noShowThreshold": "Avertissement après (absences / mois)",
     "noShowGrace": "Pas d'avertissement avant le",
@@ -285,6 +288,7 @@
   "errors": {
     "generic": "Une erreur est survenue. Réessayez.",
     "cashier_only": "Seuls le caissier et la Direction peuvent enregistrer de l'argent.",
+    "topup_below_minimum": "Montant trop petit : la recharge minimum est fixée dans les paramètres.",
     "settings_no_service_day": "Gardez au moins un jour de service.",
     "settings_publish_after_cutoff": "Le menu doit être publié avant la clôture des réservations.",
     "settings_cutoff_after_finalization": "La clôture des réservations doit précéder l'heure de finalisation.",

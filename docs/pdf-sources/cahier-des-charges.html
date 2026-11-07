@@ -6,7 +6,7 @@
 <style>
   @page { size: A4; margin: 15mm 14mm 16mm 14mm;
     @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
-    @bottom-left { content: "Cahier des charges — Application Cantine OVAGRI · révision 3, 5 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
+    @bottom-left { content: "Cahier des charges — Application Cantine OVAGRI · révision 3, 7 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
   }
   @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
   :root { --green: #0a6b28; --green-mid: #3f9a1e; --green-soft: #e8f3e3; --orange: #f89000; --orange-soft: #fff3e0;
@@ -80,8 +80,8 @@
   </div>
 
   <div class="meta">
-    <b>Révision 3</b> — rédigée le 23 octobre 2026, mise à jour le <b>5 novembre 2026</b><br>
-    Décisions intégrées jusqu'au 5 novembre 2026 · état d'avancement au 5 novembre 2026<br>
+    <b>Révision 3</b> — rédigée le 23 octobre 2026, mise à jour le <b>7 novembre 2026</b><br>
+    Décisions intégrées jusqu'au 7 novembre 2026 · état d'avancement au 7 novembre 2026<br>
     Application : React (PWA) · Django REST Framework · Microsoft SQL Server
   </div>
 
@@ -91,15 +91,15 @@
        <span class="chip part">Partiel</span>&nbsp; règle et serveur prêts, un écran ou un point reste à faire ·
        <span class="chip next">À venir</span>&nbsp; prévu au prochain sprint ·
        <span class="chip drop">Abandonné</span>&nbsp; retiré par décision</p>
-    <p>Les passages <span class="new">surlignés</span> sont des décisions prises après la révision 3 (24 octobre – 5 novembre 2026).</p>
+    <p>Les passages <span class="new">surlignés</span> sont des décisions prises après la révision 3 (24 octobre – 7 novembre 2026).</p>
   </div>
 </section>
 
 <!-- ============================== AVANCEMENT ============================== -->
-<h1 class="chapter">État d'avancement au 5 novembre 2026</h1>
+<h1 class="chapter">État d'avancement au 7 novembre 2026</h1>
 
 <div class="kpis">
-  <div class="kpi ok" style="background: var(--green-soft)"><b>40</b><span>exigences livrées sur 42</span></div>
+  <div class="kpi ok" style="background: var(--green-soft)"><b>41</b><span>exigences livrées sur 43</span></div>
   <div class="kpi part" style="background: var(--orange-soft)"><b>1</b><span>partielle : compteur en direct du chef</span></div>
   <div class="kpi next" style="background: var(--blue-soft)"><b>1</b><span>à venir (tendances Direction)</span></div>
   <div class="kpi drop" style="background: #eceeec"><b>5</b><span>retirées ou remplacées (FR-14, FR-33 à 35, FR-37)</span></div>
@@ -113,7 +113,7 @@
   <tr><td>3.3 Réservation (employé)</td><td>4</td><td>—</td><td>—</td><td>—</td></tr>
   <tr><td>3.4 Finalisation (Direction)</td><td>5</td><td>—</td><td>—</td><td>—</td></tr>
   <tr><td>3.5 QR code et contrôle</td><td>5</td><td>—</td><td>—</td><td>File d'attente hors ligne sur le téléphone (règle §4)</td></tr>
-  <tr><td>3.6 Deux menus, solde prépayé, listes, caisse</td><td>6</td><td>—</td><td>—</td><td>—</td></tr>
+  <tr><td>3.6 Deux menus, solde prépayé, listes, caisse</td><td>7</td><td>—</td><td>—</td><td>—</td></tr>
   <tr><td>3.7 Rapports</td><td>1</td><td>1</td><td>1</td><td>Compteur en direct pour le chef (FR-21) ; tendances et graphiques Direction (FR-23)</td></tr>
 </table>
 
@@ -221,7 +221,7 @@ le contrôle par QR code, la finalisation, le solde prépayé, les listes et les
   <tr><td class="id">FR-05</td><td>À la validation, l'employé reçoit un email « Votre compte est actif » ; en cas de refus, un email avec le motif.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
   <tr><td class="id">FR-06</td><td>La RH peut suspendre, réactiver ou désactiver un compte (par exemple au départ d'un employé). Une suspension prend effet immédiatement, même sur un téléphone déjà connecté.</td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
   <tr><td class="id">FR-41</td><td><span class="new">Attribution des rôles dans l'application (décidé le 25/10) : dans l'écran « Comptes », l'admin, et lui seul, change le rôle d'une personne (employé, RH, chef, scanner, <span class="new">caissier</span>, Direction, admin). Il ne peut pas changer son propre rôle, et le dernier admin actif ne peut pas perdre le sien. Le rôle admin ouvre aussi le site d'administration technique. Chaque changement est tracé.</span></td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
-  <tr><td class="id">FR-46</td><td><span class="new"><b>Écran « Paramètres » (décidé le 4/11) :</b> l'admin, et lui seul, règle dans l'application les jours de service ; <b>chaque délai en nombre de jours avant J et une heure</b> : clôture des réservations (par défaut la veille à 23:59:59 ; 0 jour = le matin même) et publication du menu par le chef (par défaut J-2 à 23:59:59) ; l'heure de finalisation le jour J ; les heures de service ; les heures des rappels (chef, Direction, employés) ; la marge (pourcentage ou nombre fixe — la même sert à la proposition et à la finalisation automatique) ; le maximum cuisine ; l'horizon de réservation ; les absences ; le paiement et le prix par défaut. Un changement s'applique tout de suite, pour aujourd'hui et les jours suivants ; une étape déjà passée n'est pas annulée. L'écran refuse un ordre incohérent : publication &lt; clôture &lt; finalisation ≤ début du service &lt; fin du service ; rappel Direction avant la finalisation ; rappel du soir avant une clôture le soir ; au moins un jour de service. Chaque valeur changée est tracée (ancienne et nouvelle valeur). Les textes de l'application (« jusqu'à minuit », « à 20 h »…) suivent ces paramètres.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-46</td><td><span class="new"><b>Écran « Paramètres » (décidé le 4/11) :</b> l'admin, et lui seul, règle dans l'application les jours de service ; <b>chaque délai en nombre de jours avant J et une heure</b> : clôture des réservations (par défaut la veille à 23:59:59 ; 0 jour = le matin même) et publication du menu par le chef (par défaut J-2 à 23:59:59) ; l'heure de finalisation le jour J ; les heures de service ; les heures des rappels (chef, Direction, employés) ; la marge (pourcentage ou nombre fixe — la même sert à la proposition et à la finalisation automatique) ; le maximum cuisine ; l'horizon de réservation ; les absences ; le paiement et le prix par défaut ; <span class="new">la recharge minimum à la caisse (FR-48, 7/11)</span>. Un changement s'applique tout de suite, pour aujourd'hui et les jours suivants ; une étape déjà passée n'est pas annulée. L'écran refuse un ordre incohérent : publication &lt; clôture &lt; finalisation ≤ début du service &lt; fin du service ; rappel Direction avant la finalisation ; rappel du soir avant une clôture le soir ; au moins un jour de service. Chaque valeur changée est tracée (ancienne et nouvelle valeur). Les textes de l'application (« jusqu'à minuit », « à 20 h »…) suivent ces paramètres.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
   <tr><td class="id">FR-47</td><td><span class="new"><b>Scanner et caissier séparés (décidé le 5/11) :</b> l'ancien rôle « Scanner / caissier » devient deux rôles, un par compte. <b>Scanner</b> : écran de scan (QR et validation manuelle) et liste des réservations de chaque jour ; aucun accès aux soldes ni à l'argent. <b>Caissier</b> : recharges (« Caisse ») et argent reçu dans la journée, avec la feuille de remise (« Encaissements ») ; ni scan ni liste du jour. La Direction garde recharges, corrections et encaissements de tous les jours. Une personne qui fait les deux un jour reçoit l'autre rôle de l'admin. Les comptes scanner existants restent Scanner ; les anciennes recharges gardent le nom de leur auteur. Le serveur refuse une recharge de tout autre rôle.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
   <tr class="dropped"><td class="id">FR-37</td><td><span class="gone">Import par la RH d'une liste CSV des matricules, avec repérage « sur la liste » et approbation groupée.</span><span class="note">Abandonné le 26/10 : la RH saisit le matricule à la validation (FR-04). Les lignes déjà importées sont conservées.</span></td><td class="prio">—</td><td><span class="chip drop">Abandonné</span></td></tr>
 </table>
@@ -279,6 +279,7 @@ Le paramètre <code>payment_enabled</code> permet toujours de rendre tous les re
   <tr><td class="id">FR-43</td><td><span class="new"><b>Solde prépayé :</b> le <span class="new">caissier (5/11)</span> ou la Direction enregistre une recharge (au plus 1000 TND, avec confirmation) ; l'employé est prévenu avec son nouveau solde. La réservation prend le prix du jour sur le solde et est refusée si le solde ne suffit pas ; changer de menu est gratuit ; annuler avant minuit rembourse ; une absence garde le repas payé ; un jour fermé rembourse tout le monde. Le solde n'est jamais négatif. Seule la Direction corrige une erreur, avec un motif. Chaque mouvement (recharge, repas, remboursement, correction) est conservé avec le solde après et son auteur ; l'employé voit son historique dans « Mon solde ».</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
   <tr><td class="id">FR-44</td><td><span class="new"><b>Listes des réservations :</b> le scanner et la Direction voient, pour n'importe quel jour (passé, aujourd'hui, à venir), les menus, les totaux par statut et par menu, et chaque réservation (nom, matricule, service, menu, statut, heure de service, montant payé), avec filtres, recherche et export CSV. Avant la fin du service, une réservation non scannée s'affiche « Pas encore servi » ; elle ne devient « Absent » qu'une fois la journée terminée.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
   <tr><td class="id">FR-45</td><td><span class="new"><b>Encaissements du jour (décidé le 4/11) :</b> le <span class="new">caissier (5/11)</span> voit seulement les recharges qu'elle a enregistrées aujourd'hui — nombre, total « à remettre » et chaque recharge (heure, employé, montant), aussi sur l'écran Caisse. La Direction (et l'admin) choisit n'importe quel jour : total reçu, détail par personne, chaque recharge et les corrections du jour (avec leur motif) ; les corrections comptent dans le total. Les repas payés avec le solde ne sont pas de l'argent reçu. Export CSV (tracé). <b>Impression :</b> une feuille de remise (date, qui a reçu l'argent, chaque recharge avec heure, employé, matricule et montant, le total, « montant compté » et deux signatures) pour vérifier ligne par ligne l'argent remis à la Direction.</span></td><td class="prio">M</td><td><span class="chip ok">Livré</span></td></tr>
+  <tr><td class="id">FR-48</td><td><span class="new"><b>Recharge minimum (décidé le 7/11) :</b> pour éviter les petites recharges quotidiennes, le caissier ne peut pas enregistrer moins qu'un minimum fixé par l'admin dans l'écran « Paramètres » (20 TND par défaut, 0 = pas de minimum). L'écran Caisse affiche le minimum et seulement les montants rapides au-dessus. La Direction peut enregistrer moins dans un cas particulier ; les corrections ne sont pas des recharges et ne sont pas concernées. Chaque changement du minimum est tracé.</span></td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
   <tr><td class="id">FR-32</td><td>La Direction fixe le prix du jour (<span class="new">le même pour les deux menus</span>) sur l'écran Finalisation, avec une valeur par défaut dans les paramètres ; modifiable jusqu'à la clôture à J-1, puis figé. <span class="new">Un nouveau prix ne s'applique qu'aux réservations faites après.</span></td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
   <tr class="dropped"><td class="id">FR-33 à 35</td><td><span class="gone">Statut « À payer », bouton « Marquer payé » au comptoir, repas servi impayé.</span><span class="note">Remplacés le 3/11 par le solde prépayé (FR-43) : le repas est payé avant d'être réservé.</span></td><td class="prio">—</td><td><span class="chip drop">Remplacé</span></td></tr>
   <tr><td class="id">FR-36</td><td>Rapports des paiements par jour, par employé et par mois, avec export CSV.<span class="note"><span class="new">Par employé et par mois : « Rapports » ; par jour : « Encaissements » (argent reçu, par caissier, FR-45) et liste du jour (montant payé par réservation).</span></span></td><td class="prio">S</td><td><span class="chip ok">Livré</span></td></tr>
@@ -461,6 +462,7 @@ Le paramètre <code>payment_enabled</code> permet toujours de rendre tous les re
   <tr><td>Marge</td><td>10 %</td><td>Ou nombre fixe d'assiettes ; la même pour la proposition et la finalisation automatique</td></tr>
   <tr><td>Maximum cuisine</td><td>Vide (sans plafond)</td><td></td></tr>
   <tr><td>Absences : seuil, période de grâce</td><td>3 par mois ; lancement + 1 mois</td><td></td></tr>
+  <tr><td><span class="new">Recharge minimum à la caisse</span></td><td><span class="new">20 TND</span></td><td>FR-48 ; 0 = pas de minimum ; la Direction n'est pas concernée</td></tr>
   <tr><td>Paiement activé ; payant par défaut ; prix par défaut</td><td>À activer au lancement ; oui ; ex. 3,000 TND</td><td>Le prix du jour se change sur l'écran Finalisation</td></tr>
   <tr><td>Langue par défaut ; langues</td><td>Français ; français, anglais</td><td>Arabe plus tard</td></tr>
 </table>
