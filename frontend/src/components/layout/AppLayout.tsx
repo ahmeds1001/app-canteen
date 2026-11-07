@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { Role } from "@/api/types";
@@ -9,7 +10,8 @@ import { formatCompanyDateTime } from "@/utils/dates";
 import { NotificationBell } from "./NotificationBell";
 import "./layout.css";
 
-/** Navigation per role (spec §2). Every staff member is also an employee who eats. */
+/** Navigation per role (spec §2). Every staff member is also an employee who eats: "Menus" to reserve and
+ *  "Mes réservations" for the QR code are in every menu; "Mon solde" opens from the balance button on "Menus". */
 const NAV: Record<Role, { to: string; key: string }[]> = {
   employee: [
     { to: "/", key: "nav.home" },
@@ -18,11 +20,13 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
   ],
   chef: [
     { to: "/", key: "nav.home" },
+    { to: "/reservations", key: "nav.reservations" },
     { to: "/chef/planner", key: "nav.planner" },
     { to: "/chef/dishes", key: "nav.dishes" },
   ],
   management: [
     { to: "/", key: "nav.home" },
+    { to: "/reservations", key: "nav.reservations" },
     { to: "/management/finalize", key: "nav.finalize" },
     { to: "/day-list", key: "nav.dayList" },
     { to: "/cashier", key: "nav.cashier" },
@@ -31,6 +35,7 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
   ],
   hr: [
     { to: "/", key: "nav.home" },
+    { to: "/reservations", key: "nav.reservations" },
     { to: "/hr/accounts", key: "nav.accounts" },
     { to: "/hr/reports", key: "nav.reports" },
   ],
@@ -50,6 +55,7 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
   ],
   admin: [
     { to: "/", key: "nav.home" },
+    { to: "/reservations", key: "nav.reservations" },
     { to: "/chef/planner", key: "nav.planner" },
     { to: "/management/finalize", key: "nav.finalize" },
     { to: "/day-list", key: "nav.dayList" },
@@ -68,10 +74,11 @@ export function AppLayout() {
   const links = user ? NAV[user.role] : [];
   // A role with a single screen would get no menu bar (none today; kept for future roles).
   const showNav = links.length > 1;
+  const { ref: barRef, layout } = useBarLayout(`${user?.role}|${i18n.language}`);
 
   return (
     <div className="shell">
-      <header className="shell__bar">
+      <header ref={barRef} className={`shell__bar ${layout ? `shell__bar--${layout}` : ""}`}>
         <Logo size={40} />
         <span className="shell__title">{t("app.name")}</span>
         {showNav && (
@@ -111,4 +118,42 @@ export function AppLayout() {
       </main>
     </div>
   );
+}
+
+type BarLayout = "" | "compact" | "stacked";
+
+/** Chooses how the header fits its width: one line with the title, one line without it, or the menu on its own
+ *  row. Measured from the widths of the items themselves (they do not change between layouts), so switching
+ *  layout never makes it switch back. Phones (720 px and less) use the bottom tab bar instead. */
+function useBarLayout(key: string) {
+  const ref = useRef<HTMLElement>(null);
+  const titleWidth = useRef(0);
+  const [layout, setLayout] = useState<BarLayout>("");
+
+  useLayoutEffect(() => {
+    const bar = ref.current;
+    if (!bar) return;
+    const width = (selector: string) => bar.querySelector<HTMLElement>(selector)?.getBoundingClientRect().width ?? 0;
+    const measure = () => {
+      if (window.innerWidth <= 720) return setLayout("");
+      const css = getComputedStyle(bar);
+      const gap = parseFloat(css.columnGap) || 0;
+      const room = bar.clientWidth - parseFloat(css.paddingLeft) - parseFloat(css.paddingRight);
+      const nav = bar.querySelector<HTMLElement>(".shell__nav");
+      const links = nav ? Array.from(nav.children) : [];
+      const navGap = nav ? parseFloat(getComputedStyle(nav).columnGap) || 0 : 0;
+      const navWidth = links.reduce((sum, a) => sum + a.getBoundingClientRect().width, 0)
+        + navGap * Math.max(links.length - 1, 0);
+      titleWidth.current = width(".shell__title") || titleWidth.current; // 0 while hidden: keep the last width
+      const oneLine = width(".logo") + navWidth + width(".shell__tools") + gap * 2 + 2; // +2: rounding
+      setLayout(oneLine + titleWidth.current + gap <= room ? "" : oneLine <= room ? "compact" : "stacked");
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(bar);
+    document.fonts?.ready.then(measure); // text widths change once the web fonts arrive
+    return () => observer.disconnect();
+  }, [key]);
+
+  return { ref, layout };
 }

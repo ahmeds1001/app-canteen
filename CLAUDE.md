@@ -126,6 +126,8 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
    `scanner` scans + day list, no money (`IsCashierOrManagement`, `wallet.top_up` refuses other roles).
    7 Nov 2026: **minimum top-up (FR-48)** `CanteenSettings.min_topup_amount` (20 TND, admin Settings): cashier only;
    management may record less; corrections exempt. demo_week / loadtest_accounts top up through management.
+   7 Nov: every role's menu has « Mes réservations » (QR); test `EveryRoleEatsTests`. The header measures itself
+   (`useBarLayout` in AppLayout.tsx): one line with title / without title / menu on its own row — no breakpoints to tune.
 4. Deploy on the company server (Docker, SQL Server, HTTPS, backups + restore test), load test (200 users), pilot.
    5 Nov 2026: technical PDF for IT `docs/architecture-technique.pdf` (source in `docs/pdf-sources/`); Docker stack
    fixed: WhiteNoise for /static/, `media` volume served by nginx, nginx keeps X-Forwarded-Proto, one-shot `migrate`

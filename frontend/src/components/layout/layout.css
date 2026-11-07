@@ -32,7 +32,7 @@
 .shell__nav { display: flex; gap: var(--space-1); min-inline-size: 0; overflow-x: auto; scrollbar-width: thin; }
 .shell__nav a {
   white-space: nowrap;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-2);
   border-radius: var(--radius-pill);
   text-decoration: none;
   color: var(--color-text-muted);
@@ -41,17 +41,16 @@
 .shell__nav a.active { background: var(--color-success-bg); color: var(--color-primary); }
 .shell__tools { display: flex; flex-shrink: 0; align-items: center; gap: var(--space-2); }
 .shell__tools .btn { white-space: nowrap; }
-@media (min-width: 1280px) and (max-width: 1400px) {
-  .shell__title { display: none; } /* room for the admin's 9 screens; the logo already names the app */
-  .shell__nav { margin-inline-end: auto; }
-  .shell__nav a { padding-inline: var(--space-2); }
-}
-/* Tablets and small laptops: the menu gets its own full-width row under the logo and wraps if needed,
-   so every screen stays visible (checked for every role, 2026-11-04). */
-@media (min-width: 721px) and (max-width: 1279px) {
-  .shell__bar { flex-wrap: wrap; row-gap: var(--space-1); }
-  .shell__nav { order: 1; flex-basis: 100%; flex-wrap: wrap; justify-content: center; overflow: visible; }
-  .shell__nav a { padding-inline: var(--space-2); }
+/* Above phone width, AppLayout measures what fits and sets one of these (every screen of every role stays
+   visible, whatever the number of entries or the language):
+   - nothing: one line with the title "Cantine";
+   - compact: one line without the title (the logo already names the app);
+   - stacked: the menu gets its own full-width row under the logo and wraps if needed. */
+@media (min-width: 721px) {
+  .shell__bar--compact .shell__title { display: none; }
+  .shell__bar--compact .shell__nav { margin-inline-end: auto; }
+  .shell__bar--stacked { flex-wrap: wrap; row-gap: var(--space-1); }
+  .shell__bar--stacked .shell__nav { order: 1; flex-basis: 100%; flex-wrap: wrap; justify-content: center; overflow: visible; }
 }
 .shell__tools select { min-block-size: 36px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); }
 .shell__main { flex: 1; }

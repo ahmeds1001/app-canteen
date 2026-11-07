@@ -324,3 +324,37 @@ class DayListTests(TestCase):
         self.assertIn(";réservé;", csv_text)
         self.assertIn(";annulé;", csv_text)
         self.assertNotIn("cancelled", csv_text)
+
+
+class EveryRoleEatsTests(TestCase):
+    """Decided 2026-10-26: everyone may eat at the canteen, whatever their role. Each role reserves through the API,
+    finds the reservation with its QR code, sees and pays from its balance, and the scanner accepts the code."""
+
+    ROLES = ["employee", "hr", "chef", "scanner", "cashier", "management", "admin"]
+
+    def test_every_role_reserves_gets_a_qr_code_and_is_served(self):
+        cfg = CanteenSettings.load()
+        cfg.payment_enabled = True
+        cfg.save()
+        menu = f.menu(MONDAY, is_paid=True, price=Decimal("3.000"))
+        cashier, scanner = f.user(role="cashier"), f.user(role="scanner")
+        payloads = {}
+        for role in self.ROLES:
+            user = f.user(role=role)
+            wallet.top_up(user, Decimal("20"), by=cashier)
+            client = APIClient()
+            client.force_authenticate(user)
+            with clock.frozen(f.at(2026, 11, 1, 20)):
+                reserved = client.post("/api/v1/reservations/", {"date": MONDAY.isoformat(), "choice": 1},
+                                       format="json")
+                mine = client.get("/api/v1/reservations/?upcoming=1").json()
+                balance = client.get("/api/v1/wallet/me/").json()["balance"]
+            self.assertEqual(reserved.status_code, 201, role)
+            self.assertEqual([r["date"] for r in mine], [MONDAY.isoformat()], role)
+            self.assertTrue(mine[0]["qr_payload"], role)
+            self.assertEqual(balance, "17.000", role)
+            payloads[role] = mine[0]["qr_payload"]
+        with clock.frozen(f.at(2026, 11, 2, 12, 30)):
+            for role, payload in payloads.items():
+                self.assertEqual(services.scan(payload, by=scanner).status, Reservation.Status.SERVED, role)
+        self.assertEqual(Reservation.objects.filter(menu=menu, status=Reservation.Status.SERVED).count(), 7)
