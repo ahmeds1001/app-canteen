@@ -264,7 +264,8 @@ Rename-Computer -NewName "CANTINE-APP" -Restart</pre>
   <tr><td>SQL Server 2022 Express</td><td>Installation « De base ». Nom de l'instance : <code>SQLEXPRESS</code>. Garder l'authentification Windows.
     (Si l'entreprise a déjà un serveur SQL Server 2019+, on peut l'utiliser à la place : voir l'encadré du §6.)</td></tr>
   <tr><td>ODBC Driver 18 for SQL Server</td><td>Téléchargement Microsoft, version x64. Obligatoire pour que l'application parle à SQL Server.</td></tr>
-  <tr><td>SQL Server Management Studio</td><td>Optionnel, pratique pour voir la base. Sinon on utilise <code>sqlcmd</code> (installé avec SQL Server).</td></tr>
+  <tr><td>SQL Server Management Studio 20</td><td>L'outil utilisé par l'entreprise (SSMS 20) : à installer dans la VM pour voir et administrer la base
+    (connexion : encadré du §6). Les commandes <code>sqlcmd</code> de ce guide restent valables (installé avec SQL Server).</td></tr>
 </table>
 <p>Fermer puis rouvrir PowerShell, et vérifier :</p>
 <pre>python --version        <span class="c"># Python 3.12.x</span>
@@ -301,8 +302,28 @@ sqlcmd -S localhost\SQLEXPRESS -E -d canteen -Q "IF SUSER_ID('NT AUTHORITY\SYSTE
 <code>manage.cmd</code> à la main dans les étapes suivantes. Pour un autre compte, refaire la seconde commande en remplaçant
 <code>NT AUTHORITY\SYSTEM</code> par son nom (<code>whoami</code> l'affiche).</p>
 <div class="box">
+  <h3>Avec SQL Server Management Studio 20 (au lieu de <code>sqlcmd</code>)</h3>
+  <ol>
+    <li><b>Connexion</b> : Nom du serveur <code>localhost\SQLEXPRESS</code> ; Authentification <b>Windows</b> ;
+    Chiffrement <b>Obligatoire</b> et cocher <b>« Faire confiance au certificat de serveur »</b> (SQL Server Express utilise un
+    certificat auto-signé : sans cette case, SSMS 20 refuse la connexion).</li>
+    <li><b>Nouvelle requête</b>, coller puis exécuter (F5) :</li>
+  </ol>
+<pre>CREATE DATABASE canteen;
+GO
+USE canteen;
+IF SUSER_ID('NT AUTHORITY\SYSTEM') IS NULL CREATE LOGIN [NT AUTHORITY\SYSTEM] FROM WINDOWS;
+CREATE USER [NT AUTHORITY\SYSTEM] FOR LOGIN [NT AUTHORITY\SYSTEM];
+ALTER ROLE db_owner ADD MEMBER [NT AUTHORITY\SYSTEM];</pre>
+  <p>SSMS sert aussi pour la suite : requêtes et modifications par l'administrateur (§17, encadré « Accès à la base »), test de
+  restauration (§16.1 : clic droit sur <i>Bases de données</i> → <i>Restaurer la base de données</i>, sous le nom
+  <code>canteen_restore_test</code>).</p>
+</div>
+<div class="box">
   <h3>Variante : la base est sur un serveur SQL Server de l'entreprise</h3>
-  <p>Créer une base <code>canteen</code> et un login SQL qui n'a des droits que sur elle (jamais sur l'ERP) :</p>
+  <p>Vérifier d'abord la version du serveur dans SSMS (<code>SELECT @@VERSION</code>) : il faut <b>SQL Server 2019 ou plus récent</b>
+  (version 15.x ou plus). La version de SSMS (20) ne dit rien sur celle du serveur.
+  Créer ensuite une base <code>canteen</code> et un login SQL qui n'a des droits que sur elle (jamais sur l'ERP) :</p>
 <pre>CREATE DATABASE canteen;
 CREATE LOGIN canteen_app WITH PASSWORD = '&lt;mot de passe long&gt;', CHECK_POLICY = ON;
 USE canteen;
@@ -471,7 +492,7 @@ Export-VM -Name CANTINE-APP -Path "E:\ExportCantine"</pre>
 </div>
 
 <!-- ============================== PHASE B ============================== -->
-<h1 class="chapter">13. Importer la VM sur le serveur</h1>
+<h1>13. Importer la VM sur le serveur</h1>
 <span class="phase">PHASE B — SUR LE SERVEUR DE L'ENTREPRISE</span>
 <p>Sur le serveur Hyper-V (IT), PowerShell administrateur — ou le Gestionnaire Hyper-V → <i>Importer un ordinateur virtuel</i> →
 <i>Copier l'ordinateur virtuel (créer un nouvel ID unique)</i> :</p>
@@ -595,6 +616,32 @@ restaurer la sauvegarde sous le nom <code>canteen</code> (<code>WITH REPLACE</co
   <h3>Comptes à ne pas créer</h3>
   <p>Pas de comptes « de test », partagés ou génériques : chaque compte est nominatif, validé par les RH.
   Pour essayer l'application, utiliser le PC de développement, jamais la production.</p>
+</div>
+<div class="box">
+  <h3>Accès à la base de données (SSMS 20) — l'administrateur a tous les droits</h3>
+  <p>L'administrateur peut <b>consulter et modifier</b> la base avec SSMS 20 : requêtes <code>SELECT</code>, <code>UPDATE</code>,
+  <code>INSERT</code>… Pour des raisons de sécurité, la base n'est pas ouverte sur le réseau : on s'y connecte <b>depuis la VM</b>
+  (Bureau à distance, puis SSMS : serveur <code>localhost\SQLEXPRESS</code>, authentification Windows, « Faire confiance au certificat de serveur »).</p>
+  <p>Le compte Windows qui a installé SQL Server a déjà tous les droits. Pour donner les mêmes droits sur la base <code>canteen</code>
+  à un autre administrateur (remplacer <code>DOMAINE\nom</code>) :</p>
+<pre>CREATE LOGIN [DOMAINE\nom] FROM WINDOWS;
+USE canteen;
+CREATE USER [DOMAINE\nom] FOR LOGIN [DOMAINE\nom];
+ALTER ROLE db_owner ADD MEMBER [DOMAINE\nom];     <span class="c">-- lecture + modification de toute la base canteen</span></pre>
+  <p><b>Avant toute modification à la main</b> :</p>
+  <ol>
+    <li>Lancer une sauvegarde : <code>Start-ScheduledTask "Cantine - Sauvegarde"</code> (et vérifier <code>logs\backup.log</code>).</li>
+    <li>Travailler dans une transaction et vérifier le résultat avant de valider :</li>
+  </ol>
+<pre>BEGIN TRANSACTION;
+UPDATE ... WHERE ...;          <span class="c">-- toujours avec un WHERE précis</span>
+SELECT ... ;                   <span class="c">-- vérifier les lignes changées</span>
+COMMIT;                        <span class="c">-- ou ROLLBACK; pour tout annuler</span></pre>
+  <ul>
+    <li>Une modification faite dans SSMS <b>n'apparaît pas</b> dans le journal d'audit de l'application : la noter (date, qui, quoi, pourquoi) dans le registre de l'IT.</li>
+    <li>Quand l'application sait le faire, passer par elle : une correction de solde se fait par la Direction (elle garde l'historique du solde) ; un solde modifié directement dans la table ne correspondrait plus à ses mouvements.</li>
+    <li>Pas de <code>DELETE</code> : décision de l'entreprise, aucune donnée n'est supprimée (comptes, réservations, journal d'audit).</li>
+  </ul>
 </div>
 
 <h1>18. Pilote sur le réseau de l'entreprise</h1>
