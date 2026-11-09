@@ -31,3 +31,6 @@ Thumbs.db
 
 # Claude Code local files (agents in .claude/agents ARE committed)
 .claude/settings.local.json
+
+# Windows server logs (setup/windows)
+logs/

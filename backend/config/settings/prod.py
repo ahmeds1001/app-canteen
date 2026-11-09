@@ -32,3 +32,17 @@ REST_FRAMEWORK = {**REST_FRAMEWORK, "NUM_PROXIES": int(env("NUM_PROXIES", "2"))}
 # The limits' counters must be shared by every gunicorn worker (an in-memory cache would give each worker its
 # own count: 4 workers = 4x the limit). A table in the app's own database; created by the "migrate" service.
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.db.DatabaseCache", "LOCATION": "django_cache"}}
+
+# Windows server without Docker (setup/windows/): no nginx, so Django also serves the built site (frontend/dist)
+# and the dish photos. Docker keeps SERVE_FRONTEND off: nginx does both there.
+SERVE_FRONTEND = env_bool("SERVE_FRONTEND", False)  # noqa: F405
+if SERVE_FRONTEND:
+    WHITENOISE_ROOT = BASE_DIR.parent / "frontend" / "dist"  # noqa: F405
+    WHITENOISE_INDEX_FILE = True
+
+    def WHITENOISE_IMMUTABLE_FILE_TEST(path, url):  # noqa: N802 - setting name
+        return url.startswith("/assets/") or url.startswith("/static/")  # file names carry a hash
+
+    def WHITENOISE_ADD_HEADERS_FUNCTION(headers, path, url):  # noqa: N802 - setting name
+        if url in ("/", "/index.html", "/sw.js"):  # phones must get a new version of the app at once
+            headers["Cache-Control"] = "no-cache"

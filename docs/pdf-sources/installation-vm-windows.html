@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Installation sur une VM Windows — Application Cantine OVAGRI</title>
+<style>
+  @page { size: A4; margin: 15mm 15mm 16mm 15mm;
+    @bottom-left { content: "Installation sur une VM Windows — Application Cantine OVAGRI · 9 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
+    @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; } }
+  @page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
+  :root { --green: #0a6b28; --green-soft: #e8f3e3; --orange: #f89000; --orange-soft: #fff3e0; --red: #b42318; --red-soft: #fdecea;
+          --text: #1c2a1e; --muted: #5b675d; --line: #d9e2d6; }
+  * { box-sizing: border-box; }
+  body { font: 9.6pt/1.42 "Segoe UI", Arial, sans-serif; color: var(--text); margin: 0; }
+  h1 { color: var(--green); font-size: 15pt; margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 3px solid;
+       border-image: linear-gradient(90deg, #f89000, #a6c914, #0a6b28) 1; break-after: avoid; }
+  h1.chapter { break-before: page; margin-top: 0; }
+  h2 { color: var(--green); font-size: 11.2pt; margin: 13px 0 5px; break-after: avoid; }
+  h3 { font-size: 10pt; margin: 9px 0 4px; break-after: avoid; }
+  p { margin: 4px 0 7px; }
+  ul, ol { margin: 3px 0 8px; padding-inline-start: 18px; }
+  li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 5px 0 10px; font-size: 8.8pt; }
+  th { background: var(--green); color: #fff; text-align: start; padding: 4px 6px; font-weight: 600; }
+  td { padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr { break-inside: avoid; }
+  tr:nth-child(even) td { background: #f7faf6; }
+  code { font-family: Consolas, monospace; font-size: 8.6pt; background: #eef2ec; padding: 0 3px; border-radius: 3px; }
+  pre { font-family: Consolas, monospace; font-size: 8.3pt; background: #1f2a21; color: #e9f5e4; padding: 7px 10px; border-radius: 6px;
+        margin: 5px 0 9px; white-space: pre-wrap; break-inside: avoid; }
+  pre .c { color: #9fb89a; }
+  th code { background: transparent; color: #fff; }
+  .box { border: 1px solid var(--line); border-inline-start: 5px solid var(--green); border-radius: 6px; padding: 7px 11px; margin: 8px 0; break-inside: avoid; }
+  .box.orange { border-inline-start-color: var(--orange); background: #fffaf2; }
+  .box.red { border-inline-start-color: var(--red); background: #fffafa; }
+  .box h3 { margin-top: 0; }
+  .muted { color: var(--muted); }
+  .check { list-style: none; padding-inline-start: 2px; }
+  .check li::before { content: "☐  "; color: var(--green); font-weight: 700; }
+  .cover { height: 250mm; display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { width: 70px; height: 70px; }
+  .brand p { margin: 0; color: var(--muted); }
+  .band { height: 5px; margin: 22px 0 26px; background: linear-gradient(90deg, #f89000, #a6c914, #0a6b28); }
+  .title { font-size: 26pt; color: var(--green); margin: 0; line-height: 1.12; border: 0; }
+  .sub { font-size: 12pt; color: var(--muted); margin-top: 8px; }
+  .meta { margin-top: 30px; font-size: 9.5pt; }
+  .cover .box { margin-top: auto; }
+  pre.diagram { white-space: pre; font-size: 7.8pt; }
+  .phase { display: inline-block; font-size: 8pt; font-weight: 700; color: #fff; background: var(--orange); padding: 1px 8px;
+           border-radius: 10px; margin-bottom: 4px; letter-spacing: .03em; }
+  .toc { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; font-size: 9.3pt; }
+  .toc div b { color: var(--green); }
+  .toc ul { list-style: none; padding: 0; margin: 2px 0 8px; }
+</style>
+</head>
+<body>
+
+<!-- ============================== COUVERTURE ============================== -->
+<section class="cover">
+  <div class="brand">
+    <img src="logo.png" alt="OVAGRI Groupe">
+    <p><b>OVAGRI Groupe</b><br>Direction des opérations · Informatique</p>
+  </div>
+  <div class="band"></div>
+  <h1 class="title" style="border:0">Guide d'installation<br>sur une VM Windows</h1>
+  <p class="sub">Préparer la VM de l'application Cantine sous Hyper-V sur un PC, la déplacer sur le serveur de
+  l'entreprise, puis l'ouvrir sur Internet — de A à Z</p>
+  <div class="meta">
+    <b>Version du 9 novembre 2026</b> · code : <code>github.com/ahmeds1001/app-canteen</code> (branche <code>main</code>)<br>
+    Public : la personne qui prépare la VM et l'équipe IT. Durée : environ <b>3 heures</b> sur le PC, <b>1 heure</b> sur le serveur,
+    plus les délais de l'IT (nom de domaine, certificat, SMTP).<br>
+    Documents liés : dossier technique (<code>docs/architecture-technique.pdf</code>), cahier des charges (<code>docs/cahier-des-charges.pdf</code>).
+  </div>
+  <div class="box red">
+    <h3>Quatre règles avant de commencer</h3>
+    <ol>
+      <li><b>Une VM neuve</b>, avec un Windows neuf — jamais une copie du PC de développement : il contient des comptes de test,
+      de fausses réservations, des mots de passe de test et une horloge de test.</li>
+      <li><b>Une base de données vide</b> : la production démarre sans aucun employé, menu, réservation ni solde. Le seul
+      compte créé à l'installation est celui de l'administrateur (§8). Les commandes de données de test
+      (<code>demo_week</code>, <code>loadtest_accounts</code>) ne sont <b>jamais</b> lancées sur cette base.</li>
+      <li><b>Un fichier <code>.env</code> neuf</b>, avec des secrets neufs (§7) — jamais celui du PC de développement. Il suit
+      ensuite la VM partout (serveur, hébergeur) <b>sans être changé</b>.</li>
+      <li><b>Un seul nom pour toujours</b> (ex. <code>cantine.ovagri.tn</code>), du pilote interne jusqu'à Internet : changer de nom
+      obligerait chaque employé à réinstaller l'application et à réactiver les notifications.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================== SOMMAIRE + VUE D'ENSEMBLE ============================== -->
+<h1 class="chapter">Sommaire</h1>
+<div class="toc">
+  <div><b>Avant de commencer</b>
+    <ul><li>0. Vue d'ensemble et les 3 phases</li><li>1. Ce que l'IT doit fournir</li></ul>
+    <b>Phase A — sur le PC, sous Hyper-V</b>
+    <ul>
+      <li>2. Créer la VM et préparer Windows</li>
+      <li>3. Installer les logiciels</li>
+      <li>4. Récupérer le code</li>
+      <li>5. Installer l'application et construire le site</li>
+      <li>6. Créer la base de données</li>
+      <li>7. Écrire le fichier <code>.env</code></li>
+      <li>8. Initialiser la base (vide) et créer l'administrateur</li>
+      <li>9. Premier démarrage à la main</li>
+      <li>10. Démarrage automatique au boot</li>
+      <li>11. Sauvegardes</li>
+      <li>12. Figer la VM propre et l'exporter</li>
+    </ul>
+  </div>
+  <div><b>Phase B — sur le serveur de l'entreprise</b>
+    <ul>
+      <li>13. Importer la VM sur le serveur</li>
+      <li>14. Les adresses : IP de la VM, IP du proxy, pare-feu</li>
+      <li>15. Nom de domaine, certificat et proxy HTTPS</li>
+      <li>16. Test de restauration et vérifications</li>
+      <li>17. Premier paramétrage dans l'application</li>
+      <li>18. Pilote sur le réseau de l'entreprise</li>
+    </ul>
+    <b>Phase C — sur Internet</b>
+    <ul><li>19. Ouvrir l'application sur Internet</li></ul>
+    <b>Pour la suite</b>
+    <ul><li>20. Mises à jour</li><li>21. Dépannage</li><li>Récapitulatif</li></ul>
+  </div>
+</div>
+
+<h1>0. Vue d'ensemble</h1>
+<h2>Les 3 phases</h2>
+<table>
+  <tr><th style="width:22%">Phase</th><th style="width:30%">Où</th><th>Ce qu'on fait</th></tr>
+  <tr><td><b>A. Préparer</b></td><td>Une VM Hyper-V sur le PC de la personne qui installe</td>
+    <td>Windows, logiciels, application, base vide, administrateur, démarrage automatique, sauvegardes. Personne n'utilise l'application à ce stade. On exporte la VM <b>propre</b>.</td></tr>
+  <tr><td><b>B. Pilote interne</b></td><td>Le serveur de l'entreprise, réseau interne</td>
+    <td>Import de la VM, nouvelles adresses, proxy HTTPS, vérifications, paramétrage, puis les employés l'utilisent pour de vrai. <b>À partir d'ici, les données sont réelles et se gardent.</b></td></tr>
+  <tr><td><b>C. Internet</b></td><td>Le même serveur ouvert sur Internet, ou un hébergeur</td>
+    <td>Même VM, même base, même <code>.env</code>, même nom : les employés ne voient aucune différence.</td></tr>
+</table>
+<h2>Ce qui tourne dans la VM</h2>
+<p>Pas de Docker : deux programmes tournent en permanence, démarrés par le Planificateur de tâches de Windows, et SQL
+Server Express garde les données dans la même VM. Le proxy HTTPS de l'entreprise reçoit les connexions des téléphones
+et les transmet à la VM en HTTP sur le port 8080.</p>
+<pre class="diagram">
+  Téléphones et PC des employés
+            │  https://cantine.ovagri.tn
+            ▼
+  ┌──────────────────────────┐
+  │ Proxy HTTPS entreprise   │  certificat, ajoute X-Forwarded-For / X-Forwarded-Proto
+  └────────────┬─────────────┘
+               │ http, port 8080 (seul le proxy y a accès)
+  ┌────────────▼──────────────────────── VM Windows ─────────────────────────────────┐
+  │  « Cantine - Site »     Waitress : le site (pages) + l'API /api/v1 + /admin       │
+  │  « Cantine - Taches »   tâches planifiées, chaque minute (clôture, finalisation,  │
+  │                         rappels, notifications)                                   │
+  │  « Cantine - Sauvegarde » chaque nuit à 02:00 → D:\CantineBackups                 │
+  │  SQL Server 2022 Express — base « canteen »                                       │
+  └──────────────┬──────────────────────────────────────┬────────────────────────────┘
+                 │ SMTP (emails de compte)               │ HTTPS sortant 443 (notifications push)
+                 ▼                                       ▼
+          Serveur mail entreprise            Google / Mozilla / Apple / Microsoft
+</pre>
+<table>
+  <tr><th style="width:32%">Dans la VM</th><th>Contenu</th></tr>
+  <tr><td><code>C:\cantine</code></td><td>Le code (copie du dépôt GitHub) et le fichier <code>.env</code></td></tr>
+  <tr><td><code>C:\cantine\backend</code></td><td>L'API Django, son environnement Python <code>.venv</code>, les photos des plats (<code>media\</code>)</td></tr>
+  <tr><td><code>C:\cantine\frontend\dist</code></td><td>Le site construit (§5)</td></tr>
+  <tr><td><code>C:\cantine\setup\windows</code></td><td>Les fichiers prêts à l'emploi : <code>manage.cmd</code>, <code>run-site.cmd</code>, <code>run-tasks.cmd</code>, <code>backup.cmd</code></td></tr>
+  <tr><td><code>C:\cantine\logs</code></td><td>Journaux : <code>site.log</code>, <code>tasks.log</code>, <code>backup.log</code></td></tr>
+  <tr><td><code>D:\CantineBackups</code></td><td>Sauvegardes de la base et des photos (§11), sur le second disque de la VM — à copier hors du serveur</td></tr>
+</table>
+<div class="box orange">
+  <h3>Règle d'or des commandes</h3>
+  <p>Dans la VM, on lance toujours les commandes de l'application avec <code>C:\cantine\setup\windows\manage.cmd</code>
+  (paramètres de <b>production</b>). Ne jamais taper <code>python manage.py …</code> directement : ce serait le mode
+  développement (mode debug, horloge de test).</p>
+</div>
+
+<!-- ============================== 1. IT ============================== -->
+<h1>1. Ce que l'IT doit fournir</h1>
+<table>
+  <tr><th style="width:30%">Élément</th><th>Détail</th></tr>
+  <tr><td>Le PC qui prépare la VM</td><td>Windows 10/11 <b>Pro</b> (Hyper-V n'existe pas dans l'édition Famille), virtualisation activée dans le BIOS,
+    <b>8 Go de RAM au minimum</b> (16 Go conseillés), 100 Go libres sur le disque.</td></tr>
+  <tr><td>L'hyperviseur du serveur</td><td><b>Hyper-V</b>, et quelle version : l'IT lance <code>Get-VMHostSupportedVersion</code> sur le serveur et donne
+    la plus haute version listée (§2.3). Si le serveur utilise <b>VMware</b> ou autre chose, le dire avant de commencer (§13).</td></tr>
+  <tr><td>Windows pour la VM</td><td>Le fichier ISO de <b>Windows Server 2022</b> (avec « Expérience de bureau ») et une <b>clé de licence</b> de l'entreprise.
+    Éviter la version d'évaluation (elle s'arrête au bout de 180 jours).</td></tr>
+  <tr><td>Taille de la VM sur le serveur</td><td><b>4 vCPU, 4 Go de RAM</b>, disque système 60 Go + disque de sauvegardes 20 Go.
+    Estimation à confirmer par le test de charge (§18).</td></tr>
+  <tr><td>Deux adresses sur le serveur</td><td>L'<b>adresse IP fixe de la VM</b> (ex. <code>192.168.1.50</code>) et l'<b>adresse du proxy HTTPS</b> qui lui parlera
+    (ex. <code>192.168.1.10</code>), avec masque, passerelle et DNS (§14).</td></tr>
+  <tr><td>Nom + certificat</td><td>Le nom <b>définitif</b> (ex. <code>cantine.ovagri.tn</code>) et un certificat HTTPS <b>public</b> sur le proxy, dès le pilote interne (§15).
+    <b>HTTPS est obligatoire</b> : sans lui, ni la caméra du scanner, ni l'installation sur le téléphone, ni les notifications ne fonctionnent.</td></tr>
+  <tr><td>Compte SMTP</td><td>Serveur, port, identifiant, mot de passe, adresse d'expéditeur (ex. <code>cantine@ovagri.tn</code>).
+    Sert à 5 emails automatiques : code de vérification, compte validé, compte refusé, mot de passe oublié, nouveau mot de passe.</td></tr>
+  <tr><td>Internet sortant</td><td>HTTPS (443) depuis la VM vers Internet pour les notifications push (et pour installer les logiciels).</td></tr>
+  <tr><td>Accès au code</td><td>Un accès en lecture au dépôt GitHub <code>ahmeds1001/app-canteen</code> (jeton en lecture seule).</td></tr>
+  <tr><td>Sauvegardes</td><td>Un emplacement hors de la VM où copier chaque jour <code>D:\CantineBackups</code>.</td></tr>
+</table>
+
+<!-- ============================== PHASE A ============================== -->
+<h1>2. Créer la VM et préparer Windows</h1>
+<span class="phase">PHASE A — SUR LE PC</span>
+<h2>2.1 Activer Hyper-V sur le PC</h2>
+<p>PowerShell <b>en tant qu'administrateur</b> sur le PC, puis redémarrer le PC :</p>
+<pre>Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All</pre>
+<h2>2.2 Le réseau de la VM sur le PC</h2>
+<p>Sur le PC, la VM a seulement besoin d'Internet (pour installer les logiciels). On utilise le commutateur
+<b>« Default Switch »</b> créé par Hyper-V : rien à régler. Le vrai réseau sera branché sur le serveur (§13).</p>
+<h2>2.3 Créer la VM</h2>
+<p>Copier l'ISO de Windows Server dans <code>C:\ISO\WindowsServer2022.iso</code>, puis, toujours en PowerShell administrateur sur le PC :</p>
+<pre><span class="c"># Versions de VM que le PC sait créer (comparer avec celle donnée par l'IT pour le serveur, §1)</span>
+Get-VMHostSupportedVersion
+<span class="c"># Créer la VM (génération 2). Si le serveur est PLUS ANCIEN que le PC, ajouter -Version &lt;version du serveur&gt;, ex. -Version 9.0</span>
+New-Item -ItemType Directory -Force C:\HyperV
+New-VM -Name "CANTINE-APP" -Generation 2 -MemoryStartupBytes 4GB -SwitchName "Default Switch" -Path C:\HyperV `
+  -NewVHDPath "C:\HyperV\CANTINE-APP-C.vhdx" -NewVHDSizeBytes 60GB
+Set-VMProcessor CANTINE-APP -Count 4
+Set-VMMemory CANTINE-APP -DynamicMemoryEnabled $false
+<span class="c"># Second disque pour les sauvegardes (D:)</span>
+New-VHD -Path "C:\HyperV\CANTINE-APP-D.vhdx" -SizeBytes 20GB -Dynamic
+Add-VMHardDiskDrive -VMName CANTINE-APP -Path "C:\HyperV\CANTINE-APP-D.vhdx"
+<span class="c"># Démarrer sur l'ISO de Windows</span>
+Add-VMDvdDrive -VMName CANTINE-APP -Path "C:\ISO\WindowsServer2022.iso"
+Set-VMFirmware CANTINE-APP -FirstBootDevice (Get-VMDvdDrive -VMName CANTINE-APP)
+Set-VM CANTINE-APP -AutomaticStartAction Start -AutomaticStopAction ShutDown -CheckpointType Standard
+Start-VM CANTINE-APP; vmconnect.exe localhost CANTINE-APP</pre>
+<p class="muted">Si le PC a peu de mémoire, mettre pour l'instant <code>-Count 2</code> et <code>-MemoryStartupBytes 3GB</code> :
+l'IT remettra 4 vCPU / 4 Go sur le serveur (§13). La version d'une VM ne se baisse pas après coup : la choisir maintenant.</p>
+<h2>2.4 Installer Windows dans la VM</h2>
+<ol>
+  <li>Dans la fenêtre de la VM, appuyer sur une touche dès « Press any key to boot from CD or DVD ».</li>
+  <li>Choisir <b>Windows Server 2022 Standard (Expérience de bureau)</b>, entrer la clé de licence, installation « Personnalisée » sur le disque de 60 Go.</li>
+  <li>Choisir un mot de passe Administrateur fort (gardé dans le coffre de l'IT).</li>
+  <li>Une fois Windows installé, retirer l'ISO depuis le PC (sinon le lecteur DVD prend la lettre D:) :</li>
+</ol>
+<pre>Get-VMDvdDrive -VMName CANTINE-APP | Remove-VMDvdDrive     <span class="c"># sur le PC</span></pre>
+<h2>2.5 Préparer Windows (dans la VM)</h2>
+<p>Dans la VM, PowerShell <b>en tant qu'administrateur</b> :</p>
+<pre><span class="c"># Disque de sauvegardes en D:</span>
+Get-Disk | Where-Object PartitionStyle -eq "RAW" | Initialize-Disk -PartitionStyle GPT -PassThru |
+  New-Partition -DriveLetter D -UseMaximumSize | Format-Volume -FileSystem NTFS -NewFileSystemLabel "Sauvegardes"
+<span class="c"># Fuseau horaire de Tunis et heure synchronisée (les délais de réservation se jouent à la minute)</span>
+Set-TimeZone -Id "W. Central Africa Standard Time"
+w32tm /resync
+<span class="c"># Ne jamais mettre la VM en veille</span>
+powercfg /change standby-timeout-ac 0
+powercfg /change hibernate-timeout-ac 0
+<span class="c"># Nom de la machine, puis redémarrer</span>
+Rename-Computer -NewName "CANTINE-APP" -Restart</pre>
+<ul>
+  <li><b>Windows Update</b> : installer les mises à jour maintenant, puis régler les redémarrages automatiques la nuit (ex. 03:00),
+  <b>jamais</b> entre 11:00 et 15:00 (service) ni entre 20:00 et 00:30 (rush des réservations avant la clôture).</li>
+  <li>Vérifier que l'heure affichée est l'heure de Tunis (<code>Get-Date</code>) — une VM à l'heure fausse ferme les réservations au mauvais moment.</li>
+</ul>
+
+<h1>3. Installer les logiciels</h1>
+<p>Dans la VM :</p>
+<table>
+  <tr><th style="width:28%">Logiciel</th><th>Version et options</th></tr>
+  <tr><td>Python</td><td><b>3.12</b> (python.org, « Windows installer 64-bit »). Cocher <b>Add python.exe to PATH</b> et choisir
+    « Install for all users » (<i>Customize installation</i>).</td></tr>
+  <tr><td>Node.js</td><td>Version <b>LTS</b> (22 ou 24), installeur MSI par défaut. Sert seulement à construire le site.</td></tr>
+  <tr><td>Git for Windows</td><td>Options par défaut.</td></tr>
+  <tr><td>SQL Server 2022 Express</td><td>Installation « De base ». Nom de l'instance : <code>SQLEXPRESS</code>. Garder l'authentification Windows.
+    (Si l'entreprise a déjà un serveur SQL Server 2019+, on peut l'utiliser à la place : voir l'encadré du §6.)</td></tr>
+  <tr><td>ODBC Driver 18 for SQL Server</td><td>Téléchargement Microsoft, version x64. Obligatoire pour que l'application parle à SQL Server.</td></tr>
+  <tr><td>SQL Server Management Studio</td><td>Optionnel, pratique pour voir la base. Sinon on utilise <code>sqlcmd</code> (installé avec SQL Server).</td></tr>
+</table>
+<p>Fermer puis rouvrir PowerShell, et vérifier :</p>
+<pre>python --version        <span class="c"># Python 3.12.x</span>
+node --version          <span class="c"># v22.x ou v24.x</span>
+git --version
+sqlcmd -S localhost\SQLEXPRESS -E -Q "SELECT @@VERSION"</pre>
+
+<h1>4. Récupérer le code</h1>
+<pre>cd C:\
+git clone https://github.com/ahmeds1001/app-canteen.git cantine
+cd C:\cantine
+git log -1 --oneline    <span class="c"># la version installée : à noter</span></pre>
+<p class="muted">Git demande l'identifiant et le jeton d'accès en lecture fourni par le propriétaire du dépôt. Ne pas utiliser un compte personnel.</p>
+
+<h1>5. Installer l'application et construire le site</h1>
+<h2>5.1 L'API (Python)</h2>
+<pre>cd C:\cantine\backend
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install --upgrade pip
+.venv\Scripts\python.exe -m pip install -r requirements\windows.txt</pre>
+<p><code>requirements\windows.txt</code> installe l'application et <b>Waitress</b>, le serveur web utilisé sur Windows.</p>
+<h2>5.2 Le site (pages de l'application)</h2>
+<pre>cd C:\cantine\frontend
+npm.cmd ci
+npm.cmd run build       <span class="c"># crée C:\cantine\frontend\dist</span></pre>
+<p class="muted">Dans PowerShell, taper <code>npm.cmd</code> et non <code>npm</code> (la politique d'exécution bloque souvent <code>npm.ps1</code>).</p>
+
+<h1>6. Créer la base de données</h1>
+<p>Les deux programmes de l'application tournent sous le compte <b>SYSTEM</b> de Windows (tâches planifiées, §10).
+On donne à ce compte, et à lui seul, les droits sur une base dédiée <code>canteen</code>. Dans PowerShell administrateur :</p>
+<pre>sqlcmd -S localhost\SQLEXPRESS -E -Q "CREATE DATABASE canteen"
+sqlcmd -S localhost\SQLEXPRESS -E -d canteen -Q "IF SUSER_ID('NT AUTHORITY\SYSTEM') IS NULL CREATE LOGIN [NT AUTHORITY\SYSTEM] FROM WINDOWS; CREATE USER [NT AUTHORITY\SYSTEM] FOR LOGIN [NT AUTHORITY\SYSTEM]; ALTER ROLE db_owner ADD MEMBER [NT AUTHORITY\SYSTEM];"</pre>
+<p class="muted">Le compte Windows qui a installé SQL Server Express en est administrateur : c'est lui qui lance
+<code>manage.cmd</code> à la main dans les étapes suivantes. Pour un autre compte, refaire la seconde commande en remplaçant
+<code>NT AUTHORITY\SYSTEM</code> par son nom (<code>whoami</code> l'affiche).</p>
+<div class="box">
+  <h3>Variante : la base est sur un serveur SQL Server de l'entreprise</h3>
+  <p>Créer une base <code>canteen</code> et un login SQL qui n'a des droits que sur elle (jamais sur l'ERP) :</p>
+<pre>CREATE DATABASE canteen;
+CREATE LOGIN canteen_app WITH PASSWORD = '&lt;mot de passe long&gt;', CHECK_POLICY = ON;
+USE canteen;
+CREATE USER canteen_app FOR LOGIN canteen_app;
+ALTER ROLE db_owner ADD MEMBER canteen_app;</pre>
+  <p>Puis, au §7, remplir <code>DB_HOST</code>, <code>DB_PORT=1433</code>, <code>DB_USER=canteen_app</code> et <code>DB_PASSWORD</code>.
+  Les sauvegardes (§11) sont alors faites par l'équipe SQL Server avec ses outils habituels.</p>
+</div>
+
+<h1>7. Écrire le fichier <code>.env</code></h1>
+<p>Le fichier <code>C:\cantine\.env</code> contient tous les réglages et secrets du serveur. Il n'est <b>jamais</b> envoyé sur
+GitHub ni copié depuis un autre PC. Générer d'abord les secrets :</p>
+<pre>cd C:\cantine\backend
+<span class="c"># à lancer deux fois : une valeur pour DJANGO_SECRET_KEY, une autre pour CANTEEN_SIGNING_KEY</span>
+.venv\Scripts\python.exe -c "import secrets; print(secrets.token_urlsafe(64))"
+<span class="c"># clés des notifications push</span>
+.venv\Scripts\python.exe manage.py generate_vapid_keys</pre>
+<p>Créer <code>C:\cantine\.env</code> avec le Bloc-notes (encodage UTF-8) et ce contenu, en remplaçant les valeurs entre <code>&lt; &gt;</code>.
+Le nom est déjà le nom <b>définitif</b> (règle 4), même si la VM est encore sur le PC :</p>
+<pre><span class="c"># --- Production ---</span>
+DJANGO_DEBUG=false
+DJANGO_SECRET_KEY=&lt;première valeur générée&gt;
+CANTEEN_SIGNING_KEY=&lt;seconde valeur générée&gt;
+DJANGO_ALLOWED_HOSTS=cantine.ovagri.tn
+CSRF_TRUSTED_ORIGINS=https://cantine.ovagri.tn
+CORS_ALLOWED_ORIGINS=https://cantine.ovagri.tn
+FRONTEND_URL=https://cantine.ovagri.tn
+COMPANY_TIME_ZONE=Africa/Tunis
+<span class="c"># La VM sert aussi les pages du site ; un seul proxy devant elle</span>
+SERVE_FRONTEND=true
+NUM_PROXIES=1
+
+<span class="c"># --- Base de données (SQL Server Express dans la VM, authentification Windows) ---</span>
+DB_ENGINE=mssql
+DB_NAME=canteen
+DB_HOST=localhost\SQLEXPRESS
+DB_PORT=
+DB_USER=
+DB_PASSWORD=
+DB_ODBC_DRIVER=ODBC Driver 18 for SQL Server
+DB_EXTRA_PARAMS=TrustServerCertificate=yes
+
+<span class="c"># --- Emails ---</span>
+EMAIL_HOST=&lt;serveur SMTP&gt;
+EMAIL_PORT=587
+EMAIL_HOST_USER=&lt;identifiant SMTP&gt;
+EMAIL_HOST_PASSWORD=&lt;mot de passe SMTP&gt;
+EMAIL_USE_TLS=true
+DEFAULT_FROM_EMAIL=Cantine OVAGRI &lt;cantine@ovagri.tn&gt;
+
+<span class="c"># --- Notifications push (les 2 lignes affichées par generate_vapid_keys) ---</span>
+VAPID_PUBLIC_KEY=&lt;...&gt;
+VAPID_PRIVATE_KEY=&lt;...&gt;
+VAPID_SUBJECT=mailto:cantine@ovagri.tn</pre>
+<table>
+  <tr><th style="width:30%">Point d'attention</th><th>Pourquoi</th></tr>
+  <tr><td><code>DB_PORT</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code> vides</td><td>Vide = instance nommée <code>SQLEXPRESS</code> et connexion Windows (compte SYSTEM). Avec un login SQL, les remplir (§6, variante).</td></tr>
+  <tr><td>Pas de <code>DEV_SEED_PASSWORD</code>, pas de <code>THROTTLE_LOGIN</code></td><td>Réservés au PC de développement et au test de charge. En production, la connexion est limitée à 10 essais par minute et par personne.</td></tr>
+  <tr><td><code>CANTEEN_SIGNING_KEY</code></td><td>Signe les QR codes. La changer plus tard rend invalides les QR déjà affichés.</td></tr>
+  <tr><td>Clés VAPID</td><td>Les changer plus tard oblige chaque téléphone à réactiver les notifications.</td></tr>
+  <tr><td>Droits sur le fichier</td><td>Limiter <code>.env</code> aux administrateurs et à SYSTEM (clic droit → Propriétés → Sécurité). En garder une copie dans le coffre de mots de passe de l'IT.</td></tr>
+</table>
+
+<h1>8. Initialiser la base (vide) et créer l'administrateur</h1>
+<pre>cd C:\cantine\setup\windows
+.\manage.cmd migrate                    <span class="c"># crée les tables (vides)</span>
+.\manage.cmd createcachetable           <span class="c"># table des compteurs de connexion</span>
+.\manage.cmd collectstatic --noinput    <span class="c"># fichiers de la page /admin</span>
+.\manage.cmd check --deploy             <span class="c"># contrôle de sécurité (voir ci-dessous)</span>
+.\manage.cmd createsuperuser            <span class="c"># le compte administrateur</span></pre>
+<p><code>createsuperuser</code> demande l'<b>email professionnel</b>, le <b>prénom</b>, le <b>nom</b> et le mot de passe (deux fois).
+Ce compte a le rôle <b>Admin</b> dans l'application. Choisir une vraie adresse de l'entreprise et un mot de passe long, gardé dans le coffre de l'IT.</p>
+<p><code>check --deploy</code> ne doit afficher que des remarques sur <code>SECURE_HSTS_INCLUDE_SUBDOMAINS</code> /
+<code>SECURE_HSTS_PRELOAD</code> (choix volontaire). Toute autre alerte : revoir le fichier <code>.env</code>.</p>
+<div class="box">
+  <h3>La production démarre vide — et c'est voulu</h3>
+  <ul>
+    <li>Après ces commandes, la base ne contient <b>aucun</b> employé, plat, menu, réservation, solde ni historique. Le seul compte est l'administrateur.</li>
+    <li>Les employés créent eux-mêmes leur compte depuis l'écran « Créer un compte », puis les RH les valident (le matricule est saisi par les RH).</li>
+    <li>Les comptes de test du PC de développement (<code>…@ovagri.test</code>) n'existent pas ici et ne doivent pas être recréés.</li>
+    <li><code>demo_week</code> refuse de fonctionner en production ; <code>loadtest_accounts</code> refuse toute base dont le nom ne contient pas « loadtest ». Ne pas essayer de les contourner.</li>
+  </ul>
+</div>
+
+<h1>9. Premier démarrage à la main</h1>
+<p><code>C:\cantine\setup\windows\run-site.cmd</code> contient deux lignes à adapter :</p>
+<pre>set PORT=8080
+set PROXY_IP=192.168.1.10      <span class="c"># adresse du proxy HTTPS de l'entreprise</span></pre>
+<p>Tant que la VM est sur le PC, <b>ne rien changer</b> : il n'y a pas encore de proxy, et la vraie adresse se met sur le serveur (§14).
+Lancer <code>run-site.cmd</code> (double-clic), puis dans PowerShell :</p>
+<pre>Invoke-RestMethod http://localhost:8080/api/v1/health/
+<span class="c"># attendu : status = ok, database = ok, server_time = l'heure de Tunis</span>
+Get-Content C:\cantine\logs\site.log -Tail 20</pre>
+<p class="muted">En HTTP direct, toutes les autres adresses répondent par une redirection vers https : c'est normal, le site
+complet ne s'ouvre qu'à travers le proxy (phase B). Fermer ensuite la fenêtre de <code>run-site.cmd</code>.</p>
+<p>Faire de même avec <code>run-tasks.cmd</code> : sa fenêtre reste ouverte sans message, et
+<code>C:\cantine\logs\tasks.log</code> ne doit pas contenir d'erreur. Le fermer aussi.</p>
+
+<h1>10. Démarrage automatique au boot</h1>
+<p>Trois tâches du Planificateur de tâches, sous le compte SYSTEM, qui tournent même sans session ouverte. Dans PowerShell administrateur :</p>
+<pre>$dir  = "C:\cantine\setup\windows"
+$sys  = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+$keep = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) -AllowStartIfOnBatteries `
+          -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+
+Register-ScheduledTask -TaskName "Cantine - Site" -Principal $sys -Settings $keep `
+  -Trigger (New-ScheduledTaskTrigger -AtStartup) `
+  -Action (New-ScheduledTaskAction -Execute "$dir\run-site.cmd" -WorkingDirectory $dir)
+
+Register-ScheduledTask -TaskName "Cantine - Taches" -Principal $sys -Settings $keep `
+  -Trigger (New-ScheduledTaskTrigger -AtStartup) `
+  -Action (New-ScheduledTaskAction -Execute "$dir\run-tasks.cmd" -WorkingDirectory $dir)
+
+Register-ScheduledTask -TaskName "Cantine - Sauvegarde" -Principal $sys `
+  -Trigger (New-ScheduledTaskTrigger -Daily -At 02:00) `
+  -Action (New-ScheduledTaskAction -Execute "$dir\backup.cmd" -WorkingDirectory $dir)
+
+Start-ScheduledTask "Cantine - Site"; Start-ScheduledTask "Cantine - Taches"
+Get-ScheduledTask "Cantine*" | Select-Object TaskName, State     <span class="c"># Site et Taches : Running</span></pre>
+<ul>
+  <li><code>run-site.cmd</code> et <code>run-tasks.cmd</code> relancent eux-mêmes le programme 10 secondes après un arrêt.</li>
+  <li><b>« Cantine - Taches » ne doit tourner qu'en un seul exemplaire</b> : ne jamais lancer en plus <code>run-tasks.cmd</code> à la main.</li>
+  <li>Redémarrer la VM une fois et vérifier que les deux tâches repassent à <i>Running</i> et que le contrôle de santé répond.</li>
+</ul>
+
+<h1>11. Sauvegardes</h1>
+<p><code>backup.cmd</code> fait chaque nuit une sauvegarde <b>vérifiée</b> de la base (<code>canteen_AAAAMMJJ_HHMM.bak</code>) et une
+copie des photos des plats (<code>media_AAAAMMJJ_HHMM</code>). Il ne supprime jamais rien.</p>
+<pre><span class="c"># 1. Créer le dossier et autoriser le service SQL Server à y écrire</span>
+New-Item -ItemType Directory -Force D:\CantineBackups
+icacls D:\CantineBackups /grant "NT SERVICE\MSSQL`$SQLEXPRESS:(OI)(CI)M"
+<span class="c"># 2. Si le dossier n'est pas D:\CantineBackups : adapter la ligne BACKUP_DIR dans backup.cmd</span>
+<span class="c"># 3. Essai immédiat</span>
+Start-ScheduledTask "Cantine - Sauvegarde"
+Get-Content C:\cantine\logs\backup.log -Tail 5      <span class="c"># « verified » + nombre de photos</span></pre>
+<div class="box orange">
+  <h3>À organiser par l'IT (une fois sur le serveur)</h3>
+  <ul>
+    <li><b>Copier chaque jour</b> <code>D:\CantineBackups</code> hors de la VM (partage réseau, autre serveur) — une sauvegarde qui reste dans la VM ne protège pas contre la perte de la VM.</li>
+    <li>Décider combien de temps garder les fichiers et supprimer les plus anciens <b>sur la copie</b> (environ 1 à 5 Mo par jour au départ).</li>
+    <li>Garder aussi le fichier <code>C:\cantine\.env</code> dans le coffre de l'IT : sans lui, on ne relit pas les QR codes et les notifications s'arrêtent.</li>
+  </ul>
+</div>
+
+<h1>12. Figer la VM propre et l'exporter</h1>
+<h2>12.1 Point de contrôle « Prête — base vide »</h2>
+<p>Quand les §2 à §11 sont faits, prendre un point de contrôle depuis le <b>PC</b> (PowerShell administrateur) :</p>
+<pre>Checkpoint-VM -Name CANTINE-APP -SnapshotName "Prête - base vide"</pre>
+<p>Si des essais sont faits ensuite dans la VM, on revient à cet état avant d'exporter :</p>
+<pre>Restore-VMSnapshot -VMName CANTINE-APP -Name "Prête - base vide" -Confirm:$false</pre>
+<h2>12.2 Vérifier que la base est vide</h2>
+<p>Dans la VM :</p>
+<pre>sqlcmd -S localhost\SQLEXPRESS -E -d canteen -Q "SELECT COUNT(*) AS comptes FROM accounts_user; SELECT COUNT(*) AS reservations FROM reservations_reservation"
+<span class="c"># attendu : comptes = 1 (l'administrateur), reservations = 0</span></pre>
+<h2>12.3 Exporter</h2>
+<p>Arrêter Windows dans la VM (<code>Stop-Computer</code>), puis sur le PC :</p>
+<pre><span class="c"># Fusionner les points de contrôle dans la VM (l'export ne contient alors qu'un état, le bon)</span>
+Get-VMSnapshot -VMName CANTINE-APP | Remove-VMSnapshot
+<span class="c"># Attendre la fin de la fusion (colonne Status vide), puis exporter</span>
+Get-VM CANTINE-APP | Select-Object Name, State, Status
+Export-VM -Name CANTINE-APP -Path "E:\ExportCantine"</pre>
+<div class="box red">
+  <h3>L'export contient les secrets</h3>
+  <p>Le dossier exporté contient le fichier <code>.env</code> (clés, mot de passe SMTP) et le compte administrateur. Le transporter sur
+  un disque ou un partage de l'entreprise, jamais sur un cloud personnel ; le supprimer de ce support une fois l'import fait.</p>
+</div>
+
+<!-- ============================== PHASE B ============================== -->
+<h1 class="chapter">13. Importer la VM sur le serveur</h1>
+<span class="phase">PHASE B — SUR LE SERVEUR DE L'ENTREPRISE</span>
+<p>Sur le serveur Hyper-V (IT), PowerShell administrateur — ou le Gestionnaire Hyper-V → <i>Importer un ordinateur virtuel</i> →
+<i>Copier l'ordinateur virtuel (créer un nouvel ID unique)</i> :</p>
+<pre>Import-VM -Path "E:\ExportCantine\CANTINE-APP\Virtual Machines\&lt;ID&gt;.vmcx" -Copy -GenerateNewId `
+  -VirtualMachinePath "D:\Hyper-V\CANTINE-APP" -VhdDestinationPath "D:\Hyper-V\CANTINE-APP\Disques"
+<span class="c"># Brancher la VM sur le réseau du serveur (le "Default Switch" du PC n'existe pas ici)</span>
+Get-VMSwitch
+Connect-VMNetworkAdapter -VMName CANTINE-APP -SwitchName "&lt;commutateur du serveur&gt;"
+<span class="c"># Taille définitive (VM arrêtée), démarrage automatique avec le serveur</span>
+Set-VMProcessor CANTINE-APP -Count 4; Set-VMMemory CANTINE-APP -StartupBytes 4GB
+Set-VM CANTINE-APP -AutomaticStartAction Start -AutomaticStopAction ShutDown
+Start-VM CANTINE-APP</pre>
+<ul>
+  <li>Si l'import refuse la VM à cause de sa <b>version</b> : le serveur est plus ancien que le PC. Recréer la VM sur le PC avec
+  <code>-Version</code> (§2.3) — ou, plus simple, installer directement sur le serveur en suivant les §2.4 à §11.</li>
+  <li>Si le serveur n'est <b>pas Hyper-V</b> (VMware…) : convertir le disque <code>.vhdx</code> avec l'outil de l'éditeur, ou installer
+  directement sur le serveur en suivant ce guide (environ 3 heures).</li>
+  <li>Dans la VM, vérifier l'activation de Windows (<code>slmgr /xpr</code>) : un changement de machine peut demander de réactiver la licence.</li>
+  <li>Vérifier l'heure : <code>Get-Date</code> doit afficher l'heure de Tunis.</li>
+</ul>
+
+<h1>14. Les adresses : IP de la VM, IP du proxy, pare-feu</h1>
+<p>Sur le serveur, deux adresses changent. Elles viennent toutes les deux de l'IT (§1) :</p>
+<table>
+  <tr><th style="width:20%"></th><th style="width:40%">Adresse IP de la VM</th><th>Adresse du proxy (<code>PROXY_IP</code>)</th></tr>
+  <tr><td>De qui ?</td><td><b>La VM elle-même</b></td><td><b>Une autre machine</b> : le proxy HTTPS placé devant la VM</td></tr>
+  <tr><td>Ce qu'elle dit</td><td>« J'habite ici »</td><td>« Je n'accepte les demandes que de cette machine »</td></tr>
+  <tr><td>Qui s'en sert</td><td>Le proxy, pour savoir où envoyer les employés</td><td>L'application, pour savoir à qui faire confiance</td></tr>
+  <tr><td>Où la mettre</td><td>Réglages réseau de Windows, dans la VM (§14.1)</td><td><code>run-site.cmd</code> (§14.2) et la règle du pare-feu (§14.3)</td></tr>
+</table>
+<h2>14.1 Donner son adresse fixe à la VM</h2>
+<ol>
+  <li>Dans la VM : <code>Windows + R</code> → taper <code>ncpa.cpl</code> → Entrée.</li>
+  <li>Clic droit sur <b>Ethernet</b> → <b>Propriétés</b> → <b>Protocole Internet version 4 (TCP/IPv4)</b> → <b>Propriétés</b>.</li>
+  <li>Choisir <b>« Utiliser l'adresse IP suivante »</b> et saisir ce que donne l'IT : adresse (ex. <code>192.168.1.50</code>), masque
+  (souvent <code>255.255.255.0</code>), passerelle, serveurs DNS. Valider.</li>
+  <li>Vérifier dans PowerShell : <code>ipconfig</code> affiche la nouvelle adresse ; <code>Test-NetConnection github.com -Port 443</code> répond <i>True</i>.</li>
+</ol>
+<h2>14.2 Mettre l'adresse du proxy dans <code>run-site.cmd</code></h2>
+<p>Ouvrir <code>C:\cantine\setup\windows\run-site.cmd</code> avec le Bloc-notes, changer la ligne et enregistrer :</p>
+<pre>set PROXY_IP=&lt;adresse du proxy donnée par l'IT&gt;</pre>
+<p>Pourquoi : la VM ne voit jamais le téléphone, seulement le proxy, qui ajoute à chaque demande une note « vient du téléphone X,
+en HTTPS ». L'application ne croit cette note que si elle vient de <code>PROXY_IP</code> — sinon n'importe qui pourrait la falsifier.
+Avec une mauvaise adresse : le navigateur affiche « trop de redirections », et après 10 essais de connexion dans toute
+l'entreprise, <b>tout le monde</b> est bloqué une minute.</p>
+<h2>14.3 Pare-feu : le port 8080 pour le proxy seulement</h2>
+<p>Dans la VM, PowerShell administrateur, avec la même adresse :</p>
+<pre>New-NetFirewallRule -DisplayName "Cantine 8080 (proxy seulement)" -Direction Inbound -Protocol TCP `
+  -LocalPort 8080 -RemoteAddress &lt;adresse du proxy&gt; -Action Allow
+<span class="c"># plus tard, si le proxy change d'adresse :</span>
+Set-NetFirewallRule -DisplayName "Cantine 8080 (proxy seulement)" -RemoteAddress &lt;nouvelle adresse&gt;</pre>
+<p>Aucun autre port n'est à ouvrir pour l'application (SQL Server reste dans la VM). Puis redémarrer la VM (<code>Restart-Computer</code>)
+pour que le site reparte avec la nouvelle adresse du proxy.</p>
+<div class="box">
+  <h3>Si l'IT ne connaît pas l'adresse exacte du proxy</h3>
+  <ol>
+    <li>Ouvrir le port 8080 quelques minutes, à tout le réseau interne :
+    <code>Set-NetFirewallRule -DisplayName "Cantine 8080 (proxy seulement)" -RemoteAddress Any</code></li>
+    <li>Ouvrir <code>https://cantine.ovagri.tn</code> depuis un PC, puis dans la VM :
+    <code>Get-NetTCPConnection -LocalPort 8080 | Select-Object -Unique RemoteAddress</code> — l'adresse affichée est celle du proxy.</li>
+    <li>La mettre dans <code>run-site.cmd</code> (§14.2) et refermer le pare-feu sur elle (<code>Set-NetFirewallRule … -RemoteAddress &lt;adresse&gt;</code>), puis redémarrer la VM.</li>
+  </ol>
+</div>
+
+<h1>15. Nom de domaine, certificat et proxy HTTPS</h1>
+<ul>
+  <li><b>Le nom</b> : <code>cantine.ovagri.tn</code> pointe, dans le DNS <b>interne</b> de l'entreprise, vers le proxy. Plus tard, le DNS
+  <b>public</b> pointera vers l'adresse publique (§19) — même nom, rien ne change pour les employés.</li>
+  <li><b>Le certificat</b> : un certificat <b>public</b> (Let's Encrypt avec validation DNS, ou acheté), même pendant le pilote interne.
+  Un certificat de l'autorité interne de l'entreprise ne suffit pas : les téléphones personnels des employés ne lui font pas confiance.</li>
+</ul>
+<h2>Réglages du proxy (pour l'équipe réseau)</h2>
+<table>
+  <tr><th style="width:36%">Réglage</th><th>Valeur</th></tr>
+  <tr><td>Nom public</td><td><code>https://cantine.ovagri.tn</code> → <code>http://&lt;IP de la VM&gt;:8080</code> (tout le site, aucune réécriture de chemin)</td></tr>
+  <tr><td>En-têtes à transmettre</td><td><code>Host</code> d'origine, <code>X-Forwarded-For</code> (adresse de l'utilisateur), <code>X-Forwarded-Proto: https</code></td></tr>
+  <tr><td>Taille maximale d'un envoi</td><td>au moins <b>6 Mo</b> (photos des plats)</td></tr>
+  <tr><td>Délai de réponse</td><td>60 secondes au moins</td></tr>
+  <tr><td>HTTP → HTTPS</td><td>redirection 301 sur le proxy</td></tr>
+  <tr><td>Mise en cache par le proxy</td><td>aucune (l'application envoie elle-même les bons en-têtes de cache)</td></tr>
+</table>
+<p>Test depuis un PC du réseau : <code>https://cantine.ovagri.tn/api/v1/health/</code> doit afficher <code>"database": "ok"</code>,
+puis <code>https://cantine.ovagri.tn</code> l'écran de connexion de la Cantine.</p>
+
+<h1>16. Test de restauration et vérifications</h1>
+<h2>16.1 Test de restauration (obligatoire avant d'ouvrir aux employés)</h2>
+<p>Restaurer la dernière sauvegarde sous un <b>autre nom</b>, pour ne pas toucher la vraie base :</p>
+<pre>sqlcmd -S localhost\SQLEXPRESS -E -Q "RESTORE FILELISTONLY FROM DISK='D:\CantineBackups\canteen_20261109_0200.bak'"
+<span class="c"># noter les deux noms logiques (colonne LogicalName), puis :</span>
+sqlcmd -S localhost\SQLEXPRESS -E -Q "RESTORE DATABASE canteen_restore_test FROM DISK='D:\CantineBackups\canteen_20261109_0200.bak' WITH MOVE 'canteen' TO 'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\canteen_restore_test.mdf', MOVE 'canteen_log' TO 'C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\canteen_restore_test_log.ldf'"
+sqlcmd -S localhost\SQLEXPRESS -E -d canteen_restore_test -Q "SELECT COUNT(*) FROM accounts_user"</pre>
+<p>Le nombre de comptes doit être le même que dans la vraie base. En cas de sinistre réel : arrêter les deux tâches,
+restaurer la sauvegarde sous le nom <code>canteen</code> (<code>WITH REPLACE</code>), recopier le dossier <code>media_…</code> dans
+<code>C:\cantine\backend\media</code>, remettre le même <code>.env</code>, relancer les tâches.</p>
+<h2>16.2 Vérifications</h2>
+<ul class="check">
+  <li><code>https://cantine.ovagri.tn/api/v1/health/</code> → <code>"status": "ok"</code>, <code>"database": "ok"</code>, heure de Tunis.</li>
+  <li>Connexion avec le compte administrateur sur <code>https://cantine.ovagri.tn</code> ; le menu affiche « Paramètres ».</li>
+  <li>Création d'un compte depuis un téléphone : l'<b>email de code</b> arrive (sinon : réglages SMTP, §21).</li>
+  <li>Sur le téléphone : installer l'application (menu du navigateur → « Installer » ou « Ajouter à l'écran d'accueil »), puis activer les notifications ; une notification arrive (ex. validation du compte).</li>
+  <li>Le téléphone de la cantine ouvre « Scanner » et la caméra démarre (HTTPS indispensable).</li>
+  <li>Après une nuit : <code>logs\backup.log</code> indique une sauvegarde vérifiée, copiée hors de la VM ; <code>logs\tasks.log</code> sans erreur.</li>
+  <li>Redémarrage de la VM, puis du serveur : le site revient tout seul en moins de 2 minutes.</li>
+</ul>
+
+<h1>17. Premier paramétrage dans l'application</h1>
+<p>Avec le compte administrateur, avant d'ouvrir l'application aux employés :</p>
+<ol>
+  <li><b>Paramètres</b> : vérifier chaque valeur — clôture des réservations (jours + heure), délai de publication du chef,
+  heure de finalisation, horaires du service, marge de plats (10 %), rappels, prix du repas, <b>recharge minimum</b> (20 TND),
+  jours ouverts.</li>
+  <li><b>Comptes du personnel</b> : chaque personne (RH, chef, scanner, caissier, Direction) crée son compte depuis
+  « Créer un compte » avec son email professionnel ; l'administrateur (ou les RH une fois validés) le valide dans
+  <b>Comptes</b>, saisit le matricule et choisit le <b>rôle</b>. Un rôle par compte.</li>
+  <li>Le <b>chef</b> remplit la bibliothèque de plats (avec photos) puis planifie les menus de la première semaine.</li>
+  <li>Le <b>téléphone de la cantine</b> : se connecter avec le compte <i>scanner</i>, installer l'application, autoriser la caméra.</li>
+  <li>Le <b>caissier</b> enregistre les premières recharges : le solde prépayé est le seul moyen de payer un repas.</li>
+  <li>Ensuite seulement, annoncer l'adresse aux employés (email, affiche avec un QR code vers <code>https://cantine.ovagri.tn</code>).</li>
+</ol>
+<div class="box orange">
+  <h3>Comptes à ne pas créer</h3>
+  <p>Pas de comptes « de test », partagés ou génériques : chaque compte est nominatif, validé par les RH.
+  Pour essayer l'application, utiliser le PC de développement, jamais la production.</p>
+</div>
+
+<h1>18. Pilote sur le réseau de l'entreprise</h1>
+<ul>
+  <li><b>Les données du pilote sont réelles</b> : comptes, soldes payés, réservations. On les <b>garde</b> pour la suite — on ne
+  « repart pas de zéro » avant Internet, et on ne revient jamais au point de contrôle du §12.</li>
+  <li><b>Pilote</b> : une à deux semaines avec un service ou un étage, en gardant l'ancienne organisation en secours ; noter les
+  remarques, puis ouvrir à tous les employés.</li>
+  <li><b>Test de charge</b> (200 utilisateurs simultanés, kit <code>loadtest/</code> du dépôt) : sur une base <b>séparée</b> nommée
+  <code>canteen_loadtest</code> et un <code>.env</code> distinct — <b>jamais</b> sur la base <code>canteen</code>. Le plus simple : avant
+  l'ouverture aux employés, sur une <b>copie</b> de la VM importée à côté, puis supprimer cette copie.</li>
+</ul>
+
+<!-- ============================== PHASE C ============================== -->
+<h1 class="chapter">19. Ouvrir l'application sur Internet</h1>
+<span class="phase">PHASE C — SUR INTERNET</span>
+<p>Pour que les employés réservent depuis chez eux (4G, Wi-Fi personnel). Deux façons de faire avec l'hébergeur / le fournisseur :</p>
+<table>
+  <tr><th style="width:30%">Cas</th><th>Ce qu'il faut faire</th></tr>
+  <tr><td><b>1. La VM reste sur le serveur de l'entreprise</b>, le fournisseur donne un accès public</td>
+    <td>Une adresse publique arrive sur le proxy HTTPS (port 443 seulement) ; le DNS public de <code>cantine.ovagri.tn</code> pointe dessus.
+    <b>Rien ne change dans la VM</b> si c'est le même proxy. Si c'est un nouveau proxy : mettre sa nouvelle adresse (§14.2 et §14.3), puis redémarrer la VM.</td></tr>
+  <tr><td><b>2. La VM part chez l'hébergeur</b></td>
+    <td>Prévoir une coupure <b>un jour où la cantine est fermée</b> : annoncer la coupure, lancer une sauvegarde
+    (<code>Start-ScheduledTask "Cantine - Sauvegarde"</code>), arrêter la VM, l'exporter (§12.3 <b>sans</b> revenir au point de contrôle),
+    l'importer chez l'hébergeur (§13), refaire les adresses (§14), faire pointer le DNS vers l'hébergeur, vérifier (§16.2).
+    Même <code>.env</code> : les QR codes, les connexions et les notifications continuent de marcher.</td></tr>
+</table>
+<div class="box red">
+  <h3>Sécurité : ce qui doit être vrai avant d'ouvrir sur Internet</h3>
+  <ul>
+    <li>Seul le port <b>443</b> du proxy est ouvert sur Internet. Le port 8080 de la VM, le bureau à distance (RDP, 3389) et SQL
+    Server (1433) ne le sont <b>jamais</b> — l'administration de la VM passe par le VPN de l'entreprise ou de l'hébergeur.</li>
+    <li>La page technique <code>/admin/</code> (Django) est limitée sur le proxy aux adresses de l'entreprise ; l'application elle-même (y compris l'écran « Paramètres ») reste accessible.</li>
+    <li>Windows Update chaque mois, en dehors du service et du rush du soir ; mot de passe fort pour le compte administrateur de l'application et de Windows.</li>
+    <li>Sauvegardes copiées <b>hors de chez l'hébergeur</b> (ou hors du serveur), restauration testée (§16.1).</li>
+    <li>Surveillance : l'IT ou l'hébergeur vérifie <code>https://cantine.ovagri.tn/api/v1/health/</code> chaque minute et reçoit une alerte s'il ne répond plus <code>ok</code>.</li>
+    <li>Données personnelles des employés (noms, emails, matricules, soldes) : le contrat avec l'hébergeur doit dire où elles sont stockées
+    et qui y a accès ; vérifier avec la Direction les obligations de déclaration (INPDP).</li>
+  </ul>
+</div>
+<p class="muted">Si l'hébergeur propose un serveur <b>Linux</b>, la version Docker décrite dans le dossier technique est aussi possible : on y
+reprend la sauvegarde de la base (SQL Server sous Linux restaure le même fichier <code>.bak</code>), le dossier des photos et le même <code>.env</code>.</p>
+
+<!-- ============================== POUR LA SUITE ============================== -->
+<h1>20. Mises à jour</h1>
+<p>Quand une nouvelle version est publiée sur GitHub, à faire <b>en dehors</b> des heures de service et du rush du soir :</p>
+<pre>cd C:\cantine
+Start-ScheduledTask "Cantine - Sauvegarde"; Start-Sleep 30     <span class="c"># sauvegarde avant mise à jour</span>
+Stop-ScheduledTask "Cantine - Site"; Stop-ScheduledTask "Cantine - Taches"
+git pull
+backend\.venv\Scripts\python.exe -m pip install -r backend\requirements\windows.txt
+cd frontend; npm.cmd ci; npm.cmd run build; cd ..
+setup\windows\manage.cmd migrate
+setup\windows\manage.cmd collectstatic --noinput
+Start-ScheduledTask "Cantine - Site"; Start-ScheduledTask "Cantine - Taches"
+Invoke-RestMethod http://localhost:8080/api/v1/health/</pre>
+<ul>
+  <li><b>Toujours</b> lancer <code>migrate</code> après <code>git pull</code> : une colonne manquante provoque des erreurs 500.</li>
+  <li><b>Toujours</b> redémarrer le site après <code>npm run build</code> : il ne voit les nouveaux fichiers qu'au démarrage.</li>
+  <li><code>Stop-ScheduledTask</code> arrête aussi Waitress et les tâches ; vérifier dans le Gestionnaire des tâches qu'il ne reste
+  aucun <code>python.exe</code> / <code>waitress-serve.exe</code> avant de relancer (sinon redémarrer la VM).</li>
+  <li>Avant une grosse mise à jour, un point de contrôle Hyper-V de la VM permet de revenir en arrière en quelques minutes
+  — à supprimer une fois la mise à jour validée (il ne remplace pas les sauvegardes).</li>
+  <li>Les téléphones prennent la nouvelle version à la prochaine ouverture de l'application.</li>
+</ul>
+
+<h1>21. Dépannage</h1>
+<table>
+  <tr><th style="width:32%">Symptôme</th><th>Cause probable → solution</th></tr>
+  <tr><td>Le navigateur dit « trop de redirections »</td><td><code>PROXY_IP</code> dans <code>run-site.cmd</code> n'est pas l'adresse réelle du proxy, ou le proxy n'envoie pas <code>X-Forwarded-Proto: https</code>. Trouver l'adresse (encadré du §14), corriger, redémarrer la VM.</td></tr>
+  <tr><td>« Trop de tentatives » à la connexion pour tout le monde</td><td>Même cause : <code>PROXY_IP</code> faux, ou le proxy n'envoie pas <code>X-Forwarded-For</code> — tout le monde semble venir de la même adresse.</td></tr>
+  <tr><td>Le site ne répond pas du tout à travers le proxy</td><td>Adresse de la VM (§14.1) différente de celle configurée sur le proxy, ou règle du pare-feu (§14.3) sur une mauvaise adresse.</td></tr>
+  <tr><td>La VM n'a pas de réseau après l'import</td><td>Carte réseau non branchée sur un commutateur du serveur : <code>Connect-VMNetworkAdapter</code> (§13).</td></tr>
+  <tr><td>L'import refuse la VM (version)</td><td>Serveur plus ancien que le PC : voir §13.</td></tr>
+  <tr><td>Windows demande d'être activé</td><td>Saisir la clé de licence de l'entreprise (Paramètres → Activation).</td></tr>
+  <tr><td>Erreur 400 « Bad Request »</td><td>Le nom utilisé n'est pas dans <code>DJANGO_ALLOWED_HOSTS</code> du <code>.env</code>.</td></tr>
+  <tr><td>Erreur 403 « CSRF » sur la page /admin</td><td><code>CSRF_TRUSTED_ORIGINS</code> doit être exactement <code>https://cantine.ovagri.tn</code>.</td></tr>
+  <tr><td>Erreurs 500 après une mise à jour</td><td><code>manage.cmd migrate</code> oublié ; ou table du cache absente → <code>manage.cmd createcachetable</code>. Détails dans <code>logs\site.log</code>.</td></tr>
+  <tr><td>« Health » répond <code>database: unavailable</code></td><td>Service « SQL Server (SQLEXPRESS) » arrêté, ou droits du compte SYSTEM sur la base (§6), ou ODBC Driver 18 absent.</td></tr>
+  <tr><td>Page blanche / « The site is not built »</td><td><code>npm.cmd run build</code> non fait dans <code>frontend</code>, puis redémarrer le site.</td></tr>
+  <tr><td>Les emails n'arrivent pas</td><td>Réglages <code>EMAIL_*</code> du <code>.env</code>, port 587 ouvert vers le serveur mail ; regarder <code>logs\site.log</code>. Vérifier les courriers indésirables.</td></tr>
+  <tr><td>Pas de notifications sur les téléphones</td><td>Clés VAPID vides ou changées ; Internet sortant 443 bloqué ; sur iPhone, l'application doit être installée sur l'écran d'accueil.</td></tr>
+  <tr><td>Les réservations ne se ferment pas, pas de rappels, pas de finalisation</td><td>« Cantine - Taches » arrêtée : voir <code>Get-ScheduledTask "Cantine*"</code> et <code>logs\tasks.log</code>.</td></tr>
+  <tr><td>Les délais tombent à la mauvaise heure</td><td>Fuseau horaire ou heure de la VM (§2.5) ; <code>COMPANY_TIME_ZONE=Africa/Tunis</code>.</td></tr>
+  <tr><td>La caméra du scanner ne démarre pas</td><td>Le site n'est pas ouvert en <code>https://</code>, ou l'autorisation caméra a été refusée dans le navigateur du téléphone.</td></tr>
+  <tr><td>La sauvegarde échoue (« Access is denied »)</td><td>Droit d'écriture du service SQL Server sur le dossier (commande <code>icacls</code> du §11).</td></tr>
+</table>
+<p>Les journaux <code>C:\cantine\logs\*.log</code> grandissent sans limite : les archiver une fois par mois (arrêter la tâche concernée, renommer le fichier, relancer).</p>
+
+<h1 class="chapter">Récapitulatif</h1>
+<table>
+  <tr><th style="width:12%">Étapes</th><th>Fait quand…</th></tr>
+  <tr><td>A · 2–5</td><td>VM créée à la bonne version, Windows activé à l'heure de Tunis, logiciels installés, site construit</td></tr>
+  <tr><td>A · 6–11</td><td>Base <code>canteen</code> créée, <code>.env</code> neuf, un seul compte : l'administrateur ; tâches et sauvegarde qui marchent</td></tr>
+  <tr><td>A · 12</td><td>Point de contrôle, base vérifiée vide, VM exportée</td></tr>
+  <tr><td>B · 13–15</td><td>VM importée, adresse fixe, <code>PROXY_IP</code> et pare-feu réglés, site ouvert en <code>https://</code> à travers le proxy</td></tr>
+  <tr><td>B · 16–18</td><td>Restauration testée, cases cochées, paramètres et comptes du personnel prêts, pilote lancé</td></tr>
+  <tr><td>C · 19</td><td>Seul le 443 ouvert, <code>/admin/</code> limité, sauvegardes hors site, surveillance en place</td></tr>
+</table>
+
+</body>
+</html>

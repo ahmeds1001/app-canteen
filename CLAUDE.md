@@ -120,7 +120,7 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
    token_blacklist uses `config/token_blacklist_migrations` (check it on SimpleJWT upgrades).
 3. ~~Decisions~~ — answered 4 Nov 2026: employee who leaves → management pays the balance back in cash and
    corrects it to zero; cash collected by scanner + management only; no finalization backup → the admin's
-   **Settings screen** (FR-46, `/admin/settings`, `apps/core/services.update_settings`) sets every deadline as
+   **Settings screen** (FR-46, `/settings` — not under `/admin/`, which is Django's admin, `apps/core/services.update_settings`) sets every deadline as
    days + time, the buffer, reminders…; leftover plates still open. (Cash report: "Encaissements", FR-45.)
    5 Nov 2026: **Scanner and Cashier split (FR-47)** — role `cashier` ("Caissier") does top-ups + own cash;
    `scanner` scans + day list, no money (`IsCashierOrManagement`, `wallet.top_up` refuses other roles).
@@ -133,6 +133,9 @@ French spec as PDF: `docs/cahier-des-charges.pdf`; test guide: `docs/guide-test-
    fixed: WhiteNoise for /static/, `media` volume served by nginx, nginx keeps X-Forwarded-Proto, one-shot `migrate`
    service, backend healthcheck (/api/v1/health/ also checks the DB), 6 MB uploads, log rotation. Not yet run in
    Docker (no Docker on this PC): validate at the first install. Waiting for IT: server/OS, Docker, subdomain, SQL login, SMTP.
+   9 Nov 2026 plan (IT): **Windows VM, no Docker** (`setup/windows/`, guide `docs/installation-vm-windows.pdf`), built
+   under Hyper-V on the user's PC, exported to the company server, pilot on the company network, later hosted on the
+   internet by the provider. Production DB starts empty (admin only); never demo_week/loadtest data on it.
    Rush-proofing (5 Nov): server 4 vCPU / 4 GB (Linux); gunicorn gthread 4x2 (`backend/gunicorn.conf.py`), backend 2 CPU/2 GB;
    `NUM_PROXIES=2` so the login limit counts per user (the company proxy MUST send X-Forwarded-For); limit counters in
    a DB cache table (`createcachetable` in the migrate service); `CONN_MAX_AGE=60`; scheduler calls close_old_connections.

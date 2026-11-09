@@ -1,2 +1,5 @@
 * text=auto eol=lf
 *.png binary
+# Windows batch files must keep CRLF line endings (labels and goto break with LF).
+*.cmd text eol=crlf
+*.bat text eol=crlf

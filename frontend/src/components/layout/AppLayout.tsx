@@ -63,7 +63,7 @@ const NAV: Record<Role, { to: string; key: string }[]> = {
     { to: "/cash", key: "nav.cash" },
     { to: "/hr/accounts", key: "nav.accounts" },
     { to: "/management/reports", key: "nav.reports" },
-    { to: "/admin/settings", key: "nav.settings" },
+    { to: "/settings", key: "nav.settings" },
   ],
 };
 

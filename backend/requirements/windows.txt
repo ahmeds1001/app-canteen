@@ -1,0 +1,3 @@
+# Production on a Windows server without Docker (setup/windows/README.md): Waitress replaces gunicorn.
+-r base.txt
+waitress>=3.0,<4

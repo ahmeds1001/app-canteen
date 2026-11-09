@@ -1,6 +1,8 @@
 import logging
 
+from django.conf import settings
 from django.db import connection
+from django.http import FileResponse, Http404
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -56,3 +58,14 @@ class AdminSettingsView(APIView):
         data.is_valid(raise_exception=True)
         cfg = services.update_settings(by=request.user, changes=data.validated_data)
         return Response(AdminSettingsSerializer(cfg).data)
+
+
+def spa_index(request, *args, **kwargs):
+    """Windows server without nginx (SERVE_FRONTEND): every screen of the app (/reservations, /cashier…) is the
+    same page, frontend/dist/index.html; React then shows the right screen. Never cached, so updates show at once."""
+    index = settings.BASE_DIR.parent / "frontend" / "dist" / "index.html"
+    if not index.exists():
+        raise Http404("The site is not built: run `npm run build` in frontend/.")
+    response = FileResponse(index.open("rb"), content_type="text/html; charset=utf-8")
+    response["Cache-Control"] = "no-cache"
+    return response

@@ -99,7 +99,7 @@ export const router = createBrowserRouter([
         element: <Protected roles={["hr"]}><AttendancePage /></Protected>,
       },
       {
-        path: "admin/settings",
+        path: "settings", // not under /admin/: that address belongs to Django's technical admin site
         element: <Protected roles={["admin"]}><SettingsPage /></Protected>,
       },
     ],
