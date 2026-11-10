@@ -5,7 +5,7 @@
 <title>Installation sur une VM Windows — Application Cantine OVAGRI</title>
 <style>
   @page { size: A4; margin: 15mm 15mm 16mm 15mm;
-    @bottom-left { content: "Installation sur une VM Windows — Application Cantine OVAGRI · 9 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
+    @bottom-left { content: "Installation sur une VM Windows — Application Cantine OVAGRI · état au 10 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
     @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; } }
   @page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
   :root { --green: #0a6b28; --green-soft: #e8f3e3; --orange: #f89000; --orange-soft: #fff3e0; --red: #b42318; --red-soft: #fdecea;
@@ -52,6 +52,12 @@
   .toc { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; font-size: 9.3pt; }
   .toc div b { color: var(--green); }
   .toc ul { list-style: none; padding: 0; margin: 2px 0 8px; }
+  .st { display: inline-block; font-size: 7.8pt; font-weight: 700; padding: 1px 7px; border-radius: 9px; white-space: nowrap; }
+  .st.done { background: var(--green-soft); color: var(--green); }
+  .st.now { background: var(--orange); color: #fff; }
+  .st.wait { background: var(--orange-soft); color: #9a5800; }
+  .st.todo { background: #eef0ee; color: var(--muted); }
+  tr.current td { background: #fff3e0 !important; }
 </style>
 </head>
 <body>
@@ -67,7 +73,7 @@
   <p class="sub">Préparer la VM de l'application Cantine sous Hyper-V sur un PC, la déplacer sur le serveur de
   l'entreprise, puis l'ouvrir sur Internet — de A à Z</p>
   <div class="meta">
-    <b>Version du 9 novembre 2026</b> · code : <code>github.com/ahmeds1001/app-canteen</code> (branche <code>main</code>)<br>
+    <b>Version du 9 novembre 2026</b> · <b>état d'avancement au 10 novembre 2026</b> (page suivante) · code : <code>github.com/ahmeds1001/app-canteen</code> (branche <code>main</code>)<br>
     Public : la personne qui prépare la VM et l'équipe IT. Durée : environ <b>3 heures</b> sur le PC, <b>1 heure</b> sur le serveur,
     plus les délais de l'IT (nom de domaine, certificat, SMTP).<br>
     Documents liés : dossier technique (<code>docs/architecture-technique.pdf</code>), cahier des charges (<code>docs/cahier-des-charges.pdf</code>).
@@ -88,10 +94,91 @@
   </div>
 </section>
 
+<!-- ============================== ÉTAT D'AVANCEMENT ============================== -->
+<h1 class="chapter">État d'avancement — au 10 novembre 2026</h1>
+<div class="box orange">
+  <h3>Où en est-on ?</h3>
+  <p><b>Phase A presque terminée — étape actuelle : §12 (figer la VM et l'exporter).</b> La VM est installée, vérifiée et
+  revenue à son état propre (point de contrôle « Prête - base vide »). Avant l'export, on attend de l'IT
+  <b>le compte SMTP</b> et <b>le nom définitif du site</b>, puis on fait un test complet avec de vrais emails.</p>
+</div>
+<table>
+  <tr><th style="width:7%">§</th><th style="width:27%">Étape</th><th style="width:13%">État</th><th>Réalisé / remarques</th></tr>
+  <tr><td>1</td><td>Ce que l'IT doit fournir</td><td><span class="st wait">En attente IT</span></td>
+    <td>Reçu : VM Hyper-V, Windows Server 2019. <b>À recevoir :</b> compte SMTP (demande envoyée), nom définitif + certificat HTTPS,
+    adresses de la VM et du proxy sur le serveur, licence Windows (Windows non activé), emplacement des copies de sauvegarde.</td></tr>
+  <tr><td>2</td><td>Créer la VM et préparer Windows</td><td><span class="st done">Fait</span></td>
+    <td>Fuseau de Tunis, pas de veille, lecteur DVD retiré, disque D: « Sauvegardes » de 20 Go ajouté et formaté.</td></tr>
+  <tr><td>3</td><td>Installer les logiciels</td><td><span class="st done">Fait</span></td>
+    <td>Python 3.12.0, Node.js 22.23.4, Git 2.56, SQL Server 2022 Express (instance <code>SQLEXPRESS</code>), ODBC Driver 18, SSMS 20.2 —
+    installés hors ligne avec <code>setup\windows\install-prereqs.ps1</code> (fichiers téléchargés sur le PC).</td></tr>
+  <tr><td>4</td><td>Récupérer le code</td><td><span class="st done">Fait</span></td>
+    <td><code>C:\cantine</code>, version <code>5397aa6</code> (dépôt public : aucun jeton nécessaire).</td></tr>
+  <tr><td>5</td><td>Installer l'application et construire le site</td><td><span class="st done">Fait</span></td>
+    <td>Hors ligne : paquets Python préparés sur le PC (<code>pip install --no-index --find-links C:\Install\wheels</code>),
+    site construit sur le PC et copié dans <code>C:\cantine\frontend\dist</code>.</td></tr>
+  <tr><td>6</td><td>Créer la base de données</td><td><span class="st done">Fait</span></td>
+    <td>Base <code>canteen</code> ; le compte SYSTEM (<code>AUTORITE NT\Système</code> sur un Windows français) est <code>db_owner</code>.</td></tr>
+  <tr><td>7</td><td>Écrire le fichier <code>.env</code></td><td><span class="st wait">Provisoire</span></td>
+    <td>Secrets et clés push générés dans la VM. <b>Provisoire :</b> emails écrits dans <code>site.log</code> au lieu d'être envoyés
+    (en attente du SMTP) ; nom <code>cantine.ovagri.tn</code> à confirmer (le domaine de l'entreprise est <code>groupe-ovagri.com</code>).</td></tr>
+  <tr><td>8</td><td>Initialiser la base et créer l'administrateur</td><td><span class="st done">Fait</span></td>
+    <td>Tables créées, <code>check --deploy</code> propre (2 remarques HSTS attendues), compte administrateur créé.</td></tr>
+  <tr><td>9</td><td>Premier démarrage à la main</td><td><span class="st done">Fait</span></td>
+    <td>Contrôle de santé : <code>ok</code> / <code>ok</code>, heure de Tunis ; tâches planifiées sans erreur.</td></tr>
+  <tr><td>10</td><td>Démarrage automatique</td><td><span class="st done">Fait</span></td>
+    <td>« Cantine - Site » et « Cantine - Taches » repartent seuls après un redémarrage (testé). Après un démarrage, la base
+    répond au bout d'une à deux minutes : normal.</td></tr>
+  <tr><td>11</td><td>Sauvegardes</td><td><span class="st done">Fait</span></td>
+    <td>« Cantine - Sauvegarde » à 02:00 ; essai réussi (<code>canteen_20261110_1315.bak</code>, vérifiée). Copie hors du serveur : à organiser par l'IT (phase B).</td></tr>
+  <tr class="current"><td>12</td><td>Figer la VM et l'exporter</td><td><span class="st now">En cours</span></td>
+    <td>Base vérifiée vide (1 compte : l'administrateur, 0 réservation). Point de contrôle « Prête - base vide » pris
+    (points de contrôle activés pour les essais). <b>Reste :</b> SMTP + nom → nouveau point de contrôle → test complet → retour au point de
+    contrôle → suppression du point de contrôle et désactivation → export.</td></tr>
+  <tr><td>13 – 18</td><td>Phase B : serveur, adresses, proxy HTTPS, vérifications, paramétrage, pilote</td><td><span class="st todo">À faire</span></td>
+    <td>Après l'export.</td></tr>
+  <tr><td>19</td><td>Phase C : Internet</td><td><span class="st todo">À faire</span></td><td>Après le pilote.</td></tr>
+</table>
+
+<h2>Particularités de cette installation</h2>
+<table>
+  <tr><th style="width:30%">Élément</th><th>Valeur et conséquence</th></tr>
+  <tr><td>Nom de la VM dans Hyper-V</td><td><code>CANT SRV</code> (et non <code>CANTINE-APP</code>) : dans les commandes Hyper-V du guide, écrire <code>"CANT SRV"</code> entre guillemets.</td></tr>
+  <tr><td>Nom Windows de la VM</td><td><code>KITCHENAPP</code> (serveur SQL : <code>KITCHENAPP\SQLEXPRESS</code> = <code>localhost\SQLEXPRESS</code>).</td></tr>
+  <tr><td>Windows</td><td><b>Windows Server 2019</b> (le guide prévoit 2022) : tout fonctionne ; support Microsoft jusqu'en janvier 2029.
+    Windows en <b>français</b> : le compte SYSTEM s'appelle <code>AUTORITE NT\Système</code> (voir §6 ci-dessous).</td></tr>
+  <tr><td>SQL Server</td><td>2022 Express, paquet <b>français</b>, version de base (RTM) : installer la dernière mise à jour cumulative (CU) avant la production.
+    SSMS 20.2 en anglais ; connexion avec « Trust server certificate » coché.</td></tr>
+  <tr><td>Python</td><td>3.12.0 : fonctionne ; passer à 3.12.10 lors d'une prochaine mise à jour.</td></tr>
+  <tr><td>Mémoire de la VM sur le PC</td><td>2,7 Go : suffisant pour l'installation ; <b>4 Go fixes</b> et 4 vCPU à régler sur le serveur (§13).</td></tr>
+  <tr><td>Cartes réseau</td><td>Deux (Wi-Fi et câble du PC) : sur le serveur, n'en garder qu'une, celle du réseau du serveur (§13–14).</td></tr>
+  <tr><td>Points de contrôle</td><td>Désactivés par l'IT à la création ; activés (type Production) pour les essais.
+    Avant l'export : <code>Get-VMSnapshot -VMName "CANT SRV" | Remove-VMSnapshot</code> puis <code>Set-VM -Name "CANT SRV" -CheckpointType Disabled</code>.</td></tr>
+</table>
+<div class="box">
+  <h3>§6 sur un Windows français : la commande qui a fonctionné</h3>
+  <p>Le nom <code>NT AUTHORITY\SYSTEM</code> n'existe pas sur un Windows français. Cette commande trouve le compte par son identifiant
+  (le même dans toutes les langues) :</p>
+<pre>sqlcmd -S localhost\SQLEXPRESS -E -d canteen -Q "DECLARE @n sysname, @s nvarchar(400); SET @n = (SELECT name FROM sys.server_principals WHERE sid = 0x010100000000000512000000); IF @n IS NULL BEGIN RAISERROR('SYSTEM login missing', 16, 1); RETURN; END; PRINT 'Login: ' + @n; IF USER_ID(@n) IS NULL BEGIN SET @s = N'CREATE USER ' + QUOTENAME(@n) + N' FOR LOGIN ' + QUOTENAME(@n); EXEC(@s); END; SET @s = N'ALTER ROLE db_owner ADD MEMBER ' + QUOTENAME(@n); EXEC(@s);"</pre>
+</div>
+
+<h2>Prochaines étapes</h2>
+<ol>
+  <li><b>IT :</b> recevoir le compte SMTP (boîte <code>cantine@groupe-ovagri.com</code>, port 587 STARTTLS ou 465) et le nom définitif du site.</li>
+  <li><b>VM :</b> mettre le SMTP et le nom dans <code>C:\cantine\.env</code>, redémarrer « Cantine - Site », envoyer un email de test.</li>
+  <li><b>PC :</b> remplacer le point de contrôle « Prête - base vide » par ce nouvel état.</li>
+  <li><b>Test complet</b> dans la VM (Chrome, <code>http://localhost:8080</code>, avec <code>DJANGO_SECURE_SSL_REDIRECT=false</code> le temps du test) :
+    inscription, validation RH, chef, caissier, réservation, QR.</li>
+  <li><b>Retour au point de contrôle</b>, vérification §12.2 (1 compte, 0 réservation), copie du <code>.env</code> dans le coffre de l'IT.</li>
+  <li><b>Export</b> (§12.3) puis phase B avec l'IT.</li>
+</ol>
+
 <!-- ============================== SOMMAIRE + VUE D'ENSEMBLE ============================== -->
 <h1 class="chapter">Sommaire</h1>
 <div class="toc">
-  <div><b>Avant de commencer</b>
+  <div><b>État d'avancement</b> (page 2 — au 10 novembre 2026)
+    <ul><li>Étape actuelle : <b>§12</b>, en attente de l'IT (SMTP, nom du site)</li></ul>
+    <b>Avant de commencer</b>
     <ul><li>0. Vue d'ensemble et les 3 phases</li><li>1. Ce que l'IT doit fournir</li></ul>
     <b>Phase A — sur le PC, sous Hyper-V</b>
     <ul>
