@@ -1,0 +1,53 @@
+# HTTPS in front of the canteen app on the Windows VM (task "Cantine - HTTPS", run-https.cmd).
+#
+#   Phones -> https://cantine.groupe-ovagri.com:3881 -> company box (196.179.236.90:3881) -> VM:3881 (Caddy)
+#          -> http://127.0.0.1:8080 (Waitress, the app; never reachable from the network)
+#
+# The certificate comes from Let's Encrypt and is renewed automatically about 30 days before it expires. The check
+# is done through the DNS (a temporary TXT record _acme-challenge.cantine in the OVH zone groupe-ovagri.com),
+# because Let's Encrypt can only check over the network on ports 80/443, and the public 443 belongs to Exchange.
+# The OVH API key (rights limited to /domain/zone/groupe-ovagri.com/*) is read from C:\cantine\caddy.env.
+#
+# THE PORT NEVER CHANGES: browsers treat another port as another app (reinstall, sign-in and notifications lost).
+{
+	# Certificates and Caddy's state next to the app, not in the SYSTEM account's profile.
+	storage file_system C:/cantine/caddy-data
+	# No configuration API: the configuration is this file only.
+	admin off
+	# Only HTTPS on 3881: no listener on port 80 for redirects (nothing forwards it to the VM).
+	auto_https disable_redirects
+	# Let's Encrypt expiry warnings.
+	email cantine@groupe-ovagri.com
+}
+
+cantine.groupe-ovagri.com:3881 {
+	tls {
+		dns ovh {
+			endpoint ovh-eu
+			application_key {$OVH_APPLICATION_KEY}
+			application_secret {$OVH_APPLICATION_SECRET}
+			consumer_key {$OVH_CONSUMER_KEY}
+		}
+		# Check that the TXT record is visible on public DNS before asking Let's Encrypt to validate.
+		resolvers 8.8.8.8 1.1.1.1
+	}
+
+	# Dish photos are limited to 5 MB by the app; leave a margin for the form fields.
+	request_body {
+		max_size 6MB
+	}
+
+	# Caddy adds X-Forwarded-For (the phone's address, replacing any value the phone sends) and
+	# X-Forwarded-Proto: https. run-site.cmd trusts them from 127.0.0.1 only, which is Caddy.
+	# X-Forwarded-Host is not used (the Host header is kept as is): drop it, or Waitress logs a warning per request.
+	reverse_proxy 127.0.0.1:8080 {
+		header_up -X-Forwarded-Host
+	}
+
+	log {
+		output file C:/cantine/logs/https-access.log {
+			roll_size 10MiB
+			roll_keep 10
+		}
+	}
+}

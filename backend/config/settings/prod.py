@@ -39,6 +39,8 @@ SERVE_FRONTEND = env_bool("SERVE_FRONTEND", False)  # noqa: F405
 if SERVE_FRONTEND:
     WHITENOISE_ROOT = BASE_DIR.parent / "frontend" / "dist"  # noqa: F405
     WHITENOISE_INDEX_FILE = True
+    # Windows does not know .webmanifest: without this the install file of the app goes out as octet-stream.
+    WHITENOISE_MIMETYPES = {".webmanifest": "application/manifest+json"}
 
     def WHITENOISE_IMMUTABLE_FILE_TEST(path, url):  # noqa: N802 - setting name
         return url.startswith("/assets/") or url.startswith("/static/")  # file names carry a hash

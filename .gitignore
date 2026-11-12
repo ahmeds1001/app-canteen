@@ -34,3 +34,8 @@ Thumbs.db
 
 # Windows server logs (setup/windows)
 logs/
+
+# Windows server HTTPS (Caddy): OVH API key, certificates, the caddy.exe binary
+caddy.env
+caddy-data/
+tools/
