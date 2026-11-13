@@ -5,7 +5,7 @@
 <title>Installation sur une VM Windows — Application Cantine OVAGRI</title>
 <style>
   @page { size: A4; margin: 15mm 15mm 16mm 15mm;
-    @bottom-left { content: "Installation sur une VM Windows — Application Cantine OVAGRI · état au 10 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
+    @bottom-left { content: "Installation sur une VM Windows — Application Cantine OVAGRI · état au 12 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
     @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; } }
   @page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
   :root { --green: #0a6b28; --green-soft: #e8f3e3; --orange: #f89000; --orange-soft: #fff3e0; --red: #b42318; --red-soft: #fdecea;
@@ -73,7 +73,7 @@
   <p class="sub">Préparer la VM de l'application Cantine sous Hyper-V sur un PC, la déplacer sur le serveur de
   l'entreprise, puis l'ouvrir sur Internet — de A à Z</p>
   <div class="meta">
-    <b>Version du 9 novembre 2026</b> · <b>état d'avancement au 10 novembre 2026</b> (page suivante) · code : <code>github.com/ahmeds1001/app-canteen</code> (branche <code>main</code>)<br>
+    <b>Version du 9 novembre 2026</b> · <b>état d'avancement au 12 novembre 2026</b> (page suivante) · code : <code>github.com/ahmeds1001/app-canteen</code> (branche <code>main</code>)<br>
     Public : la personne qui prépare la VM et l'équipe IT. Durée : environ <b>3 heures</b> sur le PC, <b>1 heure</b> sur le serveur,
     plus les délais de l'IT (nom de domaine, certificat, SMTP).<br>
     Documents liés : dossier technique (<code>docs/architecture-technique.pdf</code>), cahier des charges (<code>docs/cahier-des-charges.pdf</code>).
@@ -95,89 +95,134 @@
 </section>
 
 <!-- ============================== ÉTAT D'AVANCEMENT ============================== -->
-<h1 class="chapter">État d'avancement — au 10 novembre 2026</h1>
+<h1 class="chapter">État d'avancement — au 12 novembre 2026</h1>
 <div class="box orange">
   <h3>Où en est-on ?</h3>
-  <p><b>Phase A presque terminée — étape actuelle : §12 (figer la VM et l'exporter).</b> La VM est installée, vérifiée et
-  revenue à son état propre (point de contrôle « Prête - base vide »). Avant l'export, on attend de l'IT
-  <b>le compte SMTP</b> et <b>le nom définitif du site</b>, puis on fait un test complet avec de vrais emails.</p>
+  <p><b>La VM est installée sur le serveur de l'entreprise, avec HTTPS, et prête pour la production.</b>
+  Étape actuelle : <b>§15 — ouverture du port 3881</b>. On attend que le fournisseur d'accès et l'IT ouvrent le port et créent
+  la redirection <code>196.179.236.90:3881 → 192.168.100.152:3881</code> ; ensuite : tests depuis la 4G, le bureau et le Wi-Fi, puis paramétrage
+  et pilote.</p>
+  <p>L'entreprise n'a pas de proxy HTTPS et son port 443 public sert à Exchange : le HTTPS est donc fait <b>dans la VM</b> par Caddy, sur le
+  port 3881. Cela remplace la partie « proxy HTTPS » des §14–15 (encadré « Mise en ligne réalisée » ci-dessous).</p>
 </div>
 <table>
-  <tr><th style="width:7%">§</th><th style="width:27%">Étape</th><th style="width:13%">État</th><th>Réalisé / remarques</th></tr>
-  <tr><td>1</td><td>Ce que l'IT doit fournir</td><td><span class="st wait">En attente IT</span></td>
-    <td>Reçu : VM Hyper-V, Windows Server 2019. <b>À recevoir :</b> compte SMTP (demande envoyée), nom définitif + certificat HTTPS,
-    adresses de la VM et du proxy sur le serveur, licence Windows (Windows non activé), emplacement des copies de sauvegarde.</td></tr>
-  <tr><td>2</td><td>Créer la VM et préparer Windows</td><td><span class="st done">Fait</span></td>
-    <td>Fuseau de Tunis, pas de veille, lecteur DVD retiré, disque D: « Sauvegardes » de 20 Go ajouté et formaté.</td></tr>
-  <tr><td>3</td><td>Installer les logiciels</td><td><span class="st done">Fait</span></td>
-    <td>Python 3.12.0, Node.js 22.23.4, Git 2.56, SQL Server 2022 Express (instance <code>SQLEXPRESS</code>), ODBC Driver 18, SSMS 20.2 —
-    installés hors ligne avec <code>setup\windows\install-prereqs.ps1</code> (fichiers téléchargés sur le PC).</td></tr>
-  <tr><td>4</td><td>Récupérer le code</td><td><span class="st done">Fait</span></td>
-    <td><code>C:\cantine</code>, version <code>5397aa6</code> (dépôt public : aucun jeton nécessaire).</td></tr>
-  <tr><td>5</td><td>Installer l'application et construire le site</td><td><span class="st done">Fait</span></td>
-    <td>Hors ligne : paquets Python préparés sur le PC (<code>pip install --no-index --find-links C:\Install\wheels</code>),
-    site construit sur le PC et copié dans <code>C:\cantine\frontend\dist</code>.</td></tr>
-  <tr><td>6</td><td>Créer la base de données</td><td><span class="st done">Fait</span></td>
-    <td>Base <code>canteen</code> ; le compte SYSTEM (<code>AUTORITE NT\Système</code> sur un Windows français) est <code>db_owner</code>.</td></tr>
-  <tr><td>7</td><td>Écrire le fichier <code>.env</code></td><td><span class="st wait">Provisoire</span></td>
-    <td>Secrets et clés push générés dans la VM. <b>Provisoire :</b> emails écrits dans <code>site.log</code> au lieu d'être envoyés
-    (en attente du SMTP) ; nom <code>cantine.ovagri.tn</code> à confirmer (le domaine de l'entreprise est <code>groupe-ovagri.com</code>).</td></tr>
-  <tr><td>8</td><td>Initialiser la base et créer l'administrateur</td><td><span class="st done">Fait</span></td>
-    <td>Tables créées, <code>check --deploy</code> propre (2 remarques HSTS attendues), compte administrateur créé.</td></tr>
-  <tr><td>9</td><td>Premier démarrage à la main</td><td><span class="st done">Fait</span></td>
-    <td>Contrôle de santé : <code>ok</code> / <code>ok</code>, heure de Tunis ; tâches planifiées sans erreur.</td></tr>
+  <tr><th style="width:7%">§</th><th style="width:25%">Étape</th><th style="width:13%">État</th><th>Réalisé / remarques</th></tr>
+  <tr><td>1</td><td>Ce que l'IT doit fournir</td><td><span class="st wait">En partie</span></td>
+    <td><b>Reçu :</b> VM Hyper-V, boîte SMTP <code>cantine@groupe-ovagri.com</code>, adresse de la VM, port <b>3881</b>, clé API OVH.
+    <b>À recevoir :</b> ouverture du port 3881 (fournisseur) et redirection, licence Windows, copie quotidienne des sauvegardes.</td></tr>
+  <tr><td>2 – 3</td><td>VM, Windows, logiciels</td><td><span class="st done">Fait</span></td>
+    <td>Fuseau de Tunis, pas de veille, disque D: « Sauvegardes ». Python 3.12.0, Node.js 22, Git, SQL Server 2022 Express, ODBC 18,
+    SSMS 20.2, installés hors ligne avec <code>setup\windows\install-prereqs.ps1</code>.</td></tr>
+  <tr><td>4 – 5</td><td>Code et application</td><td><span class="st done">Fait</span></td>
+    <td><code>C:\cantine</code>, version <code>f7a58a1</code> (mise à jour par <code>git pull</code>) ; paquets Python et site construit préparés sur le PC.</td></tr>
+  <tr><td>6</td><td>Base de données</td><td><span class="st done">Fait</span></td>
+    <td>Base <code>canteen</code> ; compte SYSTEM (<code>AUTORITE NT\Système</code>) <code>db_owner</code> (commande ci-dessous).</td></tr>
+  <tr><td>7</td><td>Fichier <code>.env</code></td><td><span class="st done">Fait</span></td>
+    <td>Nom <code>cantine.groupe-ovagri.com</code> ; <code>CSRF_TRUSTED_ORIGINS</code>, <code>CORS_ALLOWED_ORIGINS</code> et <code>FRONTEND_URL</code> avec
+    <code>:3881</code> ; SMTP <code>srv-exchange.groupe-ovagri.com</code>, port 587 STARTTLS (emails réels testés, y compris vers Gmail).</td></tr>
+  <tr><td>8 – 9</td><td>Base initialisée, administrateur</td><td><span class="st done">Fait</span></td>
+    <td><code>check --deploy</code> propre ; un seul compte (l'administrateur).</td></tr>
   <tr><td>10</td><td>Démarrage automatique</td><td><span class="st done">Fait</span></td>
-    <td>« Cantine - Site » et « Cantine - Taches » repartent seuls après un redémarrage (testé). Après un démarrage, la base
-    répond au bout d'une à deux minutes : normal.</td></tr>
+    <td>4 tâches sous SYSTEM. « Site » et « Taches » démarrent <b>2 minutes après le boot</b> (le temps que SQL Server soit prêt) ;
+    « HTTPS » tout de suite. Redémarrage testé sur le serveur.</td></tr>
   <tr><td>11</td><td>Sauvegardes</td><td><span class="st done">Fait</span></td>
-    <td>« Cantine - Sauvegarde » à 02:00 ; essai réussi (<code>canteen_20261110_1315.bak</code>, vérifiée). Copie hors du serveur : à organiser par l'IT (phase B).</td></tr>
-  <tr class="current"><td>12</td><td>Figer la VM et l'exporter</td><td><span class="st now">En cours</span></td>
-    <td>Base vérifiée vide (1 compte : l'administrateur, 0 réservation). Point de contrôle « Prête - base vide » pris
-    (points de contrôle activés pour les essais). <b>Reste :</b> SMTP + nom → nouveau point de contrôle → test complet → retour au point de
-    contrôle → suppression du point de contrôle et désactivation → export.</td></tr>
-  <tr><td>13 – 18</td><td>Phase B : serveur, adresses, proxy HTTPS, vérifications, paramétrage, pilote</td><td><span class="st todo">À faire</span></td>
-    <td>Après l'export.</td></tr>
-  <tr><td>19</td><td>Phase C : Internet</td><td><span class="st todo">À faire</span></td><td>Après le pilote.</td></tr>
+    <td>Sauvegarde automatique de 02:00 vérifiée sur le serveur (<code>canteen_20261112_0200.bak</code>). <b>Reste (IT) :</b> la copie quotidienne hors du serveur.</td></tr>
+  <tr><td>12</td><td>Figer et exporter</td><td><span class="st done">Fait</span></td>
+    <td>Tests avec point de contrôle, retour à la base vide, point de contrôle supprimé et désactivé, export sur clé USB (NTFS), configuration 9.0.</td></tr>
+  <tr><td>13</td><td>Import sur le serveur</td><td><span class="st done">Fait</span></td>
+    <td>Une seule carte réseau, 4,6 Go de RAM, 6 vCPU. Le disque D: était hors ligne après l'import : remis en ligne (ci-dessous).</td></tr>
+  <tr><td>14</td><td>Adresses et pare-feu</td><td><span class="st done">Fait</span></td>
+    <td>IP fixe <b>192.168.100.152</b> (choisie par l'IT, réglée dans la VM). Pare-feu de la VM : seul le port <b>3881</b> est ouvert ;
+    l'application (8080) n'écoute que sur <code>127.0.0.1</code>.</td></tr>
+  <tr class="current"><td>15</td><td>Nom, certificat, accès</td><td><span class="st now">En cours</span></td>
+    <td><b>Fait :</b> DNS OVH <code>cantine.groupe-ovagri.com</code> → <code>196.179.236.90</code> (pas de DNS interne) ; Caddy en HTTPS sur 3881,
+    certificat Let's Encrypt valable jusqu'au <b>10/02/2027</b>, renouvelé automatiquement via OVH.
+    <b>En attente :</b> port 3881 ouvert par le fournisseur + redirection <code>196.179.236.90:3881 → 192.168.100.152:3881</code> (TCP) + NAT loopback.</td></tr>
+  <tr><td>16</td><td>Vérifications</td><td><span class="st todo">À faire</span></td>
+    <td>Tests 4G, PC du bureau, Wi-Fi (cadenas, connexion, installation, notifications, scanner) ; test de restauration (§16.1).</td></tr>
+  <tr><td>17 – 18</td><td>Paramétrage et pilote</td><td><span class="st todo">À faire</span></td>
+    <td>Écran Paramètres, comptes RH / chef / caissier / scanner / direction, plats et menus, affiche avec QR code, pilote.</td></tr>
+  <tr><td>19</td><td>Internet</td><td><span class="st todo">Intégré</span></td>
+    <td>L'adresse est publique dès le départ (même nom, même port) : il ne restera que les vérifications de sécurité de l'encadré du §19.</td></tr>
 </table>
+
+<div class="box">
+  <h3>Mise en ligne réalisée (remplace la partie « proxy HTTPS » des §14–15)</h3>
+<pre class="diagram">
+  Téléphone ── https://cantine.groupe-ovagri.com:3881
+      │ DNS OVH : cantine → 196.179.236.90
+      ▼
+  Boîtier d'accès (196.179.236.90:3881, TCP) ── redirection ──► VM 192.168.100.152:3881
+                                                                 │ Caddy : certificat + HTTPS
+                                                                 ▼
+                                                    Application 127.0.0.1:8080 (Waitress)
+</pre>
+  <table>
+    <tr><th style="width:36%">Élément</th><th>Où / rôle</th></tr>
+    <tr><td><code>C:\cantine\tools\caddy.exe</code></td><td>Caddy 2.11.9 avec le module DNS OVH (fichier préparé sur le PC, hors GitHub)</td></tr>
+    <tr><td><code>setup\windows\Caddyfile</code></td><td>Configuration : port 3881, certificat via OVH, envoi à <code>127.0.0.1:8080</code>, limite 6 Mo</td></tr>
+    <tr><td><code>setup\windows\run-https.cmd</code></td><td>Lancé par la tâche « Cantine - HTTPS » ; relance Caddy s'il s'arrête</td></tr>
+    <tr><td><code>C:\cantine\caddy.env</code></td><td>Les 3 valeurs de la clé API OVH « cantine-certificat » ; lisible par SYSTEM et les administrateurs seulement</td></tr>
+    <tr><td><code>C:\cantine\caddy-data</code></td><td>Le certificat et le compte Let's Encrypt (recréés automatiquement s'ils sont perdus)</td></tr>
+    <tr><td><code>C:\cantine\logs\https.log</code></td><td>Journal de Caddy (obtention et renouvellement du certificat)</td></tr>
+  </table>
+  <p><b>Deux règles :</b> le port <b>3881 ne change jamais</b> (il est enregistré dans l'application installée sur les téléphones), et la
+  clé API OVH <code>cantine-certificat</code> ne doit <b>jamais être supprimée</b> (sinon le certificat expire au bout de 90 jours).</p>
+  <p><b>Contrôles dans la VM :</b></p>
+<pre><span class="c"># l'application répond en HTTPS, avec un certificat valide</span>
+curl.exe -s --resolve cantine.groupe-ovagri.com:3881:127.0.0.1 https://cantine.groupe-ovagri.com:3881/api/v1/health/
+<span class="c"># date d'expiration du certificat (renouvelé seul environ 30 jours avant)</span>
+$tcp = New-Object Net.Sockets.TcpClient('127.0.0.1', 3881); $ssl = New-Object Net.Security.SslStream($tcp.GetStream())
+$ssl.AuthenticateAsClient('cantine.groupe-ovagri.com', $null, [Security.Authentication.SslProtocols]::Tls12, $false)
+(New-Object Security.Cryptography.X509Certificates.X509Certificate2($ssl.RemoteCertificate)).NotAfter; $ssl.Dispose(); $tcp.Close()</pre>
+  <p class="muted">Dans la VM, <code>http://localhost:8080</code> renvoie vers https : c'est normal. Pour tout le reste, utiliser l'adresse
+  <code>https://cantine.groupe-ovagri.com:3881</code>.</p>
+</div>
 
 <h2>Particularités de cette installation</h2>
 <table>
   <tr><th style="width:30%">Élément</th><th>Valeur et conséquence</th></tr>
-  <tr><td>Nom de la VM dans Hyper-V</td><td><code>CANT SRV</code> (et non <code>CANTINE-APP</code>) : dans les commandes Hyper-V du guide, écrire <code>"CANT SRV"</code> entre guillemets.</td></tr>
-  <tr><td>Nom Windows de la VM</td><td><code>KITCHENAPP</code> (serveur SQL : <code>KITCHENAPP\SQLEXPRESS</code> = <code>localhost\SQLEXPRESS</code>).</td></tr>
-  <tr><td>Windows</td><td><b>Windows Server 2019</b> (le guide prévoit 2022) : tout fonctionne ; support Microsoft jusqu'en janvier 2029.
-    Windows en <b>français</b> : le compte SYSTEM s'appelle <code>AUTORITE NT\Système</code> (voir §6 ci-dessous).</td></tr>
-  <tr><td>SQL Server</td><td>2022 Express, paquet <b>français</b>, version de base (RTM) : installer la dernière mise à jour cumulative (CU) avant la production.
+  <tr><td>Noms de la VM</td><td>Hyper-V : <code>CANT SRV</code> (écrire <code>"CANT SRV"</code> entre guillemets) ; Windows : <code>KITCHENAPP</code>
+    (serveur SQL <code>KITCHENAPP\SQLEXPRESS</code> = <code>localhost\SQLEXPRESS</code>).</td></tr>
+  <tr><td>Windows</td><td><b>Windows Server 2019 Standard</b>, en <b>français</b>, version normale (pas d'évaluation) mais <b>non activée</b>
+    (mode notification) : fonctionne sans limite de temps ; la clé de licence reste à saisir (<code>slmgr /ipk</code> puis <code>slmgr /ato</code>).</td></tr>
+  <tr><td>SQL Server</td><td>2022 Express, paquet français, version de base (RTM) : installer la dernière mise à jour cumulative (CU) en dehors des heures de service.
     SSMS 20.2 en anglais ; connexion avec « Trust server certificate » coché.</td></tr>
   <tr><td>Python</td><td>3.12.0 : fonctionne ; passer à 3.12.10 lors d'une prochaine mise à jour.</td></tr>
-  <tr><td>Mémoire de la VM sur le PC</td><td>2,7 Go : suffisant pour l'installation ; <b>4 Go fixes</b> et 4 vCPU à régler sur le serveur (§13).</td></tr>
-  <tr><td>Cartes réseau</td><td>Deux (Wi-Fi et câble du PC) : sur le serveur, n'en garder qu'une, celle du réseau du serveur (§13–14).</td></tr>
-  <tr><td>Points de contrôle</td><td>Désactivés par l'IT à la création ; activés (type Production) pour les essais.
-    Avant l'export : <code>Get-VMSnapshot -VMName "CANT SRV" | Remove-VMSnapshot</code> puis <code>Set-VM -Name "CANT SRV" -CheckpointType Disabled</code>.</td></tr>
+  <tr><td>Réseau de la VM</td><td>Une carte, IP fixe <code>192.168.100.152</code>, passerelle <code>192.168.100.1</code>, DNS <code>8.8.8.8</code>.</td></tr>
+  <tr><td>Points de contrôle</td><td><b>Désactivés</b> en production (ce ne sont pas des sauvegardes). Ne pas les réactiver.</td></tr>
+  <tr><td>Après un démarrage</td><td>La base répond au bout d'une à deux minutes (« database: unavailable » avant) : normal.</td></tr>
 </table>
+
 <div class="box">
-  <h3>§6 sur un Windows français : la commande qui a fonctionné</h3>
-  <p>Le nom <code>NT AUTHORITY\SYSTEM</code> n'existe pas sur un Windows français. Cette commande trouve le compte par son identifiant
-  (le même dans toutes les langues) :</p>
+  <h3>Commandes particulières qui ont servi</h3>
+  <p><b>§6 sur un Windows français</b> (le nom <code>NT AUTHORITY\SYSTEM</code> n'y existe pas ; le compte est trouvé par son identifiant) :</p>
 <pre>sqlcmd -S localhost\SQLEXPRESS -E -d canteen -Q "DECLARE @n sysname, @s nvarchar(400); SET @n = (SELECT name FROM sys.server_principals WHERE sid = 0x010100000000000512000000); IF @n IS NULL BEGIN RAISERROR('SYSTEM login missing', 16, 1); RETURN; END; PRINT 'Login: ' + @n; IF USER_ID(@n) IS NULL BEGIN SET @s = N'CREATE USER ' + QUOTENAME(@n) + N' FOR LOGIN ' + QUOTENAME(@n); EXEC(@s); END; SET @s = N'ALTER ROLE db_owner ADD MEMBER ' + QUOTENAME(@n); EXEC(@s);"</pre>
+  <p><b>Disque D: hors ligne après l'import</b> (sinon la sauvegarde de 02:00 échoue) :</p>
+<pre>Set-Disk -Number 1 -IsOffline $false; Set-Disk -Number 1 -IsReadOnly $false</pre>
+  <p><b>Démarrage 2 minutes après le boot</b> pour « Site » et « Taches » :</p>
+<pre>foreach ($t in "Cantine - Site", "Cantine - Taches") {
+  $trig = New-ScheduledTaskTrigger -AtStartup; $trig.Delay = 'PT2M'
+  Set-ScheduledTask -TaskName $t -Trigger $trig | Out-Null }</pre>
 </div>
 
 <h2>Prochaines étapes</h2>
 <ol>
-  <li><b>IT :</b> recevoir le compte SMTP (boîte <code>cantine@groupe-ovagri.com</code>, port 587 STARTTLS ou 465) et le nom définitif du site.</li>
-  <li><b>VM :</b> mettre le SMTP et le nom dans <code>C:\cantine\.env</code>, redémarrer « Cantine - Site », envoyer un email de test.</li>
-  <li><b>PC :</b> remplacer le point de contrôle « Prête - base vide » par ce nouvel état.</li>
-  <li><b>Test complet</b> dans la VM (Chrome, <code>http://localhost:8080</code>, avec <code>DJANGO_SECURE_SSL_REDIRECT=false</code> le temps du test) :
-    inscription, validation RH, chef, caissier, réservation, QR.</li>
-  <li><b>Retour au point de contrôle</b>, vérification §12.2 (1 compte, 0 réservation), copie du <code>.env</code> dans le coffre de l'IT.</li>
-  <li><b>Export</b> (§12.3) puis phase B avec l'IT.</li>
+  <li><b>Fournisseur et IT :</b> ouvrir le port 3881 et créer la redirection <code>196.179.236.90:3881 → 192.168.100.152:3881</code> (TCP), avec le NAT loopback.</li>
+  <li><b>Tests :</b> téléphone en 4G, PC du bureau, téléphone sur le Wi-Fi de l'entreprise : <code>https://cantine.groupe-ovagri.com:3881</code>
+    (cadenas, connexion, installation de l'application, notifications, scanner).</li>
+  <li><b>IT :</b> copie quotidienne de <code>D:\CantineBackups</code> hors du serveur, puis test de restauration (§16.1).</li>
+  <li><b>VM :</b> licence Windows ; Windows Update et mise à jour cumulative de SQL Server, en dehors des heures de service.</li>
+  <li><b>Paramétrage (§17) :</b> écran Paramètres ; inscription des personnes RH, chef, caissier, scanner et direction, puis attribution des rôles ;
+    plats et premiers menus ; affiche avec le QR code du lien.</li>
+  <li><b>Pilote</b> avec un petit groupe, puis tout le personnel. Garder une copie du <code>.env</code> et du <code>caddy.env</code> dans le coffre de l'IT.</li>
 </ol>
 
 <!-- ============================== SOMMAIRE + VUE D'ENSEMBLE ============================== -->
 <h1 class="chapter">Sommaire</h1>
 <div class="toc">
-  <div><b>État d'avancement</b> (page 2 — au 10 novembre 2026)
-    <ul><li>Étape actuelle : <b>§12</b>, en attente de l'IT (SMTP, nom du site)</li></ul>
+  <div><b>État d'avancement</b> (page 2 — au 12 novembre 2026)
+    <ul><li>Étape actuelle : <b>§15</b>, ouverture du port 3881 (fournisseur et IT)</li></ul>
     <b>Avant de commencer</b>
     <ul><li>0. Vue d'ensemble et les 3 phases</li><li>1. Ce que l'IT doit fournir</li></ul>
     <b>Phase A — sur le PC, sous Hyper-V</b>
@@ -775,22 +820,25 @@ reprend la sauvegarde de la base (SQL Server sous Linux restaure le même fichie
 
 <!-- ============================== POUR LA SUITE ============================== -->
 <h1>20. Mises à jour</h1>
-<p>Quand une nouvelle version est publiée sur GitHub, à faire <b>en dehors</b> des heures de service et du rush du soir :</p>
-<pre>cd C:\cantine
-Start-ScheduledTask "Cantine - Sauvegarde"; Start-Sleep 30     <span class="c"># sauvegarde avant mise à jour</span>
-Stop-ScheduledTask "Cantine - Site"; Stop-ScheduledTask "Cantine - Taches"
-git pull
-backend\.venv\Scripts\python.exe -m pip install -r backend\requirements\windows.txt
-cd frontend; npm.cmd ci; npm.cmd run build; cd ..
-setup\windows\manage.cmd migrate
-setup\windows\manage.cmd collectstatic --noinput
-Start-ScheduledTask "Cantine - Site"; Start-ScheduledTask "Cantine - Taches"
-Invoke-RestMethod http://localhost:8080/api/v1/health/</pre>
+<p>Le code se modifie <b>uniquement sur le PC</b> (tests, commit, push sur GitHub). Dans la VM, une seule commande applique la
+nouvelle version, <b>en dehors</b> des heures de service et pas juste avant l'heure limite des réservations — PowerShell en administrateur :</p>
+<pre>powershell -ExecutionPolicy Bypass -File C:\cantine\setup\windows\update.ps1</pre>
+<p>Le script <code>update.ps1</code> fait, dans l'ordre :</p>
+<ol>
+  <li>vérifie qu'aucun fichier du code n'a été modifié dans la VM (sinon il s'arrête) et affiche les nouveautés ; s'il n'y a rien de nouveau, il ne fait rien ;</li>
+  <li>sauvegarde la base (dans <code>D:\CantineBackups</code>) ;</li>
+  <li><code>git pull</code>, puis seulement ce que les nouveautés demandent : paquets Python, outils de construction (<code>npm ci</code>),
+  construction du site (dans <code>dist-new</code>, le site en ligne n'est pas touché), <code>migrate</code>, <code>createcachetable</code>, <code>collectstatic</code> ;</li>
+  <li>redémarre le site et les tâches (coupure d'environ 10 secondes ; la version précédente du site reste dans <code>frontend\dist-old</code>) ;</li>
+  <li>vérifie que le site répond <code>ok</code> et affiche « UPDATE DONE ».</li>
+</ol>
 <ul>
-  <li><b>Toujours</b> lancer <code>migrate</code> après <code>git pull</code> : une colonne manquante provoque des erreurs 500.</li>
-  <li><b>Toujours</b> redémarrer le site après <code>npm run build</code> : il ne voit les nouveaux fichiers qu'au démarrage.</li>
-  <li><code>Stop-ScheduledTask</code> arrête aussi Waitress et les tâches ; vérifier dans le Gestionnaire des tâches qu'il ne reste
-  aucun <code>python.exe</code> / <code>waitress-serve.exe</code> avant de relancer (sinon redémarrer la VM).</li>
+  <li>Si une étape échoue avant le redémarrage, le script s'arrête en rouge <b>sans redémarrer</b> : l'ancienne version reste en ligne.
+  Le détail est dans <code>C:\cantine\logs\update-AAAAMMJJ-HHMM.log</code>.</li>
+  <li><code>-Force</code> refait toutes les étapes même sans nouveauté (par exemple pour terminer une mise à jour interrompue).</li>
+  <li><code>.env</code>, <code>caddy.env</code> et le certificat ne sont pas dans GitHub : une mise à jour ne les touche jamais.
+  Si une nouvelle version demande un nouveau réglage dans <code>.env</code>, c'est indiqué avec la version.</li>
+  <li>Ne jamais lancer <code>npm audit fix</code> dans la VM : les versions des paquets se changent sur le PC, puis arrivent par la mise à jour.</li>
   <li>Avant une grosse mise à jour, un point de contrôle Hyper-V de la VM permet de revenir en arrière en quelques minutes
   — à supprimer une fois la mise à jour validée (il ne remplace pas les sauvegardes).</li>
   <li>Les téléphones prennent la nouvelle version à la prochaine ouverture de l'application.</li>
