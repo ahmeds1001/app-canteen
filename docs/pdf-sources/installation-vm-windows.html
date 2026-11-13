@@ -5,7 +5,7 @@
 <title>Installation sur une VM Windows — Application Cantine OVAGRI</title>
 <style>
   @page { size: A4; margin: 15mm 15mm 16mm 15mm;
-    @bottom-left { content: "Installation sur une VM Windows — Application Cantine OVAGRI · état au 12 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
+    @bottom-left { content: "Installation sur une VM Windows — Application Cantine OVAGRI · état au 13 novembre 2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; }
     @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 8pt "Segoe UI", Arial, sans-serif; color: #7a857c; } }
   @page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
   :root { --green: #0a6b28; --green-soft: #e8f3e3; --orange: #f89000; --orange-soft: #fff3e0; --red: #b42318; --red-soft: #fdecea;
@@ -73,7 +73,7 @@
   <p class="sub">Préparer la VM de l'application Cantine sous Hyper-V sur un PC, la déplacer sur le serveur de
   l'entreprise, puis l'ouvrir sur Internet — de A à Z</p>
   <div class="meta">
-    <b>Version du 9 novembre 2026</b> · <b>état d'avancement au 12 novembre 2026</b> (page suivante) · code : <code>github.com/ahmeds1001/app-canteen</code> (branche <code>main</code>)<br>
+    <b>Version du 9 novembre 2026</b> · <b>état d'avancement au 13 novembre 2026</b> (page suivante) · code : <code>github.com/ahmeds1001/app-canteen</code> (branche <code>main</code>)<br>
     Public : la personne qui prépare la VM et l'équipe IT. Durée : environ <b>3 heures</b> sur le PC, <b>1 heure</b> sur le serveur,
     plus les délais de l'IT (nom de domaine, certificat, SMTP).<br>
     Documents liés : dossier technique (<code>docs/architecture-technique.pdf</code>), cahier des charges (<code>docs/cahier-des-charges.pdf</code>).
@@ -88,33 +88,34 @@
       (<code>demo_week</code>, <code>loadtest_accounts</code>) ne sont <b>jamais</b> lancées sur cette base.</li>
       <li><b>Un fichier <code>.env</code> neuf</b>, avec des secrets neufs (§7) — jamais celui du PC de développement. Il suit
       ensuite la VM partout (serveur, hébergeur) <b>sans être changé</b>.</li>
-      <li><b>Un seul nom pour toujours</b> (ex. <code>cantine.ovagri.tn</code>), du pilote interne jusqu'à Internet : changer de nom
+      <li><b>Un seul nom pour toujours</b> (ici <code>cantine.groupe-ovagri.com:3881</code> — le nom <b>et le port</b>), du pilote interne jusqu'à Internet : en changer
       obligerait chaque employé à réinstaller l'application et à réactiver les notifications.</li>
     </ol>
   </div>
 </section>
 
 <!-- ============================== ÉTAT D'AVANCEMENT ============================== -->
-<h1 class="chapter">État d'avancement — au 12 novembre 2026</h1>
+<h1 class="chapter">État d'avancement — au 13 novembre 2026</h1>
 <div class="box orange">
   <h3>Où en est-on ?</h3>
-  <p><b>La VM est installée sur le serveur de l'entreprise, avec HTTPS, et prête pour la production.</b>
-  Étape actuelle : <b>§15 — ouverture du port 3881</b>. On attend que le fournisseur d'accès et l'IT ouvrent le port et créent
-  la redirection <code>196.179.236.90:3881 → 192.168.100.152:3881</code> ; ensuite : tests depuis la 4G, le bureau et le Wi-Fi, puis paramétrage
-  et pilote.</p>
-  <p>L'entreprise n'a pas de proxy HTTPS et son port 443 public sert à Exchange : le HTTPS est donc fait <b>dans la VM</b> par Caddy, sur le
-  port 3881. Cela remplace la partie « proxy HTTPS » des §14–15 (encadré « Mise en ligne réalisée » ci-dessous).</p>
+  <p><b>L'application est en ligne depuis le 13 novembre 2026 : <code>https://cantine.groupe-ovagri.com:3881</code></b>
+  (accessible depuis Internet et depuis le réseau de l'entreprise, certificat valide). La base ne contient que le compte administrateur.
+  Étape actuelle : <b>§16 — vérifications</b> (4G, bureau, Wi-Fi, installation, notifications, scanner) et <b>test de restauration</b>,
+  puis paramétrage (§17) et pilote (§18).</p>
+  <p>L'entreprise n'a pas de proxy HTTPS et son port 443 public sert à Exchange : le HTTPS est fait <b>dans la VM</b> par Caddy, sur le
+  port 3881 (§14–15). Les mises à jour se font en une commande (§20).</p>
 </div>
 <table>
   <tr><th style="width:7%">§</th><th style="width:25%">Étape</th><th style="width:13%">État</th><th>Réalisé / remarques</th></tr>
   <tr><td>1</td><td>Ce que l'IT doit fournir</td><td><span class="st wait">En partie</span></td>
-    <td><b>Reçu :</b> VM Hyper-V, boîte SMTP <code>cantine@groupe-ovagri.com</code>, adresse de la VM, port <b>3881</b>, clé API OVH.
-    <b>À recevoir :</b> ouverture du port 3881 (fournisseur) et redirection, licence Windows, copie quotidienne des sauvegardes.</td></tr>
+    <td><b>Reçu :</b> VM Hyper-V, boîte SMTP <code>cantine@groupe-ovagri.com</code>, adresse de la VM, port <b>3881</b> ouvert et redirigé, clé API OVH.
+    <b>À recevoir :</b> licence Windows, copie quotidienne des sauvegardes hors du serveur.</td></tr>
   <tr><td>2 – 3</td><td>VM, Windows, logiciels</td><td><span class="st done">Fait</span></td>
     <td>Fuseau de Tunis, pas de veille, disque D: « Sauvegardes ». Python 3.12.0, Node.js 22, Git, SQL Server 2022 Express, ODBC 18,
     SSMS 20.2, installés hors ligne avec <code>setup\windows\install-prereqs.ps1</code>.</td></tr>
   <tr><td>4 – 5</td><td>Code et application</td><td><span class="st done">Fait</span></td>
-    <td><code>C:\cantine</code>, version <code>f7a58a1</code> (mise à jour par <code>git pull</code>) ; paquets Python et site construit préparés sur le PC.</td></tr>
+    <td><code>C:\cantine</code>, version <code>8f013ed</code>. Installation initiale hors ligne (paquets préparés sur le PC) ; depuis le 13 novembre,
+    les outils de construction du site sont aussi dans la VM : les mises à jour se font avec <code>setup\windows\update.ps1</code> (§20, testé).</td></tr>
   <tr><td>6</td><td>Base de données</td><td><span class="st done">Fait</span></td>
     <td>Base <code>canteen</code> ; compte SYSTEM (<code>AUTORITE NT\Système</code>) <code>db_owner</code> (commande ci-dessous).</td></tr>
   <tr><td>7</td><td>Fichier <code>.env</code></td><td><span class="st done">Fait</span></td>
@@ -134,11 +135,11 @@
   <tr><td>14</td><td>Adresses et pare-feu</td><td><span class="st done">Fait</span></td>
     <td>IP fixe <b>192.168.100.152</b> (choisie par l'IT, réglée dans la VM). Pare-feu de la VM : seul le port <b>3881</b> est ouvert ;
     l'application (8080) n'écoute que sur <code>127.0.0.1</code>.</td></tr>
-  <tr class="current"><td>15</td><td>Nom, certificat, accès</td><td><span class="st now">En cours</span></td>
-    <td><b>Fait :</b> DNS OVH <code>cantine.groupe-ovagri.com</code> → <code>196.179.236.90</code> (pas de DNS interne) ; Caddy en HTTPS sur 3881,
-    certificat Let's Encrypt valable jusqu'au <b>10/02/2027</b>, renouvelé automatiquement via OVH.
-    <b>En attente :</b> port 3881 ouvert par le fournisseur + redirection <code>196.179.236.90:3881 → 192.168.100.152:3881</code> (TCP) + NAT loopback.</td></tr>
-  <tr><td>16</td><td>Vérifications</td><td><span class="st todo">À faire</span></td>
+  <tr><td>15</td><td>Nom, certificat, accès</td><td><span class="st done">Fait</span></td>
+    <td>DNS OVH <code>cantine.groupe-ovagri.com</code> → <code>196.179.236.90</code> (pas de DNS interne) ; port 3881 ouvert par le fournisseur,
+    redirection <code>196.179.236.90:3881 → 192.168.100.152:3881</code> (TCP) avec NAT loopback ; Caddy en HTTPS sur 3881,
+    certificat Let's Encrypt valable jusqu'au <b>10/02/2027</b>, renouvelé automatiquement via OVH. Vérifié depuis l'extérieur le 13 novembre.</td></tr>
+  <tr class="current"><td>16</td><td>Vérifications</td><td><span class="st now">En cours</span></td>
     <td>Tests 4G, PC du bureau, Wi-Fi (cadenas, connexion, installation, notifications, scanner) ; test de restauration (§16.1).</td></tr>
   <tr><td>17 – 18</td><td>Paramétrage et pilote</td><td><span class="st todo">À faire</span></td>
     <td>Écran Paramètres, comptes RH / chef / caissier / scanner / direction, plats et menus, affiche avec QR code, pilote.</td></tr>
@@ -147,7 +148,7 @@
 </table>
 
 <div class="box">
-  <h3>Mise en ligne réalisée (remplace la partie « proxy HTTPS » des §14–15)</h3>
+  <h3>Mise en ligne réalisée (détail aux §14–15)</h3>
 <pre class="diagram">
   Téléphone ── https://cantine.groupe-ovagri.com:3881
       │ DNS OVH : cantine → 196.179.236.90
@@ -208,10 +209,10 @@ $ssl.AuthenticateAsClient('cantine.groupe-ovagri.com', $null, [Security.Authenti
 
 <h2>Prochaines étapes</h2>
 <ol>
-  <li><b>Fournisseur et IT :</b> ouvrir le port 3881 et créer la redirection <code>196.179.236.90:3881 → 192.168.100.152:3881</code> (TCP), avec le NAT loopback.</li>
   <li><b>Tests :</b> téléphone en 4G, PC du bureau, téléphone sur le Wi-Fi de l'entreprise : <code>https://cantine.groupe-ovagri.com:3881</code>
     (cadenas, connexion, installation de l'application, notifications, scanner).</li>
-  <li><b>IT :</b> copie quotidienne de <code>D:\CantineBackups</code> hors du serveur, puis test de restauration (§16.1).</li>
+  <li><b>Test de restauration</b> (§16.1) — on peut s'en servir pour essayer l'application puis revenir à la base vide (encadré du §16.1).</li>
+  <li><b>IT :</b> copie quotidienne de <code>D:\CantineBackups</code> hors du serveur.</li>
   <li><b>VM :</b> licence Windows ; Windows Update et mise à jour cumulative de SQL Server, en dehors des heures de service.</li>
   <li><b>Paramétrage (§17) :</b> écran Paramètres ; inscription des personnes RH, chef, caissier, scanner et direction, puis attribution des rôles ;
     plats et premiers menus ; affiche avec le QR code du lien.</li>
@@ -221,8 +222,8 @@ $ssl.AuthenticateAsClient('cantine.groupe-ovagri.com', $null, [Security.Authenti
 <!-- ============================== SOMMAIRE + VUE D'ENSEMBLE ============================== -->
 <h1 class="chapter">Sommaire</h1>
 <div class="toc">
-  <div><b>État d'avancement</b> (page 2 — au 12 novembre 2026)
-    <ul><li>Étape actuelle : <b>§15</b>, ouverture du port 3881 (fournisseur et IT)</li></ul>
+  <div><b>État d'avancement</b> (page 2 — au 13 novembre 2026)
+    <ul><li>Application <b>en ligne</b> depuis le 13 novembre ; étape actuelle : <b>§16</b>, vérifications et test de restauration</li></ul>
     <b>Avant de commencer</b>
     <ul><li>0. Vue d'ensemble et les 3 phases</li><li>1. Ce que l'IT doit fournir</li></ul>
     <b>Phase A — sur le PC, sous Hyper-V</b>
@@ -243,8 +244,8 @@ $ssl.AuthenticateAsClient('cantine.groupe-ovagri.com', $null, [Security.Authenti
   <div><b>Phase B — sur le serveur de l'entreprise</b>
     <ul>
       <li>13. Importer la VM sur le serveur</li>
-      <li>14. Les adresses : IP de la VM, IP du proxy, pare-feu</li>
-      <li>15. Nom de domaine, certificat et proxy HTTPS</li>
+      <li>14. L'adresse de la VM et le pare-feu</li>
+      <li>15. Nom, redirection du port et HTTPS (Caddy)</li>
       <li>16. Test de restauration et vérifications</li>
       <li>17. Premier paramétrage dans l'application</li>
       <li>18. Pilote sur le réseau de l'entreprise</li>
@@ -263,23 +264,21 @@ $ssl.AuthenticateAsClient('cantine.groupe-ovagri.com', $null, [Security.Authenti
   <tr><td><b>A. Préparer</b></td><td>Une VM Hyper-V sur le PC de la personne qui installe</td>
     <td>Windows, logiciels, application, base vide, administrateur, démarrage automatique, sauvegardes. Personne n'utilise l'application à ce stade. On exporte la VM <b>propre</b>.</td></tr>
   <tr><td><b>B. Pilote interne</b></td><td>Le serveur de l'entreprise, réseau interne</td>
-    <td>Import de la VM, nouvelles adresses, proxy HTTPS, vérifications, paramétrage, puis les employés l'utilisent pour de vrai. <b>À partir d'ici, les données sont réelles et se gardent.</b></td></tr>
+    <td>Import de la VM, adresse, HTTPS, vérifications, paramétrage, puis les employés l'utilisent pour de vrai. <b>À partir d'ici, les données sont réelles et se gardent.</b></td></tr>
   <tr><td><b>C. Internet</b></td><td>Le même serveur ouvert sur Internet, ou un hébergeur</td>
     <td>Même VM, même base, même <code>.env</code>, même nom : les employés ne voient aucune différence.</td></tr>
 </table>
 <h2>Ce qui tourne dans la VM</h2>
 <p>Pas de Docker : deux programmes tournent en permanence, démarrés par le Planificateur de tâches de Windows, et SQL
-Server Express garde les données dans la même VM. Le proxy HTTPS de l'entreprise reçoit les connexions des téléphones
-et les transmet à la VM en HTTP sur le port 8080.</p>
+Server Express garde les données dans la même VM. Caddy, dans la VM, reçoit les connexions HTTPS des téléphones sur le
+port 3881 et les transmet à l'application, qui n'écoute que sur la VM elle-même (<code>127.0.0.1:8080</code>).</p>
 <pre class="diagram">
   Téléphones et PC des employés
-            │  https://cantine.ovagri.tn
+            │  https://cantine.groupe-ovagri.com:3881
             ▼
-  ┌──────────────────────────┐
-  │ Proxy HTTPS entreprise   │  certificat, ajoute X-Forwarded-For / X-Forwarded-Proto
-  └────────────┬─────────────┘
-               │ http, port 8080 (seul le proxy y a accès)
+  Boîtier d'accès 196.179.236.90:3881 ── redirection ──► VM 192.168.100.152:3881
   ┌────────────▼──────────────────────── VM Windows ─────────────────────────────────┐
+  │  « Cantine - HTTPS »    Caddy : certificat, HTTPS sur 3881 → 127.0.0.1:8080       │
   │  « Cantine - Site »     Waitress : le site (pages) + l'API /api/v1 + /admin       │
   │  « Cantine - Taches »   tâches planifiées, chaque minute (clôture, finalisation,  │
   │                         rappels, notifications)                                   │
@@ -295,8 +294,8 @@ et les transmet à la VM en HTTP sur le port 8080.</p>
   <tr><td><code>C:\cantine</code></td><td>Le code (copie du dépôt GitHub) et le fichier <code>.env</code></td></tr>
   <tr><td><code>C:\cantine\backend</code></td><td>L'API Django, son environnement Python <code>.venv</code>, les photos des plats (<code>media\</code>)</td></tr>
   <tr><td><code>C:\cantine\frontend\dist</code></td><td>Le site construit (§5)</td></tr>
-  <tr><td><code>C:\cantine\setup\windows</code></td><td>Les fichiers prêts à l'emploi : <code>manage.cmd</code>, <code>run-site.cmd</code>, <code>run-tasks.cmd</code>, <code>backup.cmd</code></td></tr>
-  <tr><td><code>C:\cantine\logs</code></td><td>Journaux : <code>site.log</code>, <code>tasks.log</code>, <code>backup.log</code></td></tr>
+  <tr><td><code>C:\cantine\setup\windows</code></td><td>Les fichiers prêts à l'emploi : <code>manage.cmd</code>, <code>run-site.cmd</code>, <code>run-tasks.cmd</code>, <code>backup.cmd</code>, <code>run-https.cmd</code> + <code>Caddyfile</code>, <code>update.ps1</code></td></tr>
+  <tr><td><code>C:\cantine\logs</code></td><td>Journaux : <code>site.log</code>, <code>tasks.log</code>, <code>backup.log</code>, <code>https.log</code>, <code>update-….log</code></td></tr>
   <tr><td><code>D:\CantineBackups</code></td><td>Sauvegardes de la base et des photos (§11), sur le second disque de la VM — à copier hors du serveur</td></tr>
 </table>
 <div class="box orange">
@@ -318,11 +317,12 @@ et les transmet à la VM en HTTP sur le port 8080.</p>
     Éviter la version d'évaluation (elle s'arrête au bout de 180 jours).</td></tr>
   <tr><td>Taille de la VM sur le serveur</td><td><b>4 vCPU, 4 Go de RAM</b>, disque système 60 Go + disque de sauvegardes 20 Go.
     Estimation à confirmer par le test de charge (§18).</td></tr>
-  <tr><td>Deux adresses sur le serveur</td><td>L'<b>adresse IP fixe de la VM</b> (ex. <code>192.168.1.50</code>) et l'<b>adresse du proxy HTTPS</b> qui lui parlera
-    (ex. <code>192.168.1.10</code>), avec masque, passerelle et DNS (§14).</td></tr>
-  <tr><td>Nom + certificat</td><td>Le nom <b>définitif</b> (ex. <code>cantine.ovagri.tn</code>) et un certificat HTTPS <b>public</b> sur le proxy, dès le pilote interne (§15).
+  <tr><td>Adresses</td><td>L'<b>adresse IP fixe de la VM</b> (ici <code>192.168.100.152</code>) avec masque, passerelle et DNS (§14) ; un <b>port</b>
+    public libre (ici <code>3881</code>) redirigé vers la VM (§15).</td></tr>
+  <tr><td>Nom + certificat</td><td>Le nom <b>définitif</b> (ici <code>cantine.groupe-ovagri.com</code>, DNS chez OVH) et une <b>clé API OVH</b> pour que la VM obtienne
+    elle-même un certificat HTTPS <b>public</b> (§15).
     <b>HTTPS est obligatoire</b> : sans lui, ni la caméra du scanner, ni l'installation sur le téléphone, ni les notifications ne fonctionnent.</td></tr>
-  <tr><td>Compte SMTP</td><td>Serveur, port, identifiant, mot de passe, adresse d'expéditeur (ex. <code>cantine@ovagri.tn</code>).
+  <tr><td>Compte SMTP</td><td>Serveur, port, identifiant, mot de passe, adresse d'expéditeur (ici <code>cantine@groupe-ovagri.com</code>).
     Sert à 5 emails automatiques : code de vérification, compte validé, compte refusé, mot de passe oublié, nouveau mot de passe.</td></tr>
   <tr><td>Internet sortant</td><td>HTTPS (443) depuis la VM vers Internet pour les notifications push (et pour installer les logiciels).</td></tr>
   <tr><td>Accès au code</td><td>Un accès en lecture au dépôt GitHub <code>ahmeds1001/app-canteen</code> (jeton en lecture seule).</td></tr>
@@ -479,12 +479,12 @@ Le nom est déjà le nom <b>définitif</b> (règle 4), même si la VM est encore
 DJANGO_DEBUG=false
 DJANGO_SECRET_KEY=&lt;première valeur générée&gt;
 CANTEEN_SIGNING_KEY=&lt;seconde valeur générée&gt;
-DJANGO_ALLOWED_HOSTS=cantine.ovagri.tn
-CSRF_TRUSTED_ORIGINS=https://cantine.ovagri.tn
-CORS_ALLOWED_ORIGINS=https://cantine.ovagri.tn
-FRONTEND_URL=https://cantine.ovagri.tn
+DJANGO_ALLOWED_HOSTS=cantine.groupe-ovagri.com
+CSRF_TRUSTED_ORIGINS=https://cantine.groupe-ovagri.com:3881
+CORS_ALLOWED_ORIGINS=https://cantine.groupe-ovagri.com:3881
+FRONTEND_URL=https://cantine.groupe-ovagri.com:3881
 COMPANY_TIME_ZONE=Africa/Tunis
-<span class="c"># La VM sert aussi les pages du site ; un seul proxy devant elle</span>
+<span class="c"># La VM sert aussi les pages du site ; un seul proxy devant elle : Caddy (§15)</span>
 SERVE_FRONTEND=true
 NUM_PROXIES=1
 
@@ -504,12 +504,12 @@ EMAIL_PORT=587
 EMAIL_HOST_USER=&lt;identifiant SMTP&gt;
 EMAIL_HOST_PASSWORD=&lt;mot de passe SMTP&gt;
 EMAIL_USE_TLS=true
-DEFAULT_FROM_EMAIL=Cantine OVAGRI &lt;cantine@ovagri.tn&gt;
+DEFAULT_FROM_EMAIL=Cantine OVAGRI &lt;cantine@groupe-ovagri.com&gt;
 
 <span class="c"># --- Notifications push (les 2 lignes affichées par generate_vapid_keys) ---</span>
 VAPID_PUBLIC_KEY=&lt;...&gt;
 VAPID_PRIVATE_KEY=&lt;...&gt;
-VAPID_SUBJECT=mailto:cantine@ovagri.tn</pre>
+VAPID_SUBJECT=mailto:cantine@groupe-ovagri.com</pre>
 <table>
   <tr><th style="width:30%">Point d'attention</th><th>Pourquoi</th></tr>
   <tr><td><code>DB_PORT</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code> vides</td><td>Vide = instance nommée <code>SQLEXPRESS</code> et connexion Windows (compte SYSTEM). Avec un login SQL, les remplir (§6, variante).</td></tr>
@@ -543,14 +543,14 @@ Ce compte a le rôle <b>Admin</b> dans l'application. Choisir une vraie adresse 
 <h1>9. Premier démarrage à la main</h1>
 <p><code>C:\cantine\setup\windows\run-site.cmd</code> contient deux lignes à adapter :</p>
 <pre>set PORT=8080
-set PROXY_IP=192.168.1.10      <span class="c"># adresse du proxy HTTPS de l'entreprise</span></pre>
-<p>Tant que la VM est sur le PC, <b>ne rien changer</b> : il n'y a pas encore de proxy, et la vraie adresse se met sur le serveur (§14).
+set PROXY_IP=127.0.0.1         <span class="c"># Caddy, dans la même VM (§15)</span></pre>
+<p><b>Ne rien changer</b> : l'application n'écoute que sur la VM elle-même, et le seul « proxy » autorisé est Caddy, dans la même VM.
 Lancer <code>run-site.cmd</code> (double-clic), puis dans PowerShell :</p>
 <pre>Invoke-RestMethod http://localhost:8080/api/v1/health/
 <span class="c"># attendu : status = ok, database = ok, server_time = l'heure de Tunis</span>
 Get-Content C:\cantine\logs\site.log -Tail 20</pre>
 <p class="muted">En HTTP direct, toutes les autres adresses répondent par une redirection vers https : c'est normal, le site
-complet ne s'ouvre qu'à travers le proxy (phase B). Fermer ensuite la fenêtre de <code>run-site.cmd</code>.</p>
+complet ne s'ouvre qu'en HTTPS, à travers Caddy (§15). Fermer ensuite la fenêtre de <code>run-site.cmd</code>.</p>
 <p>Faire de même avec <code>run-tasks.cmd</code> : sa fenêtre reste ouverte sans message, et
 <code>C:\cantine\logs\tasks.log</code> ne doit pas contenir d'erreur. Le fermer aussi.</p>
 
@@ -646,68 +646,95 @@ Start-VM CANTINE-APP</pre>
   <li>Vérifier l'heure : <code>Get-Date</code> doit afficher l'heure de Tunis.</li>
 </ul>
 
-<h1>14. Les adresses : IP de la VM, IP du proxy, pare-feu</h1>
-<p>Sur le serveur, deux adresses changent. Elles viennent toutes les deux de l'IT (§1) :</p>
-<table>
-  <tr><th style="width:20%"></th><th style="width:40%">Adresse IP de la VM</th><th>Adresse du proxy (<code>PROXY_IP</code>)</th></tr>
-  <tr><td>De qui ?</td><td><b>La VM elle-même</b></td><td><b>Une autre machine</b> : le proxy HTTPS placé devant la VM</td></tr>
-  <tr><td>Ce qu'elle dit</td><td>« J'habite ici »</td><td>« Je n'accepte les demandes que de cette machine »</td></tr>
-  <tr><td>Qui s'en sert</td><td>Le proxy, pour savoir où envoyer les employés</td><td>L'application, pour savoir à qui faire confiance</td></tr>
-  <tr><td>Où la mettre</td><td>Réglages réseau de Windows, dans la VM (§14.1)</td><td><code>run-site.cmd</code> (§14.2) et la règle du pare-feu (§14.3)</td></tr>
-</table>
+<h1>14. L'adresse de la VM et le pare-feu</h1>
+<p>L'entreprise n'a pas de proxy HTTPS : le HTTPS est fait <b>dans la VM</b> par Caddy (§15). Il n'y a donc qu'une adresse à régler,
+celle de la VM, donnée par l'IT (ici <code>192.168.100.152</code>).</p>
 <h2>14.1 Donner son adresse fixe à la VM</h2>
 <ol>
   <li>Dans la VM : <code>Windows + R</code> → taper <code>ncpa.cpl</code> → Entrée.</li>
   <li>Clic droit sur <b>Ethernet</b> → <b>Propriétés</b> → <b>Protocole Internet version 4 (TCP/IPv4)</b> → <b>Propriétés</b>.</li>
-  <li>Choisir <b>« Utiliser l'adresse IP suivante »</b> et saisir ce que donne l'IT : adresse (ex. <code>192.168.1.50</code>), masque
-  (souvent <code>255.255.255.0</code>), passerelle, serveurs DNS. Valider.</li>
+  <li>Choisir <b>« Utiliser l'adresse IP suivante »</b> : adresse <code>192.168.100.152</code>, masque <code>255.255.255.0</code>,
+  passerelle <code>192.168.100.1</code>, DNS <code>8.8.8.8</code> (le nom est chez OVH, il n'y a pas de DNS interne). Valider.</li>
   <li>Vérifier dans PowerShell : <code>ipconfig</code> affiche la nouvelle adresse ; <code>Test-NetConnection github.com -Port 443</code> répond <i>True</i>.</li>
 </ol>
-<h2>14.2 Mettre l'adresse du proxy dans <code>run-site.cmd</code></h2>
-<p>Ouvrir <code>C:\cantine\setup\windows\run-site.cmd</code> avec le Bloc-notes, changer la ligne et enregistrer :</p>
-<pre>set PROXY_IP=&lt;adresse du proxy donnée par l'IT&gt;</pre>
-<p>Pourquoi : la VM ne voit jamais le téléphone, seulement le proxy, qui ajoute à chaque demande une note « vient du téléphone X,
-en HTTPS ». L'application ne croit cette note que si elle vient de <code>PROXY_IP</code> — sinon n'importe qui pourrait la falsifier.
-Avec une mauvaise adresse : le navigateur affiche « trop de redirections », et après 10 essais de connexion dans toute
-l'entreprise, <b>tout le monde</b> est bloqué une minute.</p>
-<h2>14.3 Pare-feu : le port 8080 pour le proxy seulement</h2>
-<p>Dans la VM, PowerShell administrateur, avec la même adresse :</p>
-<pre>New-NetFirewallRule -DisplayName "Cantine 8080 (proxy seulement)" -Direction Inbound -Protocol TCP `
-  -LocalPort 8080 -RemoteAddress &lt;adresse du proxy&gt; -Action Allow
-<span class="c"># plus tard, si le proxy change d'adresse :</span>
-Set-NetFirewallRule -DisplayName "Cantine 8080 (proxy seulement)" -RemoteAddress &lt;nouvelle adresse&gt;</pre>
-<p>Aucun autre port n'est à ouvrir pour l'application (SQL Server reste dans la VM). Puis redémarrer la VM (<code>Restart-Computer</code>)
-pour que le site reparte avec la nouvelle adresse du proxy.</p>
-<div class="box">
-  <h3>Si l'IT ne connaît pas l'adresse exacte du proxy</h3>
-  <ol>
-    <li>Ouvrir le port 8080 quelques minutes, à tout le réseau interne :
-    <code>Set-NetFirewallRule -DisplayName "Cantine 8080 (proxy seulement)" -RemoteAddress Any</code></li>
-    <li>Ouvrir <code>https://cantine.ovagri.tn</code> depuis un PC, puis dans la VM :
-    <code>Get-NetTCPConnection -LocalPort 8080 | Select-Object -Unique RemoteAddress</code> — l'adresse affichée est celle du proxy.</li>
-    <li>La mettre dans <code>run-site.cmd</code> (§14.2) et refermer le pare-feu sur elle (<code>Set-NetFirewallRule … -RemoteAddress &lt;adresse&gt;</code>), puis redémarrer la VM.</li>
-  </ol>
-</div>
+<h2>14.2 Pare-feu : seul le port 3881 est ouvert</h2>
+<p>L'application (Waitress, port 8080) n'écoute que sur la VM elle-même (<code>127.0.0.1</code>) : personne ne l'atteint par le réseau.
+<code>run-site.cmd</code> ne fait confiance qu'à Caddy (<code>PROXY_IP=127.0.0.1</code>) : <b>rien à changer</b>. Seul le port de Caddy est ouvert,
+dans la VM, PowerShell administrateur :</p>
+<pre>New-NetFirewallRule -DisplayName "Cantine HTTPS 3881" -Direction Inbound -Protocol TCP -LocalPort 3881 -Action Allow</pre>
+<p>Aucun autre port n'est à ouvrir pour l'application (SQL Server reste dans la VM).</p>
 
-<h1>15. Nom de domaine, certificat et proxy HTTPS</h1>
+<h1>15. Nom, redirection du port et HTTPS (Caddy)</h1>
+<p>Le port public 443 de l'entreprise sert déjà à Exchange : l'application utilise le port <b>3881</b>, choisi par l'IT. L'adresse est
+la même partout — Internet, bureau, Wi-Fi : <code>https://cantine.groupe-ovagri.com:3881</code>.</p>
+<pre class="diagram">
+  Téléphone ── https://cantine.groupe-ovagri.com:3881
+      │ DNS OVH : cantine → 196.179.236.90
+      ▼
+  Boîtier d'accès (196.179.236.90:3881, TCP) ── redirection ──► VM 192.168.100.152:3881
+                                                                 │ Caddy : certificat + HTTPS
+                                                                 ▼
+                                                    Application 127.0.0.1:8080 (Waitress)
+</pre>
+<div class="box red">
+  <h3>Le port ne change jamais</h3>
+  <p>Pour un navigateur, une autre adresse ou un autre port est une <b>autre application</b> : changer le 3881 obligerait chaque employé à
+  réinstaller l'application, à se reconnecter et à réactiver les notifications. Les navigateurs ne cachent le port que pour 443 : le
+  <code>:3881</code> reste dans l'adresse, mais l'icône installée sur le téléphone l'évite aux employés.</p>
+</div>
+<h2>15.1 Le nom (DNS chez OVH)</h2>
+<p>Dans l'espace client OVH, zone <code>groupe-ovagri.com</code> : un enregistrement <b>A</b> <code>cantine</code> → <code>196.179.236.90</code>
+(l'adresse publique de l'entreprise). Pas de DNS interne : les PC du bureau utilisent aussi ce nom public (grâce au NAT loopback, §15.2).</p>
+<h2>15.2 La redirection du port (IT et fournisseur d'accès)</h2>
 <ul>
-  <li><b>Le nom</b> : <code>cantine.ovagri.tn</code> pointe, dans le DNS <b>interne</b> de l'entreprise, vers le proxy. Plus tard, le DNS
-  <b>public</b> pointera vers l'adresse publique (§19) — même nom, rien ne change pour les employés.</li>
-  <li><b>Le certificat</b> : un certificat <b>public</b> (Let's Encrypt avec validation DNS, ou acheté), même pendant le pilote interne.
-  Un certificat de l'autorité interne de l'entreprise ne suffit pas : les téléphones personnels des employés ne lui font pas confiance.</li>
+  <li>Le fournisseur d'accès ouvre le port <b>3881</b> (TCP) sur l'adresse <code>196.179.236.90</code>.</li>
+  <li>Sur le boîtier d'accès : redirection <code>196.179.236.90:3881 → 192.168.100.152:3881</code> (TCP), avec le <b>NAT loopback</b>
+  (sinon le site s'ouvre depuis la 4G mais pas depuis le bureau).</li>
 </ul>
-<h2>Réglages du proxy (pour l'équipe réseau)</h2>
+<h2>15.3 La clé API OVH (pour le certificat)</h2>
+<p>Let's Encrypt ne peut vérifier un nom que par les ports 80/443 (pris par Exchange) ou par le DNS : Caddy prouve que le nom est à
+l'entreprise en créant un court instant un enregistrement TXT <code>_acme-challenge.cantine</code> dans la zone OVH. Pour cela, l'IT crée une
+clé API OVH (gratuite) nommée <code>cantine-certificat</code>, avec les droits <b>GET, POST, PUT, DELETE</b> sur
+<code>/domain/zone/groupe-ovagri.com/*</code> seulement, sans date d'expiration. Elle donne trois valeurs, à mettre dans
+<code>C:\cantine\caddy.env</code> (modèle : <code>setup\windows\caddy.env.example</code>), lisible par SYSTEM et les administrateurs seulement :</p>
+<pre>OVH_APPLICATION_KEY=&lt;…&gt;
+OVH_APPLICATION_SECRET=&lt;…&gt;
+OVH_CONSUMER_KEY=&lt;…&gt;</pre>
+<pre>icacls C:\cantine\caddy.env /inheritance:r /grant:r "*S-1-5-18:F" "*S-1-5-32-544:F"    <span class="c"># SYSTEM + Administrateurs</span></pre>
+<p><b>Ne jamais supprimer cette clé</b> : sans elle, le certificat n'est plus renouvelé et expire au bout de 90 jours. Garder une copie de
+<code>caddy.env</code> dans le coffre de l'IT, avec le <code>.env</code>.</p>
+<h2>15.4 Caddy dans la VM</h2>
 <table>
-  <tr><th style="width:36%">Réglage</th><th>Valeur</th></tr>
-  <tr><td>Nom public</td><td><code>https://cantine.ovagri.tn</code> → <code>http://&lt;IP de la VM&gt;:8080</code> (tout le site, aucune réécriture de chemin)</td></tr>
-  <tr><td>En-têtes à transmettre</td><td><code>Host</code> d'origine, <code>X-Forwarded-For</code> (adresse de l'utilisateur), <code>X-Forwarded-Proto: https</code></td></tr>
-  <tr><td>Taille maximale d'un envoi</td><td>au moins <b>6 Mo</b> (photos des plats)</td></tr>
-  <tr><td>Délai de réponse</td><td>60 secondes au moins</td></tr>
-  <tr><td>HTTP → HTTPS</td><td>redirection 301 sur le proxy</td></tr>
-  <tr><td>Mise en cache par le proxy</td><td>aucune (l'application envoie elle-même les bons en-têtes de cache)</td></tr>
+  <tr><th style="width:36%">Élément</th><th>Où / rôle</th></tr>
+  <tr><td><code>C:\cantine\tools\caddy.exe</code></td><td>Caddy 2.11.9 <b>avec le module DNS OVH</b> (<code>caddy-dns/ovh</code>), téléchargé sur le PC depuis
+    caddyserver.com/download (hors GitHub)</td></tr>
+  <tr><td><code>setup\windows\Caddyfile</code></td><td>Configuration : port 3881, certificat via OVH, envoi à <code>127.0.0.1:8080</code>, limite 6 Mo</td></tr>
+  <tr><td><code>setup\windows\run-https.cmd</code></td><td>Lancé par la tâche « Cantine - HTTPS » ; relance Caddy s'il s'arrête</td></tr>
+  <tr><td><code>C:\cantine\caddy-data</code></td><td>Le certificat et le compte Let's Encrypt (recréés automatiquement s'ils sont perdus)</td></tr>
+  <tr><td><code>C:\cantine\logs\https.log</code></td><td>Journal de Caddy (obtention et renouvellement du certificat) ; <code>https-access.log</code> : les accès</td></tr>
 </table>
-<p>Test depuis un PC du réseau : <code>https://cantine.ovagri.tn/api/v1/health/</code> doit afficher <code>"database": "ok"</code>,
-puis <code>https://cantine.ovagri.tn</code> l'écran de connexion de la Cantine.</p>
+<p>La tâche, comme au §10 (mêmes <code>$dir</code>, <code>$sys</code>, <code>$keep</code>), démarre <b>tout de suite</b> au boot ; « Site » et « Taches »
+démarrent 2 minutes après (le temps que SQL Server soit prêt) :</p>
+<pre>Register-ScheduledTask -TaskName "Cantine - HTTPS" -Principal $sys -Settings $keep `
+  -Trigger (New-ScheduledTaskTrigger -AtStartup) `
+  -Action (New-ScheduledTaskAction -Execute "$dir\run-https.cmd" -WorkingDirectory $dir)
+Start-ScheduledTask "Cantine - HTTPS"
+Get-Content C:\cantine\logs\https.log -Tail 20      <span class="c"># « certificate obtained successfully »</span>
+
+foreach ($t in "Cantine - Site", "Cantine - Taches") {
+  $trig = New-ScheduledTaskTrigger -AtStartup; $trig.Delay = 'PT2M'
+  Set-ScheduledTask -TaskName $t -Trigger $trig | Out-Null }</pre>
+<p>Le certificat (Let's Encrypt, 90 jours) est renouvelé <b>automatiquement</b> environ 30 jours avant son expiration.</p>
+<h2>15.5 Contrôles</h2>
+<pre><span class="c"># dans la VM : l'application répond en HTTPS, avec un certificat valide (sans passer par le boîtier)</span>
+curl.exe -s --resolve cantine.groupe-ovagri.com:3881:127.0.0.1 https://cantine.groupe-ovagri.com:3881/api/v1/health/
+<span class="c"># dans la VM : date d'expiration du certificat</span>
+$tcp = New-Object Net.Sockets.TcpClient('127.0.0.1', 3881); $ssl = New-Object Net.Security.SslStream($tcp.GetStream())
+$ssl.AuthenticateAsClient('cantine.groupe-ovagri.com', $null, [Security.Authentication.SslProtocols]::Tls12, $false)
+(New-Object Security.Cryptography.X509Certificates.X509Certificate2($ssl.RemoteCertificate)).NotAfter; $ssl.Dispose(); $tcp.Close()</pre>
+<p>Puis depuis un téléphone <b>en 4G</b> et depuis un PC du bureau : <code>https://cantine.groupe-ovagri.com:3881/api/v1/health/</code> affiche
+<code>"database": "ok"</code>, puis <code>https://cantine.groupe-ovagri.com:3881</code> l'écran de connexion, avec le cadenas.</p>
+<p class="muted">Dans la VM, <code>http://localhost:8080</code> renvoie vers https : c'est normal. Pour tout le reste, utiliser l'adresse complète.</p>
 
 <h1>16. Test de restauration et vérifications</h1>
 <h2>16.1 Test de restauration (obligatoire avant d'ouvrir aux employés)</h2>
@@ -719,10 +746,27 @@ sqlcmd -S localhost\SQLEXPRESS -E -d canteen_restore_test -Q "SELECT COUNT(*) FR
 <p>Le nombre de comptes doit être le même que dans la vraie base. En cas de sinistre réel : arrêter les deux tâches,
 restaurer la sauvegarde sous le nom <code>canteen</code> (<code>WITH REPLACE</code>), recopier le dossier <code>media_…</code> dans
 <code>C:\cantine\backend\media</code>, remettre le même <code>.env</code>, relancer les tâches.</p>
+<div class="box">
+  <h3>Essayer l'application puis revenir à la base vide (avant l'ouverture aux employés seulement)</h3>
+  <p>Sert aussi de test de restauration. <b>Personne de réel</b> ne doit utiliser l'application entre l'étape 1 et l'étape 3.</p>
+  <ol>
+    <li>Sauvegarde « avant » : <code>Start-ScheduledTask "Cantine - Sauvegarde"</code>, puis noter le nom du fichier dans <code>logs\backup.log</code>.</li>
+    <li>Essayer librement : comptes, rôles, plats, menus, recharges, réservations, scan…</li>
+    <li>Revenir à l'état « avant » :</li>
+  </ol>
+<pre>$bak = 'D:\CantineBackups\canteen_AAAAMMJJ_HHMM.bak'      <span class="c"># le fichier noté à l'étape 1</span>
+Stop-ScheduledTask "Cantine - Site"; Stop-ScheduledTask "Cantine - Taches"
+Get-Process waitress-serve, python -ErrorAction SilentlyContinue | Stop-Process -Force
+sqlcmd -S localhost\SQLEXPRESS -E -b -Q "ALTER DATABASE canteen SET SINGLE_USER WITH ROLLBACK IMMEDIATE; RESTORE DATABASE canteen FROM DISK = N'$bak' WITH REPLACE; ALTER DATABASE canteen SET MULTI_USER;"
+Start-ScheduledTask "Cantine - Site"; Start-ScheduledTask "Cantine - Taches"</pre>
+  <p>Puis vérifier <code>comptes = 1</code>, <code>reservations = 0</code> (§12.2). Les photos de plats ajoutées pendant l'essai restent dans
+  <code>backend\media</code> : les déplacer dans un dossier d'archive. Les emails déjà envoyés ne reviennent pas ; les téléphones de test
+  doivent simplement se reconnecter.</p>
+</div>
 <h2>16.2 Vérifications</h2>
 <ul class="check">
-  <li><code>https://cantine.ovagri.tn/api/v1/health/</code> → <code>"status": "ok"</code>, <code>"database": "ok"</code>, heure de Tunis.</li>
-  <li>Connexion avec le compte administrateur sur <code>https://cantine.ovagri.tn</code> ; le menu affiche « Paramètres ».</li>
+  <li><code>https://cantine.groupe-ovagri.com:3881/api/v1/health/</code> → <code>"status": "ok"</code>, <code>"database": "ok"</code>, heure de Tunis.</li>
+  <li>Connexion avec le compte administrateur sur <code>https://cantine.groupe-ovagri.com:3881</code> ; le menu affiche « Paramètres ».</li>
   <li>Création d'un compte depuis un téléphone : l'<b>email de code</b> arrive (sinon : réglages SMTP, §21).</li>
   <li>Sur le téléphone : installer l'application (menu du navigateur → « Installer » ou « Ajouter à l'écran d'accueil »), puis activer les notifications ; une notification arrive (ex. validation du compte).</li>
   <li>Le téléphone de la cantine ouvre « Scanner » et la caméra démarre (HTTPS indispensable).</li>
@@ -742,7 +786,7 @@ restaurer la sauvegarde sous le nom <code>canteen</code> (<code>WITH REPLACE</co
   <li>Le <b>chef</b> remplit la bibliothèque de plats (avec photos) puis planifie les menus de la première semaine.</li>
   <li>Le <b>téléphone de la cantine</b> : se connecter avec le compte <i>scanner</i>, installer l'application, autoriser la caméra.</li>
   <li>Le <b>caissier</b> enregistre les premières recharges : le solde prépayé est le seul moyen de payer un repas.</li>
-  <li>Ensuite seulement, annoncer l'adresse aux employés (email, affiche avec un QR code vers <code>https://cantine.ovagri.tn</code>).</li>
+  <li>Ensuite seulement, annoncer l'adresse aux employés (email, affiche avec un QR code vers <code>https://cantine.groupe-ovagri.com:3881</code>).</li>
 </ol>
 <div class="box orange">
   <h3>Comptes à ne pas créer</h3>
@@ -794,23 +838,25 @@ COMMIT;                        <span class="c">-- ou ROLLBACK; pour tout annuler
 <table>
   <tr><th style="width:30%">Cas</th><th>Ce qu'il faut faire</th></tr>
   <tr><td><b>1. La VM reste sur le serveur de l'entreprise</b>, le fournisseur donne un accès public</td>
-    <td>Une adresse publique arrive sur le proxy HTTPS (port 443 seulement) ; le DNS public de <code>cantine.ovagri.tn</code> pointe dessus.
-    <b>Rien ne change dans la VM</b> si c'est le même proxy. Si c'est un nouveau proxy : mettre sa nouvelle adresse (§14.2 et §14.3), puis redémarrer la VM.</td></tr>
+    <td><b>C'est le cas actuel, déjà en place</b> (§15) : DNS public chez OVH, redirection du port 3881 sur le boîtier d'accès,
+    HTTPS par Caddy dans la VM. Rien de plus à faire que les vérifications de sécurité ci-dessous.</td></tr>
   <tr><td><b>2. La VM part chez l'hébergeur</b></td>
     <td>Prévoir une coupure <b>un jour où la cantine est fermée</b> : annoncer la coupure, lancer une sauvegarde
     (<code>Start-ScheduledTask "Cantine - Sauvegarde"</code>), arrêter la VM, l'exporter (§12.3 <b>sans</b> revenir au point de contrôle),
-    l'importer chez l'hébergeur (§13), refaire les adresses (§14), faire pointer le DNS vers l'hébergeur, vérifier (§16.2).
+    l'importer chez l'hébergeur (§13), refaire l'adresse (§14), faire pointer le DNS OVH vers l'adresse publique de l'hébergeur et y rediriger
+    le port <b>3881</b> (le même), vérifier (§16.2).
     Même <code>.env</code> : les QR codes, les connexions et les notifications continuent de marcher.</td></tr>
 </table>
 <div class="box red">
   <h3>Sécurité : ce qui doit être vrai avant d'ouvrir sur Internet</h3>
   <ul>
-    <li>Seul le port <b>443</b> du proxy est ouvert sur Internet. Le port 8080 de la VM, le bureau à distance (RDP, 3389) et SQL
-    Server (1433) ne le sont <b>jamais</b> — l'administration de la VM passe par le VPN de l'entreprise ou de l'hébergeur.</li>
-    <li>La page technique <code>/admin/</code> (Django) est limitée sur le proxy aux adresses de l'entreprise ; l'application elle-même (y compris l'écran « Paramètres ») reste accessible.</li>
+    <li>Seul le port <b>3881</b> est redirigé vers la VM. Le port 8080 (il n'écoute que sur la VM), le bureau à distance (RDP, 3389) et SQL
+    Server (1433) ne le sont <b>jamais</b> — l'administration de la VM passe par le réseau ou le VPN de l'entreprise.</li>
+    <li>La page technique <code>/admin/</code> (Django) est accessible depuis Internet, protégée par le mot de passe de l'administrateur ;
+    si besoin, on pourra la limiter aux adresses de l'entreprise dans le <code>Caddyfile</code>.</li>
     <li>Windows Update chaque mois, en dehors du service et du rush du soir ; mot de passe fort pour le compte administrateur de l'application et de Windows.</li>
     <li>Sauvegardes copiées <b>hors de chez l'hébergeur</b> (ou hors du serveur), restauration testée (§16.1).</li>
-    <li>Surveillance : l'IT ou l'hébergeur vérifie <code>https://cantine.ovagri.tn/api/v1/health/</code> chaque minute et reçoit une alerte s'il ne répond plus <code>ok</code>.</li>
+    <li>Surveillance : l'IT ou l'hébergeur vérifie <code>https://cantine.groupe-ovagri.com:3881/api/v1/health/</code> chaque minute et reçoit une alerte s'il ne répond plus <code>ok</code>.</li>
     <li>Données personnelles des employés (noms, emails, matricules, soldes) : le contrat avec l'hébergeur doit dire où elles sont stockées
     et qui y a accès ; vérifier avec la Direction les obligations de déclaration (INPDP).</li>
   </ul>
@@ -847,14 +893,16 @@ nouvelle version, <b>en dehors</b> des heures de service et pas juste avant l'he
 <h1>21. Dépannage</h1>
 <table>
   <tr><th style="width:32%">Symptôme</th><th>Cause probable → solution</th></tr>
-  <tr><td>Le navigateur dit « trop de redirections »</td><td><code>PROXY_IP</code> dans <code>run-site.cmd</code> n'est pas l'adresse réelle du proxy, ou le proxy n'envoie pas <code>X-Forwarded-Proto: https</code>. Trouver l'adresse (encadré du §14), corriger, redémarrer la VM.</td></tr>
-  <tr><td>« Trop de tentatives » à la connexion pour tout le monde</td><td>Même cause : <code>PROXY_IP</code> faux, ou le proxy n'envoie pas <code>X-Forwarded-For</code> — tout le monde semble venir de la même adresse.</td></tr>
-  <tr><td>Le site ne répond pas du tout à travers le proxy</td><td>Adresse de la VM (§14.1) différente de celle configurée sur le proxy, ou règle du pare-feu (§14.3) sur une mauvaise adresse.</td></tr>
+  <tr><td>Le navigateur dit « trop de redirections »</td><td><code>PROXY_IP</code> dans <code>run-site.cmd</code> n'est plus <code>127.0.0.1</code>, ou le site est ouvert en <code>http://</code> sur le port 8080 au lieu de passer par Caddy.</td></tr>
+  <tr><td>« Trop de tentatives » à la connexion pour tout le monde</td><td>Même cause : <code>PROXY_IP</code> faux — tout le monde semble venir de la même adresse.</td></tr>
+  <tr><td>Le site ne répond pas du tout (depuis Internet ou le bureau)</td><td>Tâche « Cantine - HTTPS » arrêtée (<code>logs\https.log</code>) ; adresse de la VM (§14.1) différente de celle de la redirection ;
+    règle du pare-feu 3881 (§14.2) ; redirection du boîtier ou DNS OVH (§15). Tester dans la VM avec la commande <code>curl.exe --resolve</code> du §15.5.</td></tr>
+  <tr><td>Avertissement « certificat expiré »</td><td>Renouvellement impossible : clé API OVH supprimée ou expirée, ou <code>caddy.env</code> modifié. Voir <code>logs\https.log</code>, recréer la clé (§15.3).</td></tr>
   <tr><td>La VM n'a pas de réseau après l'import</td><td>Carte réseau non branchée sur un commutateur du serveur : <code>Connect-VMNetworkAdapter</code> (§13).</td></tr>
   <tr><td>L'import refuse la VM (version)</td><td>Serveur plus ancien que le PC : voir §13.</td></tr>
   <tr><td>Windows demande d'être activé</td><td>Saisir la clé de licence de l'entreprise (Paramètres → Activation).</td></tr>
   <tr><td>Erreur 400 « Bad Request »</td><td>Le nom utilisé n'est pas dans <code>DJANGO_ALLOWED_HOSTS</code> du <code>.env</code>.</td></tr>
-  <tr><td>Erreur 403 « CSRF » sur la page /admin</td><td><code>CSRF_TRUSTED_ORIGINS</code> doit être exactement <code>https://cantine.ovagri.tn</code>.</td></tr>
+  <tr><td>Erreur 403 « CSRF » sur la page /admin</td><td><code>CSRF_TRUSTED_ORIGINS</code> doit être exactement <code>https://cantine.groupe-ovagri.com:3881</code>.</td></tr>
   <tr><td>Erreurs 500 après une mise à jour</td><td><code>manage.cmd migrate</code> oublié ; ou table du cache absente → <code>manage.cmd createcachetable</code>. Détails dans <code>logs\site.log</code>.</td></tr>
   <tr><td>« Health » répond <code>database: unavailable</code></td><td>Service « SQL Server (SQLEXPRESS) » arrêté, ou droits du compte SYSTEM sur la base (§6), ou ODBC Driver 18 absent.</td></tr>
   <tr><td>Page blanche / « The site is not built »</td><td><code>npm.cmd run build</code> non fait dans <code>frontend</code>, puis redémarrer le site.</td></tr>
@@ -873,9 +921,9 @@ nouvelle version, <b>en dehors</b> des heures de service et pas juste avant l'he
   <tr><td>A · 2–5</td><td>VM créée à la bonne version, Windows activé à l'heure de Tunis, logiciels installés, site construit</td></tr>
   <tr><td>A · 6–11</td><td>Base <code>canteen</code> créée, <code>.env</code> neuf, un seul compte : l'administrateur ; tâches et sauvegarde qui marchent</td></tr>
   <tr><td>A · 12</td><td>Point de contrôle, base vérifiée vide, VM exportée</td></tr>
-  <tr><td>B · 13–15</td><td>VM importée, adresse fixe, <code>PROXY_IP</code> et pare-feu réglés, site ouvert en <code>https://</code> à travers le proxy</td></tr>
+  <tr><td>B · 13–15</td><td>VM importée, adresse fixe, pare-feu (3881), DNS OVH, redirection du port, Caddy et certificat : site ouvert en <code>https://…:3881</code></td></tr>
   <tr><td>B · 16–18</td><td>Restauration testée, cases cochées, paramètres et comptes du personnel prêts, pilote lancé</td></tr>
-  <tr><td>C · 19</td><td>Seul le 443 ouvert, <code>/admin/</code> limité, sauvegardes hors site, surveillance en place</td></tr>
+  <tr><td>C · 19</td><td>Seul le 3881 ouvert vers la VM, sauvegardes hors site, surveillance en place</td></tr>
 </table>
 
 </body>
