@@ -27,13 +27,23 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
 export function Field({
   label,
   error,
+  value,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) {
   const id = useId();
+  // React copies a controlled input's value into the HTML attribute, so a password would show as value="…" in the
+  // page inspector. Password fields are left uncontrolled (the parent still gets every keystroke via onChange) and
+  // the value is only set through the DOM property when the parent changes it (e.g. clears it).
+  const hidden = props.type === "password";
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const input = ref.current;
+    if (hidden && input && value !== undefined && input.value !== String(value)) input.value = String(value);
+  }, [hidden, value]);
   return (
     <div className="field">
       <label htmlFor={id}>{label}</label>
-      <input id={id} aria-invalid={Boolean(error)} {...props} />
+      <input id={id} ref={ref} aria-invalid={Boolean(error)} value={hidden ? undefined : value} {...props} />
       {error && <span className="field__error">{error}</span>}
     </div>
   );
