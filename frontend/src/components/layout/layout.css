@@ -29,18 +29,107 @@
 }
 .shell__title { font-family: var(--font-heading); font-weight: 700; color: var(--color-primary); margin-inline-end: auto; }
 /* Wide screens: the menu sits between the logo and the tools, on one line. */
-.shell__nav { display: flex; gap: var(--space-1); min-inline-size: 0; overflow-x: auto; scrollbar-width: thin; }
-.shell__nav a {
+.shell__nav { display: flex; align-items: center; gap: var(--space-1); min-inline-size: 0; }
+/* A tab: icon + label. Wide screens: on one line, in a pill. Phones: icon above a short label (bottom bar). */
+.navtab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   white-space: nowrap;
-  padding: var(--space-2) var(--space-2);
+  min-block-size: var(--tap-target);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
   border-radius: var(--radius-pill);
+  background: none;
   text-decoration: none;
   color: var(--color-text-muted);
+  font: inherit;
   font-weight: 600;
+  cursor: pointer;
 }
-.shell__nav a.active { background: var(--color-success-bg); color: var(--color-primary); }
+.navtab:hover { color: var(--color-primary); }
+.navtab.active, .navtab[aria-expanded="true"] { background: var(--color-success-bg); color: var(--color-primary); }
+.shell__nav:has(.navtab[aria-expanded="true"]) > .navtab.active { background: none; color: var(--color-text-muted); }
+.icon { flex-shrink: 0; }
 .shell__tools { display: flex; flex-shrink: 0; align-items: center; gap: var(--space-2); }
-.shell__tools .btn { white-space: nowrap; }
+
+/* Menus that open from a button: "Plus" and the account menu */
+.more, .usermenu { position: relative; }
+.popup {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-2));
+  z-index: 30;
+  min-inline-size: 240px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-popup);
+}
+.popup-backdrop { position: fixed; inset: 0; z-index: 29; }
+.popup__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  inline-size: 100%;
+  min-block-size: var(--tap-target);
+  padding-inline: var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 500;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+.popup__item .icon { color: var(--color-primary); }
+.popup__item:hover { background: var(--color-surface); }
+.popup__item.active { background: var(--color-success-bg); color: var(--color-primary); font-weight: 600; }
+.more__panel { inset-inline-end: 0; } /* "Plus" is the last tab: open towards the page, never past the edge */
+.more__group + .more__group { margin-block-start: var(--space-2); padding-block-start: var(--space-2); border-block-start: 1px solid var(--color-border); }
+.more__title {
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.usermenu__button {
+  inline-size: var(--tap-target);
+  block-size: var(--tap-target);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+}
+.usermenu__button:hover { background: var(--color-primary-hover); }
+.usermenu__panel { inset-inline-end: 0; inline-size: min(300px, calc(100vw - 2 * var(--space-4))); }
+.usermenu__who { display: grid; gap: 2px; padding: var(--space-2) var(--space-3) var(--space-3); border-block-end: 1px solid var(--color-border); margin-block-end: var(--space-2); }
+.usermenu__who .muted { font-size: var(--text-sm); }
+.usermenu__email { overflow-wrap: anywhere; }
+.usermenu__lang { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
+.usermenu__langs { display: flex; gap: var(--space-1); }
+.usermenu__langs button {
+  min-block-size: var(--tap-target);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.usermenu__langs button[aria-pressed="true"] { border-color: var(--color-primary); background: var(--color-success-bg); color: var(--color-primary); font-weight: 600; }
+.usermenu__logout { margin-block-start: var(--space-1); border-block-start: 1px solid var(--color-border); border-radius: 0 0 var(--radius-sm) var(--radius-sm); color: var(--color-danger); }
+.usermenu__logout .icon { color: var(--color-danger); }
 /* Above phone width, AppLayout measures what fits and sets one of these (every screen of every role stays
    visible, whatever the number of entries or the language):
    - nothing: one line with the title "Cantine";
@@ -50,9 +139,8 @@
   .shell__bar--compact .shell__title { display: none; }
   .shell__bar--compact .shell__nav { margin-inline-end: auto; }
   .shell__bar--stacked { flex-wrap: wrap; row-gap: var(--space-1); }
-  .shell__bar--stacked .shell__nav { order: 1; flex-basis: 100%; flex-wrap: wrap; justify-content: center; overflow: visible; }
+  .shell__bar--stacked .shell__nav { order: 1; flex-basis: 100%; flex-wrap: wrap; justify-content: center; }
 }
-.shell__tools select { min-block-size: 36px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); }
 .shell__main { flex: 1; }
 
 /* Notification bell (spec §8) */
@@ -60,8 +148,8 @@
   position: relative;
   display: inline-grid;
   place-items: center;
-  inline-size: 40px;
-  block-size: 40px;
+  inline-size: var(--tap-target);
+  block-size: var(--tap-target);
   border-radius: var(--radius-pill);
   color: var(--color-primary);
 }
@@ -89,21 +177,67 @@
   text-align: center;
 }
 
-/* Phones: nav moves to a bottom tab bar (thumb reach) */
+/* Phones: the menu is a tab bar at the bottom (thumb reach), at most 4 tabs + "Plus", which opens a sheet. */
 @media (max-width: 720px) {
   .shell__nav {
     position: fixed;
     inset-inline: 0;
     inset-block-end: 0;
-    padding: var(--space-2);
+    z-index: 20;
+    gap: 0;
+    padding: var(--space-1) var(--space-1) calc(var(--space-1) + env(safe-area-inset-bottom));
     background: var(--color-surface-raised);
     border-block-start: 1px solid var(--color-border);
   }
-  /* Tabs share the width when they fit; with many (admin), the bar scrolls from the first one. */
-  .shell__nav a { flex: 1 0 auto; text-align: center; }
-  .shell__main { padding-block-end: 72px; }
+  .shell__nav > .navtab, .shell__nav > .more { flex: 1 1 0; min-inline-size: 0; }
+  .navtab {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    inline-size: 100%;
+    min-block-size: 56px;
+    padding: var(--space-1) 0;
+    border-radius: var(--radius-md);
+    white-space: normal;
+  }
+  /* Labels under the icons: the only text below 14 px in the app (docs/design/brand.md). 12 px from 375 px wide,
+     a little smaller on narrower phones so the longest name (« Encaissements ») stays on one line; on the very
+     smallest, a French hyphen rather than a word cut anywhere. */
+  .navtab__label { font-size: clamp(0.6875rem, 3.2vw, 0.75rem); font-weight: 500; line-height: 1.15; text-align: center; hyphens: auto; }
+  .navtab.active .navtab__label, .navtab[aria-expanded="true"] .navtab__label { font-weight: 600; }
+  @media (max-width: 340px) { .navtab__label { font-size: 0.625rem; } } /* 320 px phones (old iPhone SE) */
+  .navtab.active, .navtab[aria-expanded="true"] { background: none; }
+  .navtab .icon { box-sizing: content-box; padding: 2px var(--space-3); border-radius: var(--radius-pill); }
+  .navtab.active .icon, .navtab[aria-expanded="true"] .icon { background: var(--color-success-bg); }
+  .shell__nav:has(.navtab[aria-expanded="true"]) > .navtab.active .icon { background: none; }
+  /* "Plus": a sheet that rises above the tab bar, the rest of the screen dimmed. */
+  .more { position: static; }
+  .more .popup-backdrop { background: var(--color-scrim); }
+  .more__panel {
+    position: fixed;
+    inset-inline: 0;
+    /* just above the tab bar (56 px tabs + padding), so "Plus" stays visible as the open tab */
+    inset-block: auto calc(66px + env(safe-area-inset-bottom));
+    max-block-size: calc(100dvh - 160px);
+    overflow-y: auto;
+    padding: var(--space-3);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    animation: sheet-up 160ms ease-out;
+  }
+  /* grab handle: shows it is a sheet that closes (tap outside or on "Plus") */
+  .more__panel::before {
+    content: "";
+    display: block;
+    inline-size: 36px;
+    block-size: 4px;
+    margin: 0 auto var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--color-border);
+  }
+  @keyframes sheet-up { from { transform: translateY(12px); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .more__panel { animation: none; } }
+  .shell__main { padding-block-end: calc(80px + env(safe-area-inset-bottom)); }
   .shell__main--no-nav { padding-block-end: 0; }
   .shell__title { display: none; }
   .shell__bar { justify-content: space-between; }
-  .shell__tools .btn { min-block-size: 36px; padding-inline: var(--space-3); font-size: var(--text-sm); }
 }

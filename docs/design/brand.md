@@ -35,7 +35,8 @@ pair it with a word or an icon.
 
 - Headings: **Poppins** 600/700 (rounded and friendly like the logo lettering).
 - Body and forms: **Inter** 400/500/600.
-- Base size 16 px; never below 14 px. The scanner screen uses 24–32 px for the employee's name.
+- Base size 16 px; never below 14 px, except the labels under the icons of the phone tab bar (12 px, down to 10 px on
+  320 px phones). The scanner screen uses 24–32 px for the employee's name.
 
 ## Layout and components
 
@@ -43,6 +44,12 @@ pair it with a word or an icon.
 - Rounded shapes echo the logo: cards 14 px radius, buttons fully rounded (pill).
 - Tap targets ≥ 48 px. Visible focus ring in orange.
 - Phones: navigation at the bottom (thumb reach). Desktop: navigation in the top bar.
+- Menus: every entry has a line icon (`components/layout/icons.tsx`, inline SVG, text colour). At most 4 tabs per
+  role; the other screens go in **Plus**, by group (Cuisine, Argent, Suivi, Administration) — a sheet above the
+  tab bar on phones, a panel under the button on wider screens. **One name per screen**, the same on phones and on
+  wider screens (« Réservations », « Encaissements »…): no short versions.
+- Account menu: a round button with the person's initials (primary green) holds the name and role, « Mon solde »,
+  the language and « Se déconnecter » — the header keeps only the logo, the menu, the bell and this button.
 - Light and dark themes are both defined in the tokens.
 - RTL-ready: logical CSS properties only (Arabic will be added later).
 

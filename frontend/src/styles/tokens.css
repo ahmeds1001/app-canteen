@@ -30,6 +30,8 @@
   --color-danger: #b42318;
   --color-danger-bg: #fdecea;
   --color-warning-bg: #fff4e0;
+  --color-scrim: rgb(15 22 16 / 40%); /* dims the screen behind a sheet (the "Plus" menu on phones) */
+  --shadow-popup: 0 8px 28px rgb(15 22 16 / 18%);
   /* QR code: fixed in both themes (scanners need dark on light) */
   --qr-bg: #ffffff;
   --qr-fg: var(--brand-green-800);
@@ -73,6 +75,8 @@
     --color-success-bg: #173a1d;
     --color-danger-bg: #3e1714;
     --color-warning-bg: #3a2a10;
+    --color-scrim: rgb(0 0 0 / 55%);
+    --shadow-popup: 0 8px 28px rgb(0 0 0 / 45%);
   }
 }
 

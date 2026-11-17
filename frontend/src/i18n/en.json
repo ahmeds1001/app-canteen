@@ -2,11 +2,13 @@
   "app": { "name": "Canteen", "company": "OVAGRI Groupe", "logout": "Log out", "language": "Language", "mainNav": "Main menu",
     "devClock": "Test clock (development): {{time}}" },
   "nav": {
-    "home": "Menus", "reservations": "My reservations", "dishes": "Dishes", "planner": "Planner",
+    "home": "Menus", "reservations": "Reservations", "dishes": "Dishes", "planner": "Planner",
     "finalize": "Finalization", "reports": "Reports", "accounts": "Accounts", "scan": "Scan",
     "balance": "My balance", "dayList": "Day list", "cashier": "Cashier", "cash": "Cash received",
-    "settings": "Settings"
+    "settings": "Settings", "more": "More"
   },
+  "navGroup": { "kitchen": "Kitchen", "money": "Money", "followUp": "Follow-up", "admin": "Administration" },
+  "account": { "open": "My account ({{name}})" },
   "auth": {
     "login": "Log in", "register": "Create an account", "email": "Work email",
     "password": "Password", "firstName": "First name", "lastName": "Last name",

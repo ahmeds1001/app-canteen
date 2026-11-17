@@ -78,7 +78,11 @@ item into a plan file in this folder, then the **executor** to build it.
   `bulk_create(ignore_conflicts=True)` in `notify()` (not supported by mssql-django).
 - [x] **Technical file for IT** (2026-11-05): `docs/architecture-technique.pdf`; Docker stack ready (static files,
   photo volume, HTTPS header, automatic migrations, health check, upload size, log rotation) — first real run at install.
-- [ ] Deploy on the company server (own containers, own DB and login, subdomain + HTTPS, isolated from the ERP).
+- [x] **Deploy on the company server** (2026-11-13): Windows VM without Docker (`setup/windows/`, guide
+  `docs/installation-vm-windows.pdf`), SQL Server Express in the VM, HTTPS by Caddy on port 3881 with a Let's Encrypt
+  certificate through the OVH API, live at `https://cantine.groupe-ovagri.com:3881`; updates with `update.ps1`.
+- [x] **Menus with icons and an account menu** (2026-11-17): at most 4 tabs per role + « Plus » by group (sheet on
+  phones), line icons, initials button with name, role, « Mon solde », language and sign-out (`docs/design/brand.md`).
 - [ ] Daily backups off the server + one restore test.
 - [ ] Load test: 200 users reserving in the last minutes before midnight. Kit ready (2026-11-05): `loadtest/README.md`
   (scenarios LoginRush and ReservationRush, dry run OK); to run on the company server against `canteen_loadtest`.

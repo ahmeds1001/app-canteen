@@ -2,11 +2,13 @@
   "app": { "name": "Cantine", "company": "OVAGRI Groupe", "logout": "Se déconnecter", "language": "Langue", "mainNav": "Menu principal",
     "devClock": "Horloge de test (développement) : {{time}}" },
   "nav": {
-    "home": "Menus", "reservations": "Mes réservations", "dishes": "Plats", "planner": "Planning",
+    "home": "Menus", "reservations": "Réservations", "dishes": "Plats", "planner": "Planning",
     "finalize": "Finalisation", "reports": "Rapports", "accounts": "Comptes", "scan": "Scanner",
     "balance": "Mon solde", "dayList": "Liste du jour", "cashier": "Caisse", "cash": "Encaissements",
-    "settings": "Paramètres"
+    "settings": "Paramètres", "more": "Plus"
   },
+  "navGroup": { "kitchen": "Cuisine", "money": "Argent", "followUp": "Suivi", "admin": "Administration" },
+  "account": { "open": "Mon compte ({{name}})" },
   "auth": {
     "login": "Se connecter", "register": "Créer un compte", "email": "Email professionnel",
     "password": "Mot de passe", "firstName": "Prénom", "lastName": "Nom",
